@@ -1,0 +1,215 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal bv-form" name="edit_form" role="form" id="memberNet_edit_form"
+			novalidate="novalidate">
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>平台名称：</label>
+				<div class="col-xs-6 col-sm-7">
+					<input id="edit_cusName" name="cusName" class="form-control" type="text" placeholder="平台名称" readonly
+						autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>手机号：</label>
+				<div class="col-xs-6 col-sm-7 phoneNum">
+					<div class="input-group">
+						<span class="input-group-addon"><select id="edit_mobileArea" name="mobileArea"></select></span>
+						<input type="text" id="edit_mobileNum" class="form-control" name="mobileNum" placeholder="手机号"
+							autocomplete="off">
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2">邮箱：</label>
+				<div class="col-xs-6 col-sm-7">
+					<input name="email" id="edit_email" class="form-control" type="text" placeholder="邮箱"
+						autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>IP白名单：</label>
+				<div class="col-xs-6 col-sm-7">
+					<textarea class="form-control" id="edit_ip" style="line-height: 1.5;height: 70px;width: 100%"
+						name="ip" placeholder="IP白名单"></textarea>
+				</div>
+			</div>
+			<div class="form-group">
+				<p class="red col-sm-offset-2">当有多个IP白名单地址时，请以“;”（英文输入法的;）分隔各IP地址，如：127.0.0.1;192.168.0.1
+					IP地址为“0.0.0.0”时表示不限IP地址访问</p>
+			</div>
+		</form>
+	</div>
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	<button type="button" class="btn btn-primary" onclick="memberNet_edit_doSubmit(this)">保存</button>
+</div>
+<script>
+	var edit_id = getQueryString('id');
+	$(function () {
+		memberNet_edit_initValidate();
+
+		//手机区号
+		sendAjax("POST", host_url + "/cloud-web/pubTypeGroup/findPubTypeGroupList", { sysCode: 'Pub', groupName: 'sys_mobile_type_group' }, function (data) {
+			$.each(data.rows, function (i, item) {
+				$('#edit_mobileArea').append('<option value="' + item.keyValue + '">' + item.keyName + ' ' + item.keyValue + '</option>');
+			});
+			$("#edit_mobileArea").comboSelect();
+		});
+		sendAjax("POST", host_url + "/cloud-web/cusMemberInfo/view", { id: edit_id }, function (data) {
+			var data = data.rows;
+
+			$('#edit_cusName').val(data.cusName);
+			$('#edit_mobileNum').val(data.mobileNum);
+			$('#edit_email').val(data.email);
+			$('#edit_ip').val(data.ip);
+			$("#edit_mobileArea option[value='" + data.mobileArea + "']").attr("selected", "selected");
+			$("#edit_mobileArea+.combo-input").val($('#edit_mobileArea option[selected]').text());
+			$('#edit_mobileArea').comboSelect();
+		})
+	})
+	//初始化验证框架
+	function memberNet_edit_initValidate() {
+		//进行表单验证
+		$('#memberNet_edit_form').bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: {
+				valid: 'glyphicon glyphicon-ok',
+				invalid: 'glyphicon glyphicon-remove',
+				validating: 'glyphicon glyphicon-refresh'
+			},
+			excluded: [':disabled'],
+			fields: {
+				cusName: {
+					message: '平台名称验证失败',
+					validators: {
+						notEmpty: {
+							message: '平台名称不能为空'
+						},
+						regexp: {
+							regexp: /^[\u4e00-\u9fa5A-Za-z0-9]+$/,
+							message: '平台名称只能输入中文、英文和数字'
+						},
+						callback: {
+							message: '平台名称不能超过32位',
+							callback: function (value, validator) {
+								value = value.replace(/\s*/g, "");
+								if (strlen(value) > 32) {
+									return false;
+								} else {
+									return true;
+								}
+							}
+						}
+					}
+				},
+				email: {
+					verbose: false,
+					validators: {
+						regexp: {
+							regexp: /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
+							message: '邮箱格式有误'
+						},
+						stringLength: {
+							max: 32,
+							message: '邮箱不能超过32位'
+						}
+					}
+				},
+				mobileNum: {
+					verbose: false,
+					validators: {
+						notEmpty: {
+							message: '手机号码不能为空'
+						},
+						stringLength: {
+							min: 6,
+							max: 11,
+							message: '请输入6~11位手机号码'
+						},
+						regexp: {
+							regexp: /^[0-9]*$/,
+							message: '请输入正确的手机号码'
+						}
+					}
+				},
+				ip: {
+					verbose: false,
+					validators: {
+						notEmpty: {
+							message: 'IP白名单不能为空'
+						},
+						stringLength: {
+							max: 256,
+							message: 'IP白名单不能超过256位'
+						},
+						callback: {
+							message: 'IP白名单格式不正确',
+							callback: function (value, validator) {
+								var length = value.length;
+								if (value.substring(length - 1) === ';') {
+									value = value.substring(0, length - 1)
+								}
+								value = value.split(';')
+								var flag = true;
+								var reg = /^(((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.){3}((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))$/;
+								for (var i = 0; i < value.length; i++) {
+									if (!reg.test(value[i])) {
+										flag = false
+										break;
+									}
+								}
+								return flag;
+							}
+						}
+					}
+				}
+			}
+		})
+	}
+
+	function memberNet_edit_doSubmit() {
+		var bv = $('#memberNet_edit_form').data('bootstrapValidator').validate();
+		if (!bv.isValid()) { //验证不通过
+			return;
+		}
+		var paramForm = $("#memberNet_edit_form").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = param.value.trim();
+		});
+		params.id = edit_id;
+		params.cusType = 10;
+
+		var flag = true;
+		var ip = params.ip;
+		var length = ip.length;
+		if (ip.substring(length - 1) === ';') {
+			ip = ip.substring(0, length - 1)
+		}
+		ip = ip.split(';')
+		var obj = {};
+		for (var i in ip) {
+			if (obj[ip[i]]) {
+				flag = false;
+			} else {
+				obj[ip[i]] = true;
+			}
+		}
+
+		if (!flag) {
+			Ewin.alert({ message: 'ip白名单有重复ip' })
+			return false;
+		}
+		sendAjax('POST', host_url + "/cloud-web/cusMemberInfo/editSubmit", params, function (res) {
+			Ewin.alert({
+				message: '恭喜你，操作成功！'
+			}).on(function (e) {
+				if (e) {
+					$('#memberNet_edit_form').parents('.modal').modal('hide');
+					$("#member_tableAcct").bootstrapTable('refresh');
+				}
+			});
+		});
+	}
+</script>

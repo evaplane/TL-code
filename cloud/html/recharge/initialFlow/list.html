@@ -1,0 +1,207 @@
+<link rel="stylesheet" href="../../../css/lib/daterangepicker-bs3.css">
+<link rel="stylesheet" href="../../../css/lib/bootstrap-table.min.css">
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="initialFlowForm" name="initialFlowForm" role="form" class="form-inline">
+				<div class="form-group">
+					<label class="control-label">开户银行：</label>
+					<input name="bankName" class="form-control" type="text" autocomplete="off" placeholder="开户银行">
+				</div>
+				<div class="form-group">
+					<label class="control-label">账户别名：</label>
+					<input type="text" name="aliasName" class="form-control" placeholder="账户别名" autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">开户姓名：</label>
+					<input type="text" name="acctName" class="form-control" placeholder="开户姓名" autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">银行账号：</label>
+					<input type="text" name="acctNo" class="form-control" placeholder="银行账号" autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">记账时间：</label>
+					<input type="text" name="createTime" id="initialFlow_time" class="form-control dateranges"
+						readonly placeholder="记账时间" autocomplete="off" />
+				</div>
+				<div class="form-group pull-right">
+					<button id="initialFlowButton" type="button" class="btn btn-primary refreshBtn">查询</button>
+					<button type="button" class="btn btn-default" onclick="resetButton()">重置</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<!-- <button type="button" class="btn btn-primary" onclick="initialFlow_download()" style="margin-bottom: 6px;">
+				导出excel</button> -->
+			<table cellpadding="0" cellspacing="0" border="0" id="initialFlowTable"
+				class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$(function () {
+		// 初始化双日历日期控件
+		var firstDay = sys_formatDate(new Date().setDate(1)) + ' 00:00:00';
+		var lastDay = getCurrentMonthLast() + ' 23:59:59';
+		$('#initialFlow_time').val(firstDay + ' - ' + lastDay);
+		$('#initialFlow_time').daterangepicker({
+			timePicker: true,
+			timePickerIncrement: 1,
+			format: 'YYYY-MM-DD HH:mm:ss',
+			startDate: firstDay,
+			endDate: lastDay,
+			opens: 'center',
+
+		}, function (start, end, label) {
+
+		});
+
+		initialFlowTable();
+	});
+	// 重置
+	function resetButton() {
+		$("#initialFlowForm")[0].reset()
+
+		var firstDay = sys_formatDate(new Date().setDate(1)) + ' 00:00:00';
+		var lastDay = getCurrentMonthLast() + ' 23:59:59';
+		$('#initialFlow_time').val(firstDay + ' - ' + lastDay);
+	}
+	// 搜索
+	$("#initialFlowButton").click(function () {
+		var payAcceptTime = $('#initialFlow_time').val();
+		if (payAcceptTime != '') {
+			payAcceptTimestart = payAcceptTime.split(' - ')[0];
+			payAcceptTimeEnd = payAcceptTime.split(' - ')[1];
+
+			var start = parserDate(payAcceptTimestart),
+				end = parserDate(payAcceptTimeEnd);
+			if(start.getFullYear() != end.getFullYear()){
+				Ewin.alert({
+					message: "暂不支持跨年查询"
+				});
+				return;
+			}else if (start.getMonth()+1 != end.getMonth()+1) {
+				Ewin.alert({
+					message: "暂不支持跨月查询"
+				});
+				return;
+			}
+		}
+		$("#initialFlowTable").bootstrapTable('refresh');
+	});
+	/*表格加载*/
+	function initialFlowTable() {
+		$('#initialFlowTable').bootstrapTable({
+			url: host_url + '/cloud-web/cardAcctFlow/pageList',
+			method: 'GET',
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server",//表格分页的位置
+			cache: false,//是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: 'zh-CN',//中文支持
+			queryParamsType: 'limit',
+			queryParams: function (params) {
+				params.pageSize = params.limit;                        //页面大小
+				params.page = (params.offset / params.limit) + 1;   	 //页码
+				params._sys_login_token = _get_sys_login_token();
+				var paramForm = $("#initialFlowForm").serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				if (params.createTime) {
+					params.startTime = params.createTime.substring(0, 19);
+					params.endTime = params.createTime.substring(21, 41);
+				}
+				params.voucherType =65;
+				delete params.createTime;
+
+				return params;
+			}, //参数
+			columns: [
+				{
+					title: '序号', width: 30, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						var options = $('#initialFlowTable').bootstrapTable('getOptions');
+						return (options.pageNumber - 1) * options.pageSize + index + 1;
+					}
+				},
+				{
+					field: 'createTime', title: '记账时间', width: 100, align: "center", valign: "middle",
+					formatter: function (value, row, index) { return formatterDateTime(value); }
+				},
+				{ field: 'bankName', title: '开户银行', width: 100, align: "center", valign: "middle" },
+				{ field: 'aliasName', title: '账户别名', width: 80, align: "center", valign: "middle" },
+				{ field: 'acctName', title: '开户姓名', width: 100, align: "center", valign: "middle" },
+				{ field: 'acctNo', title: '银行账号', width: 150, align: "center", valign: "middle" },
+				{
+					field: 'balanceAmt', title: '余额(元)', width: 60, align: "right", valign: "middle",
+					formatter: function (value, row, index) {
+						return formatterMoney(value);
+					}
+				},
+				{ field: 'routeName', title: '班次名称', width: 60, align: "center", valign: "middle" },
+				{ field: 'remark', title: '备注', width: 120, align: "center", valign: "middle" }
+			],
+			onLoadSuccess: function (res) {},
+		});
+	}
+	// 导出
+	function initialFlow_download() {
+		var params = {};
+		var paramForm = $("#initialFlowForm").serializeArray();
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		
+		params.voucherType =65;
+		if (params.createTime) {
+			params.startTime = params.createTime.substring(0, 19);
+			params.endTime = params.createTime.substring(21, 41);
+			
+			var startMonth = parserDate(params.startTime),
+				endMonth = parserDate(params.endTime);
+			if(startMonth.getFullYear() != endMonth.getFullYear()){
+				Ewin.alert({
+					message: "暂不支持跨年下载"
+				});
+				return;
+			}else if (startMonth.getMonth()+1 != endMonth.getMonth()+1) {
+				Ewin.alert({
+					message: "暂不支持跨月下载"
+				});
+				return;
+			}
+		}
+		var start = parserDate(params.startTime).getTime(),
+			end = parserDate(params.endTime).getTime();
+		if (start > end) {
+			Ewin.alert({
+				message: "记账时间的开始时间不能大于结束时间"
+			});
+			return;
+		} else {
+			// 259200000 = 1000*60*60*24*3
+			if ((end - start) > 259200000) {
+				Ewin.alert({
+					message: "记账时间的时间间隔不能超过3天"
+				});
+				return;
+			}
+		}
+		delete params.createTime;
+		var url = '';
+		$.each(params, function (i, item) {
+			url += '&' + i + '=' + item;
+		});
+		sendAjax('POST', host_url + "/cloud-web/corePayTradeFlow/checkDown", {}, function (res) {
+			window.location.href = host_url + "/cloud-web/cardAcctFlow/down?_sys_login_token=" + _get_sys_login_token() + url;
+		});
+	}
+</script>

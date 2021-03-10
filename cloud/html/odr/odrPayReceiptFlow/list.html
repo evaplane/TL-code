@@ -1,0 +1,151 @@
+<div class="content_center">
+	<div class="content_center_title">主商户入网申请</div>
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+	        <form id="queryForm" name="queryForm" role="form" class="form-inline">
+                <div class="form-group">
+                	<label class="control-label">用户名称：</label>
+                    <input id="query_agent_name" name="agent_name" class="form-control" type="text" placeholder="用户名称" >
+                </div>
+                <div class="form-group">
+                       <label class="control-label">开始时间：</label>
+                       <input type="text" class="form-control form_datetimes" placeholder="请选择日期">
+                </div>
+                <div class="form-group pull-right">
+					<button id="query_button" type="button" class="btn btn-primary refreshBtn"><i class="fa fa-search"></i> 查询</button>
+	            	<button type="reset" class="btn btn-default"><i class="fa fa-refresh"></i> 重置</button>
+				</div>
+				<div class="clearfix"></div>
+            </form>
+		</div>
+		<div class="content_center_table">
+			<button type="button" class="btn btn-primary" onclick="add()"><i class="fa fa-plus"></i> 新增</button>
+			<button type="button" class="btn btn-default"><i class="fa fa-list-alt"></i> 删除</button>
+			<table cellpadding="0" cellspacing="0" border="0" id="table" class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<script>
+$(function(){
+	initTable();
+});
+// 搜索
+$("#query_button").click(function (){
+	$('#table').bootstrapTable('refresh');
+});
+
+/*表格加载*/
+function initTable(){
+	$('#table').bootstrapTable({
+		url: host_url +  '/odr-web/odrPayReceiptFlow/pageList',
+	    method: 'GET',  
+		dataType: "json",  
+		contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+		pagination: true, //在表格底部显示分页工具栏  
+		pageNumber: 1,  
+		pageList: [20, 50, 100],
+		clickToSelect: true,
+		sidePagination: "server",//表格分页的位置  
+		cache: false,//是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+		locale:'zh-CN',//中文支持
+		queryParamsType: 'limit',
+		queryParams: function (params) {
+	  		params.pageSize=params.limit;                        //页面大小
+            params.page= (params.offset / params.limit) + 1;   	 //页码
+            params._sys_login_token = _get_sys_login_token();
+            var paramForm = $("#queryForm").serializeArray();
+			$.each(paramForm, function(i, param){
+				params[param.name]=$.trim(param.value);
+			});
+            return params;
+        }, //参数  
+        columns: [
+			{title:'全选',checkbox:true,width:30,align:"center",valign:"middle"},
+			{
+				title: '序号',
+				field: 'index',
+				width: 40,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					return row.index=index+1;
+				}
+			},
+			{field:'customerNo',title:'主商户编号',width:100,align:"center",valign:"middle"},
+			{field:'customerName',title:'主商户名称',width:100,align:"center",valign:"middle"},
+			{field:'orderNo',title:'平台流水号',width:100,align:"center",valign:"middle"},
+			{field:'oriOrderNo',title:'原平台流水号',width:100,align:"center",valign:"middle"},
+			{field:'tradeType',title:'交易类型（收单、网银、代付）',width:100,align:"center",valign:"middle"},
+			{field:'payType',title:'支付方式（微信、支付宝）',width:100,align:"center",valign:"middle"},
+			{field:'orderTitle',title:'订单标题',width:100,align:"center",valign:"middle"},
+			{field:'orderAmt',title:'订单金额（元）',width:100,align:"center",valign:"middle"},
+			{field:'payAmt',title:'交易金额（元）',width:100,align:"center",valign:"middle"},
+			{field:'feeAmt',title:'手续费',width:100,align:"center",valign:"middle"},
+			{field:'costAmt',title:'成本',width:100,align:"center",valign:"middle"},
+			{field:'currencyType',title:'币种',width:100,align:"center",valign:"middle"},
+			{field:'status',title:'交易状态',width:100,align:"center",valign:"middle"},
+			{field:'debitCredit',title:'借贷标识（借、贷）',width:100,align:"center",valign:"middle"},
+			{field:'remark',title:'交易备注',width:100,align:"center",valign:"middle"},
+			{field:'recAcctType',title:'收款方:账户类型（对公、对私）',width:100,align:"center",valign:"middle"},
+			{field:'recAcctNo',title:'收款方:账户',width:100,align:"center",valign:"middle"},
+			{field:'payCardType',title:'付款方:卡类型',width:100,align:"center",valign:"middle"},
+			{field:'payAcctType',title:'付款方:账户类型',width:100,align:"center",valign:"middle"},
+			{field:'payAcctNo',title:'付款方:账号',width:100,align:"center",valign:"middle"},
+			{field:'payAcctName',title:'付款方:户名',width:100,align:"center",valign:"middle"},
+			{field:'payBankName',title:'付款方:银行名称',width:100,align:"center",valign:"middle"},
+			{field:'payBankCode',title:'付款方:清算行号',width:100,align:"center",valign:"middle"},
+			{field:'productCode',title:'产品码',width:100,align:"center",valign:"middle"},
+			{field:'contractCode',title:'合同码',width:100,align:"center",valign:"middle"},
+			{field:'channelCode',title:'渠道编码',width:100,align:"center",valign:"middle"},
+			{field:'merchantNoMain',title:'主商户号',width:100,align:"center",valign:"middle"},
+			{field:'merchantNoSub',title:'商户号',width:100,align:"center",valign:"middle"},
+			{field:'channelFlowNo',title:'渠道流水号',width:100,align:"center",valign:"middle"},
+			{field:'endTime',title:'交易完成时间',width:100,align:"center",valign:"middle"},
+			{field:'retSubCode',title:'返回码',width:100,align:"center",valign:"middle"},
+			{field:'retSubMsg',title:'返回描述',width:100,align:"center",valign:"middle"},
+			{field:'createTime',title:'创建时间',width:100,align:"center",valign:"middle"},
+			{field:'updateTime',title:'更新时间',width:100,align:"center",valign:"middle"},
+			{title: '操作',field: 'operation',align:"center",valign:"middle",width:100,
+	            formatter:function(value,row,index){
+	          		return  '<a onclick="odrPayReceiptFlow_edit('+row.id+')">编辑</a> '+
+			          		'<a onclick="odrPayReceiptFlow_del('+row.id+')">删除</a> '+
+			          		'<a onclick="odrPayReceiptFlow_view('+row.id+')">查看</a>';
+	            } 
+        	}
+		],
+		onClickRow:function (row,$element) {                  
+			$($element).addClass('table_info').siblings().removeClass('table_info');
+		},
+		onLoadSuccess: function(res){  
+			//加载成功时执行  
+        },  
+	});
+}
+
+//编辑
+function odrPayReceiptFlow_edit(id){
+	Ewin.dialog({ url: '../../odr-web/odrPayReceiptFlow/edit.html?id='+id,title:'编辑' });
+}
+
+//详情
+function odrPayReceiptFlow_view(id){
+	Ewin.dialog({ url: '../../odr-web/odrPayReceiptFlow/view.html?id='+id,title:'详情',width:950});
+}
+
+//删除
+function odrPayReceiptFlow_del(id){
+	Ewin.confirm({ message: '是否删除该行？' }).on(function (e) {
+		if (e) {//成功
+	    	sendAjax( 'POST', host_url+"/odr-web/odrPayReceiptFlow/delete", {'id':id}, function(res){
+	    		Ewin.alert({ message: '恭喜你，操作成功！' }).on(function(e){
+	    			if(e){
+	    				//重新加载
+	    	    		$(".table").bootstrapTable('refresh');
+	    			}
+	    		});
+	    	});
+		}
+	});
+}
+</script>

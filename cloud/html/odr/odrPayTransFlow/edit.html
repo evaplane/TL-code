@@ -1,0 +1,616 @@
+﻿<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal" name="edit_form" role="form"  id="edit_form">
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>主商户编号</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_customerNo" name="customerNo" placeholder="请输入主商户编号"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>主商户名称</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_customerName" name="customerName" placeholder="请输入主商户名称"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>交易类型（收单、网银、代付）</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_tradeType" name="tradeType" placeholder="请输入交易类型（收单、网银、代付）"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>平台流水号</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_orderNo" name="orderNo" placeholder="请输入平台流水号"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>交易金额</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_payAmt" name="payAmt" placeholder="请输入交易金额"  autocomplete="off" onkeyup="num(this)">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>手续费</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_feeAmt" name="feeAmt" placeholder="请输入手续费"  autocomplete="off" onkeyup="num(this)">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>成本</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_costAmt" name="costAmt" placeholder="请输入成本"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>币种</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_currencyType" name="currencyType" placeholder="请输入币种"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>付款方:卡类型</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_payCardType" name="payCardType" placeholder="请输入付款方:卡类型"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>付款方:账户类型</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_payAcctType" name="payAcctType" placeholder="请输入付款方:账户类型"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>付款方:账号</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_payAcctNo" name="payAcctNo" placeholder="请输入付款方:账号"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>付款方:户名</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_payAcctName" name="payAcctName" placeholder="请输入付款方:户名"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>付款方:银行名称</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_payBankName" name="payBankName" placeholder="请输入付款方:银行名称"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>付款方:清算行号</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_payBankCode" name="payBankCode" placeholder="请输入付款方:清算行号"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>付款方:开户行名称</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_paySubBankName" name="paySubBankName" placeholder="请输入付款方:开户行名称"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>付款方:开户行行号</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_paySubBankCode" name="paySubBankCode" placeholder="请输入付款方:开户行行号"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>收款方:卡类型</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_recCardType" name="recCardType" placeholder="请输入收款方:卡类型"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>收款方:账户类型</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_recAcctType" name="recAcctType" placeholder="请输入收款方:账户类型"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>收款方:账号</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_recAcctNo" name="recAcctNo" placeholder="请输入收款方:账号"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>收款方:户名</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_recAcctName" name="recAcctName" placeholder="请输入收款方:户名"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>收款方:银行名称</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_recBankName" name="recBankName" placeholder="请输入收款方:银行名称"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>收款方:清算行号</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_recBankCode" name="recBankCode" placeholder="请输入收款方:清算行号"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>收款方:开户行名称</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_recSubBankName" name="recSubBankName" placeholder="请输入收款方:开户行名称"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>收款方:开户行行号</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_recSubBankCode" name="recSubBankCode" placeholder="请输入收款方:开户行行号"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>收款方:开户行省份</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_recSubBankProvince" name="recSubBankProvince" placeholder="请输入收款方:开户行省份"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>收款方:开户行城市</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_recBankCity" name="recBankCity" placeholder="请输入收款方:开户行城市"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>交易备注</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_recRemark" name="recRemark" placeholder="请输入交易备注"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>摘要</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_recAbstract" name="recAbstract" placeholder="请输入摘要"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>借贷标识（1借、2贷）</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_debitCredit" name="debitCredit" placeholder="请输入借贷标识（1借、2贷）"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>交易状态</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_tradeStatus" name="tradeStatus" placeholder="请输入交易状态"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>记账状态（成功、失败、不记账）</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_voucherStatus" name="voucherStatus" placeholder="请输入记账状态（成功、失败、不记账）"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>结算状态（待结算、已结算）</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_settleStatus" name="settleStatus" placeholder="请输入结算状态（待结算、已结算）"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>结算金额</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_settleAmt" name="settleAmt" placeholder="请输入结算金额"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>结算时间</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_settleTime" name="settleTime" placeholder="请输入结算时间"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>产品码</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_productCode" name="productCode" placeholder="请输入产品码"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>合同码</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_contractCode" name="contractCode" placeholder="请输入合同码"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>渠道编码</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_channelCode" name="channelCode" placeholder="请输入渠道编码"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>主商户号</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_merchantNoMain" name="merchantNoMain" placeholder="请输入主商户号"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>商户号</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_merchantNoSub" name="merchantNoSub" placeholder="请输入商户号"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>渠道流水号</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_channelFlowNo" name="channelFlowNo" placeholder="请输入渠道流水号"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>交易完成时间</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_endTime" name="endTime" placeholder="请输入交易完成时间"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>返回码</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_retSubCode" name="retSubCode" placeholder="请输入返回码"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>返回描述</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_retSubMsg" name="retSubMsg" placeholder="请输入返回描述"  autocomplete="off">
+					</div>
+				</div>
+			<!-- 隐藏域 -->
+			<input id="edit_id" name="id" class="form-control" type="hidden">
+		</form>
+	</div>
+</div>
+<div class="modal-footer" >
+	<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	<button type="button" class="btn btn-primary" onclick="_doSubmit();">确定</button>
+</div>
+<script type="text/javascript">
+$(function(){
+	_validateForm();
+	var edit_id = getQueryString('id');
+	var url = host_url+"/odr-web/odrPayTransFlow/view";
+	sendAjax( 'POST', url, {'id':edit_id}, function(res){
+		var data=res.rows;
+		$('#edit_id').val(data.id);
+		$('#edit_customerNo').val(data.customerNo);
+		$('#edit_customerName').val(data.customerName);
+		$('#edit_tradeType').val(data.tradeType);
+		$('#edit_orderNo').val(data.orderNo);
+		$('#edit_payAmt').val(data.payAmt);
+		$('#edit_feeAmt').val(data.feeAmt);
+		$('#edit_costAmt').val(data.costAmt);
+		$('#edit_currencyType').val(data.currencyType);
+		$('#edit_payCardType').val(data.payCardType);
+		$('#edit_payAcctType').val(data.payAcctType);
+		$('#edit_payAcctNo').val(data.payAcctNo);
+		$('#edit_payAcctName').val(data.payAcctName);
+		$('#edit_payBankName').val(data.payBankName);
+		$('#edit_payBankCode').val(data.payBankCode);
+		$('#edit_paySubBankName').val(data.paySubBankName);
+		$('#edit_paySubBankCode').val(data.paySubBankCode);
+		$('#edit_recCardType').val(data.recCardType);
+		$('#edit_recAcctType').val(data.recAcctType);
+		$('#edit_recAcctNo').val(data.recAcctNo);
+		$('#edit_recAcctName').val(data.recAcctName);
+		$('#edit_recBankName').val(data.recBankName);
+		$('#edit_recBankCode').val(data.recBankCode);
+		$('#edit_recSubBankName').val(data.recSubBankName);
+		$('#edit_recSubBankCode').val(data.recSubBankCode);
+		$('#edit_recSubBankProvince').val(data.recSubBankProvince);
+		$('#edit_recBankCity').val(data.recBankCity);
+		$('#edit_recRemark').val(data.recRemark);
+		$('#edit_recAbstract').val(data.recAbstract);
+		$('#edit_debitCredit').val(data.debitCredit);
+		$('#edit_tradeStatus').val(data.tradeStatus);
+		$('#edit_voucherStatus').val(data.voucherStatus);
+		$('#edit_settleStatus').val(data.settleStatus);
+		$('#edit_settleAmt').val(data.settleAmt);
+		$('#edit_settleTime').val(data.settleTime);
+		$('#edit_productCode').val(data.productCode);
+		$('#edit_contractCode').val(data.contractCode);
+		$('#edit_channelCode').val(data.channelCode);
+		$('#edit_merchantNoMain').val(data.merchantNoMain);
+		$('#edit_merchantNoSub').val(data.merchantNoSub);
+		$('#edit_channelFlowNo').val(data.channelFlowNo);
+		$('#edit_endTime').val(data.endTime);
+		$('#edit_retSubCode').val(data.retSubCode);
+		$('#edit_retSubMsg').val(data.retSubMsg);
+	});
+});
+
+//初始化验证框架
+function _validateForm(){
+	//进行表单验证
+   	$('#edit_form').bootstrapValidator({
+		message: '输入值不合法',
+        feedbackIcons: {valid: 'glyphicon glyphicon-ok',invalid: 'glyphicon glyphicon-remove',validating: 'glyphicon glyphicon-refresh'},
+        fields: {
+			customerNo:{
+				message: '主商户编号验证失败',
+				validators: {
+                	notEmpty: {message: '主商户编号不能为空'}
+              	}
+			},
+			customerName:{
+				message: '主商户名称验证失败',
+				validators: {
+                	notEmpty: {message: '主商户名称不能为空'}
+              	}
+			},
+			tradeType:{
+				message: '交易类型（收单、网银、代付）验证失败',
+				validators: {
+                	notEmpty: {message: '交易类型（收单、网银、代付）不能为空'}
+              	}
+			},
+			orderNo:{
+				message: '平台流水号验证失败',
+				validators: {
+                	notEmpty: {message: '平台流水号不能为空'}
+              	}
+			},
+			payAmt:{
+				message: '交易金额验证失败',
+				validators: {
+                	notEmpty: {message: '交易金额不能为空'}
+              	}
+			},
+			feeAmt:{
+				message: '手续费验证失败',
+				validators: {
+                	notEmpty: {message: '手续费不能为空'}
+              	}
+			},
+			costAmt:{
+				message: '成本验证失败',
+				validators: {
+                	notEmpty: {message: '成本不能为空'}
+              	}
+			},
+			currencyType:{
+				message: '币种验证失败',
+				validators: {
+                	notEmpty: {message: '币种不能为空'}
+              	}
+			},
+			payCardType:{
+				message: '付款方:卡类型验证失败',
+				validators: {
+                	notEmpty: {message: '付款方:卡类型不能为空'}
+              	}
+			},
+			payAcctType:{
+				message: '付款方:账户类型验证失败',
+				validators: {
+                	notEmpty: {message: '付款方:账户类型不能为空'}
+              	}
+			},
+			payAcctNo:{
+				message: '付款方:账号验证失败',
+				validators: {
+                	notEmpty: {message: '付款方:账号不能为空'}
+              	}
+			},
+			payAcctName:{
+				message: '付款方:户名验证失败',
+				validators: {
+                	notEmpty: {message: '付款方:户名不能为空'}
+              	}
+			},
+			payBankName:{
+				message: '付款方:银行名称验证失败',
+				validators: {
+                	notEmpty: {message: '付款方:银行名称不能为空'}
+              	}
+			},
+			payBankCode:{
+				message: '付款方:清算行号验证失败',
+				validators: {
+                	notEmpty: {message: '付款方:清算行号不能为空'}
+              	}
+			},
+			paySubBankName:{
+				message: '付款方:开户行名称验证失败',
+				validators: {
+                	notEmpty: {message: '付款方:开户行名称不能为空'}
+              	}
+			},
+			paySubBankCode:{
+				message: '付款方:开户行行号验证失败',
+				validators: {
+                	notEmpty: {message: '付款方:开户行行号不能为空'}
+              	}
+			},
+			recCardType:{
+				message: '收款方:卡类型验证失败',
+				validators: {
+                	notEmpty: {message: '收款方:卡类型不能为空'}
+              	}
+			},
+			recAcctType:{
+				message: '收款方:账户类型验证失败',
+				validators: {
+                	notEmpty: {message: '收款方:账户类型不能为空'}
+              	}
+			},
+			recAcctNo:{
+				message: '收款方:账号验证失败',
+				validators: {
+                	notEmpty: {message: '收款方:账号不能为空'}
+              	}
+			},
+			recAcctName:{
+				message: '收款方:户名验证失败',
+				validators: {
+                	notEmpty: {message: '收款方:户名不能为空'}
+              	}
+			},
+			recBankName:{
+				message: '收款方:银行名称验证失败',
+				validators: {
+                	notEmpty: {message: '收款方:银行名称不能为空'}
+              	}
+			},
+			recBankCode:{
+				message: '收款方:清算行号验证失败',
+				validators: {
+                	notEmpty: {message: '收款方:清算行号不能为空'}
+              	}
+			},
+			recSubBankName:{
+				message: '收款方:开户行名称验证失败',
+				validators: {
+                	notEmpty: {message: '收款方:开户行名称不能为空'}
+              	}
+			},
+			recSubBankCode:{
+				message: '收款方:开户行行号验证失败',
+				validators: {
+                	notEmpty: {message: '收款方:开户行行号不能为空'}
+              	}
+			},
+			recSubBankProvince:{
+				message: '收款方:开户行省份验证失败',
+				validators: {
+                	notEmpty: {message: '收款方:开户行省份不能为空'}
+              	}
+			},
+			recBankCity:{
+				message: '收款方:开户行城市验证失败',
+				validators: {
+                	notEmpty: {message: '收款方:开户行城市不能为空'}
+              	}
+			},
+			recRemark:{
+				message: '交易备注验证失败',
+				validators: {
+                	notEmpty: {message: '交易备注不能为空'}
+              	}
+			},
+			recAbstract:{
+				message: '摘要验证失败',
+				validators: {
+                	notEmpty: {message: '摘要不能为空'}
+              	}
+			},
+			debitCredit:{
+				message: '借贷标识（1借、2贷）验证失败',
+				validators: {
+                	notEmpty: {message: '借贷标识（1借、2贷）不能为空'}
+              	}
+			},
+			tradeStatus:{
+				message: '交易状态验证失败',
+				validators: {
+                	notEmpty: {message: '交易状态不能为空'}
+              	}
+			},
+			voucherStatus:{
+				message: '记账状态（成功、失败、不记账）验证失败',
+				validators: {
+                	notEmpty: {message: '记账状态（成功、失败、不记账）不能为空'}
+              	}
+			},
+			settleStatus:{
+				message: '结算状态（待结算、已结算）验证失败',
+				validators: {
+                	notEmpty: {message: '结算状态（待结算、已结算）不能为空'}
+              	}
+			},
+			settleAmt:{
+				message: '结算金额验证失败',
+				validators: {
+                	notEmpty: {message: '结算金额不能为空'}
+              	}
+			},
+			settleTime:{
+				message: '结算时间验证失败',
+				validators: {
+                	notEmpty: {message: '结算时间不能为空'}
+              	}
+			},
+			productCode:{
+				message: '产品码验证失败',
+				validators: {
+                	notEmpty: {message: '产品码不能为空'}
+              	}
+			},
+			contractCode:{
+				message: '合同码验证失败',
+				validators: {
+                	notEmpty: {message: '合同码不能为空'}
+              	}
+			},
+			channelCode:{
+				message: '渠道编码验证失败',
+				validators: {
+                	notEmpty: {message: '渠道编码不能为空'}
+              	}
+			},
+			merchantNoMain:{
+				message: '主商户号验证失败',
+				validators: {
+                	notEmpty: {message: '主商户号不能为空'}
+              	}
+			},
+			merchantNoSub:{
+				message: '商户号验证失败',
+				validators: {
+                	notEmpty: {message: '商户号不能为空'}
+              	}
+			},
+			channelFlowNo:{
+				message: '渠道流水号验证失败',
+				validators: {
+                	notEmpty: {message: '渠道流水号不能为空'}
+              	}
+			},
+			endTime:{
+				message: '交易完成时间验证失败',
+				validators: {
+                	notEmpty: {message: '交易完成时间不能为空'}
+              	}
+			},
+			retSubCode:{
+				message: '返回码验证失败',
+				validators: {
+                	notEmpty: {message: '返回码不能为空'}
+              	}
+			},
+			retSubMsg:{
+				message: '返回描述验证失败',
+				validators: {
+                	notEmpty: {message: '返回描述不能为空'}
+              	}
+			},
+     	}
+	});
+}
+
+//提交表单
+function _doSubmit(){
+	var bv = $('#edit_form').data('bootstrapValidator').validate();
+	if (!bv.isValid()) {//验证不通过
+		return;
+	}
+	
+	var paramForm = $("#edit_form").serializeArray();
+	var params = {};
+	$.each(paramForm, function(i, param){
+		params[param.name]=$.trim(param.value);
+	});
+	sendAjax( 'POST', host_url+"/odr-web/odrPayTransFlow/editSubmit", params, function(res){
+		Ewin.alert({ message: '恭喜你，操作成功！' }).on(function(e){
+			if(e){
+				$('#edit_form').parents('.modal').modal('hide');
+				$(".table").bootstrapTable('refresh');
+			}
+		});
+	});
+}
+</script> 
+

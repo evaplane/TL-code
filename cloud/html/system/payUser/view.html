@@ -1,0 +1,226 @@
+﻿<div class="content_center">
+	<div class="content_center_content">
+		<div class="basic">
+			<p class="left_title">原始结算单</p>
+			<table cellpadding="0" cellspacing="0" border="0" id="table"
+				class="table table-bordered settle_settleOriRecord_top">
+				<tbody class="basic">
+					<tr>
+						<td class='title col-sm-2'>订单号：</td>
+						<td class="col-sm-4" id="view_refTransNo"></td>
+						<td class='title col-sm-2'>清算发送表单号：</td>
+						<td class="col-sm-4" id="view_refClearId"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>主商户号：</td>
+						<td class="col-sm-4" id="view_customerNo"></td>
+						<td class='title col-sm-2'>主商户名称：</td>
+						<td class="col-sm-4" id="view_customerName"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>产品编码：</td>
+						<td class="col-sm-4" id="view_productCode"></td>
+						<td class='title col-sm-2'>主商户合同编号：</td>
+						<td class="col-sm-4" id="view_cusContractNo"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>商户合同编号：</td>
+						<td class="col-sm-4" id="view_merContractNo"></td>
+						<td class='title col-sm-2'>交易类型：</td>
+						<td class="col-sm-4" id="view_transType"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>资金清算类型：</td>
+						<td class="col-sm-4" id="view_clearType"></td>
+						<td class='title col-sm-2'>交易时间：</td>
+						<td class="col-sm-4" id="view_transTime"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>结算金额(元)：</td>
+						<td class="col-sm-4" id="view_settleAmt"></td>
+						<td class='title col-sm-2'>结算成本(元)：</td>
+						<td class="col-sm-4" id="view_cost"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>实际结算金额(元)：</td>
+						<td class="col-sm-4" id="view_actualAmt"></td>
+						<td class='title col-sm-2'>成功金额(元)：</td>
+						<td class="col-sm-4" id="view_successAmt"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>退汇金额(元)：</td>
+						<td class="col-sm-4" id="view_refundAmt"></td>
+						<td class='title col-sm-2'>生成结算单时间：</td>
+						<td class="col-sm-4" id="view_genSettleTime"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>结算完成时间：</td>
+						<td class="col-sm-4" id="view_finishTime"></td>
+						<td class='title col-sm-2'>付款通道编码：</td>
+						<td class="col-sm-4" id="view_payChannelCode"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>付款商户号：</td>
+						<td class="col-sm-4" id="view_payMerchantNo"></td>
+						<td class='title col-sm-2'>通道交易流水号：</td>
+						<td class="col-sm-4" id="view_channelTransNo"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>返回码：</td>
+						<td class="col-sm-4" id="view_retCode"></td>
+						<td class='title col-sm-2'>返回描述：</td>
+						<td class="col-sm-4" id="view_retMsg"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>状态：</td>
+						<td class="col-sm-4" id="view_status"></td>
+						<td class='title col-sm-2'>收款对账状态：</td>
+						<td class="col-sm-4" id="view_recCheckStatus"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>创建时间：</td>
+						<td class="col-sm-4" id="view_createTime"></td>
+						<td class='title col-sm-2'></td>
+						<td class="col-sm-4"></td>
+					</tr>
+				</tbody>
+			</table>
+			<p class="left_title">结算规则</p>
+			<table cellpadding="0" cellspacing="0" border="0" id="oriSettleStatement"
+				class="table table-bordered settle_settleOriRecord_middle">
+				<tbody class="basic">
+					<tr>
+						<td class='title col-sm-2'>结算周期：</td>
+						<td class="col-sm-4" id="view_settleCycle"></td>
+						<td class='title col-sm-2'>结算类型：</td>
+						<td class="col-sm-4" id="view_settleType"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>结算方式：</td>
+						<td class="col-sm-4" id="view_settleMode"></td>
+						<td class='title col-sm-2'>预结算日期：</td>
+						<td class="col-sm-4" id="view_settleDate"></td>
+					</tr>
+				</tbody>
+			</table>
+			<p class="left_title">收款方信息</p>
+			<table cellpadding="0" cellspacing="0" border="0" id="oriSettleAccount"
+				class="table table-bordered settle_settleOriRecord_bottom">
+				<tbody class="basic">
+					<tr>
+						<td class='title col-sm-2'>账户类型：</td>
+						<td class="col-sm-4" id="oriSettleAccount_recAcctType"></td>
+						<td class='title col-sm-2'>卡类型：</td>
+						<td class="col-sm-4" id="oriSettleAccount_recCardType"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>收款账号：</td>
+						<td class="col-sm-4" id="oriSettleAccount_recAcctNo"></td>
+						<td class='title col-sm-2'>收款户名：</td>
+						<td class="col-sm-4" id="oriSettleAccount_recAcctName"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>收款银行名称：</td>
+						<td class="col-sm-4" id="oriSettleAccount_recBankName"></td>
+						<td class='title col-sm-2'>收款支行行号：</td>
+						<td class="col-sm-4" id="oriSettleAccount_recBranchNo"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>收款支行名称：</td>
+						<td class="col-sm-4" id="oriSettleAccount_recBranchName"></td>
+						<td class='title col-sm-2'>备注：</td>
+						<td class="col-sm-4" id="oriSettleAccount_summary"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>交易摘要：</td>
+						<td class="col-sm-4" id="oriSettleAccount_postscript"></td>
+						<td class='title col-sm-2'></td>
+						<td class="col-sm-4"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<div class="modal-footer" id="close">
+	<button type="button" class="btn btn-default cancel" data-dismiss="modal">关闭</button>
+</div>
+<style>
+	.settle_settleOriRecord_top tr td:nth-child(2n+2) {
+		text-align: left;
+		padding-left: 10px;
+	}
+
+	.settle_settleOriRecord_bottom tr td:nth-child(2n+2) {
+		text-align: left;
+		padding-left: 10px;
+	}
+
+	.settle_settleOriRecord_middle tr td:nth-child(2n+2) {
+		text-align: left;
+		padding-left: 10px;
+	}
+</style>
+<script type="text/javascript">
+	$(function () {
+		var view_id = getQueryString('id');
+		//原始结算单
+		sendAjax('POST', host_url + "/settle-web/settleOriRecord/view", {
+			'id': view_id
+		}, function (res) {
+			var data = res.rows;
+
+			if (data != null || data != undefined) {
+				$('#view_id').html(data.id);
+				$('#view_refTransNo').html(data.refTransNo);
+				$('#view_refClearId').html(data.refClearId);
+				$('#view_customerNo').html(data.customerNo);
+				$('#view_customerName').html(data.customerName);
+				$('#view_productCode').html(data.productCode);
+				$('#view_cusContractNo').html(data.cusContractNo);
+				$('#view_merContractNo').html(data.merContractNo);
+				$('#view_transType').html(visualParams(QF_DEALTYPE, data.transType));
+				$('#view_clearType').html(visualParams(QS_TYPE, data.clearType));
+				$('#view_transTime').html(formatterDateTime(data.transTime));
+				$('#view_settleMode').html(visualParams(SETTLE_METHODS, data.settleMode));
+				$('#view_settleCycle').html(data.settleCycle);
+				$('#view_settleType').html(visualParams(SETTLE_TYPE, data.settleType));
+				$('#view_settleDate').html(formatterDateTime(data.settleDate));
+				$('#view_settleAmt').html(formatterMoney(data.settleAmt));
+				$('#view_cost').html(formatterMoney(data.cost));
+				$('#view_actualAmt').html(formatterMoney(data.actualAmt));
+				$('#view_successAmt').html(formatterMoney(data.successAmt));
+				$('#view_refundAmt').html(formatterMoney(data.refundAmt));
+				$('#view_genSettleTime').html(formatterDateTime(data.genSettleTime));
+				$('#view_finishTime').html(formatterDateTime(data.finishTime));
+				$('#view_payChannelCode').html(data.payChannelCode);
+				$('#view_payMerchantNo').html(data.payMerchantNo);
+				$('#view_channelTransNo').html(data.channelTransNo);
+				$('#view_retCode').html(data.retCode);
+				$('#view_retMsg').html(data.retMsg);
+				$('#view_status').html(visualParams(SETTLE_SETTLEORIRECORD_STATUS, data.status));
+				$('#view_recCheckStatus').html(visualParams(CLEAR_CHECK_STATUS, data.recCheckStatus));
+				$('#view_createTime').html(formatterDateTime(data.createTime));
+			}
+		});
+		//收款方结算单
+		sendAjax('POST', host_url + "/settle-web/settleAccount/findAccountByOriSettleId", {
+			'oriSettleId': view_id
+		}, function (res) {
+			var data = res.rows;
+
+			if (data != null || data != undefined) {
+				$('#oriSettleAccount_recAcctType').html(visualParams(ACCOUNT_TYPE, data.recAcctType));
+				$('#oriSettleAccount_recCardType').html(visualParams(CARD_TYPE, data.recCardType));
+				$('#oriSettleAccount_recAcctNo').html(data.recAcctNo);
+				$('#oriSettleAccount_recAcctName').html(data.recAcctName);
+				$('#oriSettleAccount_recBankName').html(data.recBankName);
+				$('#oriSettleAccount_recBranchNo').html(data.recBranchNo);
+				$('#oriSettleAccount_recBranchName').html(data.recBranchName);
+				$('#oriSettleAccount_summary').html(data.summary);
+				$('#oriSettleAccount_postscript').html(data.postscript);
+			}
+		});
+	});
+</script>

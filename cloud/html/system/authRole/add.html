@@ -1,0 +1,101 @@
+<div class="content_center">
+    <div class="content_center_content">
+        <form class="form-horizontal" name="add_form_auth_role" role="form"  id="add_form_auth_role">
+                <div class="form-group">
+                    <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>角色名称</label>
+                    <div class="col-xs-8 col-sm-7">
+                        <input type="text" class="form-control" id="add_roleName" name="roleName" placeholder="角色名称"  autocomplete="off">
+                    </div>
+                </div>
+                <!-- <div class="form-group">
+                    <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>所属系统</label>
+                    <div class="col-xs-8 col-sm-7">
+                        <select class="form-control" id="add_platform" name="platform" style="display: none">
+                        	<option value="">请选择</option>
+                        </select>
+                    </div>
+                </div> -->
+                <div class="form-group">
+                    <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>角色描述</label>
+                    <div class="col-xs-8 col-sm-7">
+                        <textarea class="form-control" id="add_roleDesc" name="roleDesc" placeholder="角色描述"  rows="4" cols="39" style="resize:none;"></textarea>
+                    </div>
+                </div>
+        </form>
+    </div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		<button type="button" class="btn btn-primary" onclick="_doSubmit()">确定</button>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+    _validateForm();//验证初始化
+    /* listOption("select[name=platform]", AUTH_PLATFORM);
+    $('#add_platform').comboSelect({extendStyle: false}); */
+});
+
+//初始化验证框架
+function _validateForm(){
+    //进行表单验证
+    $('#add_form_auth_role').bootstrapValidator({
+        message: '输入值不合法',
+        feedbackIcons: {valid: 'glyphicon glyphicon-ok',invalid: 'glyphicon glyphicon-remove',validating: 'glyphicon glyphicon-refresh'},
+        excluded : [':disabled'],
+        fields: {
+            roleName:{
+                message: '角色名称验证失败',
+                validators: {
+                notEmpty: {message: '角色名称不能为空'},
+                stringLength: {
+                	   min: 1,
+                	   max: 20,
+                	   message: '长度必须在1-20之间'
+                    }
+                }
+            },
+            platform:{
+                message: '所属系统验证失败',
+                validators: {
+                	notEmpty: {message: '所属系统不能为空'}
+                }
+            },
+            roleDesc:{
+                message: '角色描述验证失败',
+                validators: {
+	                notEmpty: {message: '角色描述不能为空'},
+	                stringLength: {
+                	   min: 1,
+                	   max: 128,
+                	   message: '长度必须在1-128之间'
+                    }
+                }
+            }
+        }
+    });
+}
+
+//提交
+function _doSubmit(){
+    var bv = $('#add_form_auth_role').data('bootstrapValidator').validate();
+    if (!bv.isValid()) {//验证不通过
+        return;
+    }
+    
+    var paramForm = $("#add_form_auth_role").serializeArray();
+    var params = {};
+    $.each(paramForm, function(i, param){
+        params[param.name]=$.trim(param.value);
+    });
+    params.platform = 20;
+    sendAjax( 'POST', host_url+"/cloud-web/authRole/addSubmit", params, function(res){
+    	Ewin.alert({ message: '恭喜你，操作成功！' }).on(function(e){
+            if(e){
+                $('#add_form_auth_role').parents('.modal').modal('hide');
+                $("#table_authRole").bootstrapTable('refresh');
+				roleUserList();
+            }
+        });
+    });
+}
+</script>

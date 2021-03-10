@@ -1,0 +1,186 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="userBlacklist_queryFormAcct" name="userBlacklist_queryFormAcct" role="form" class="form-inline">
+				<div class="form-group">
+					<label class="control-label">平台号：</label>
+					<input name="cusCode" class="form-control" type="text" placeholder="平台号" autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">平台名称：</label>
+					<input name="cusName" class="form-control" type="text" placeholder="平台名称" autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">用户账号：</label>
+					<input name="userAcct" class="form-control" type="text" placeholder="用户账号" autocomplete="off">
+				</div>
+				<div class="form-group  pull-right">
+					<button id="userBlacklist_button" type="button" class="btn btn-primary refreshBtn"><i
+							class="fa fa-search"></i>
+						查询</button>
+					<button type="reset" class="btn btn-default"><i class="fa fa-refresh"></i> 重置</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<div class="marginBottom">
+				<button type="button" class="btn btn-primary marginBottom" onclick="userBlacklist_add()"><i
+						class="fa fa-plus"></i> 新增</button>
+			</div>
+			<table cellpadding="0" cellspacing="0" border="0" id="userBlacklistTable"
+				class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<script>
+	$(function () {
+		userBlacklist_initTable();
+
+		//手机区号
+		sendAjax("POST", host_url + "/cloud-web/pubTypeGroup/findPubTypeGroupList", { sysCode: 'Pub', 'groupName': 'sys_mobile_type_group' }, function (data) {
+			$.each(data.rows, function (i, item) {
+				$('#userBlacklistInfoPartners_list_areaCode').append('<option value="' + item.keyValue + '">' + item.keyName + ' ' + item.keyValue + '</option>');
+			});
+			$("#userBlacklistInfoPartners_list_areaCode").comboSelect();
+		})
+	});
+	// 搜索
+	$("#userBlacklist_button").click(function () {
+		$("#userBlacklistTable").bootstrapTable('refresh');
+	});
+
+	/*表格加载*/
+	function userBlacklist_initTable() {
+		console.log(12)
+		$('#userBlacklistTable').bootstrapTable({
+			url: host_url + '/cloud-web/cusUserBlack/pageList',
+			method: 'GET',
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏  
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置  
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: 'zh-CN', //中文支持
+			queryParamsType: 'limit',
+			queryParams: function (params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = (params.offset / params.limit) + 1; //页码
+				params._sys_login_token = _get_sys_login_token();
+				var paramForm = $("#userBlacklist_queryFormAcct").serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = trimAll(param.value);
+				});
+				return params;
+			}, //参数  
+			columns: [{
+				title: '序号',
+				field: 'index',
+				width: 30,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					var options = $('#userBlacklistTable').bootstrapTable("getOptions");
+					return (options.pageNumber - 1) * (options.pageSize) + index + 1;
+				}
+			},
+			{
+				title: '操作',
+				field: 'id',
+				align: "center",
+				valign: "middle",
+				width: 50,
+				formatter: function (value, row, index) {
+					var str = '';
+					str += '<a class="fa fa-trash-o operation a_size" onclick="userBlacklist_del(\'' + row.id + '\')" title="删除"></a>';
+					return str;
+				}
+			},
+			{
+				field: 'cusCode',
+				title: '平台号',
+				width: 80,
+				align: "center",
+				valign: "middle"
+			},
+			{
+				field: 'cusName',
+				title: '平台名称',
+				width: 80,
+				align: "center",
+				valign: "middle"
+			},
+			{
+				field: 'userAcct',
+				title: '用户账号',
+				width: 80,
+				align: "center",
+				valign: "middle"
+			},
+			{
+				field: 'userName',
+				title: '用户名称',
+				width: 90,
+				align: "center",
+				valign: "middle"
+			},
+			{
+				field: 'remark',
+				title: '备注',
+				width: 90,
+				align: "center",
+				valign: "middle"
+			},
+			{field:'blackType',title:'类型',width:50,align:"center",valign:"middle",
+			    formatter:function (value, row, index) {
+					if(value == 10){
+						return '入金';
+					}else{
+						return '-';
+					}
+					
+			    }               
+			},
+			{
+				field: 'createTime',
+				title: '创建时间',
+				width: 100,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					return formatterDateTime(value);
+				},
+			}
+			],
+			onClickRow: function (row, $element) {
+				$($element).addClass('table_info').siblings().removeClass('table_info');
+			},
+			onLoadSuccess: function (res) {}
+		});
+	}
+	// 新增
+	function userBlacklist_add() {
+		Ewin.dialog({
+			url: '../../../html/member/userBlacklist/add.html',
+			title: '新增'
+		});
+	}
+	// 删除
+	function userBlacklist_del(id) {
+		Ewin.confirm({
+			message: '确定要删除吗？'
+		}).on(function (e) {
+			if (e) {
+				sendAjax("post", host_url + '/cloud-web/cusUserBlack/delete', {
+					id: id
+				}, function (res) {
+					$("#userBlacklistTable").bootstrapTable('refresh');
+				})
+			}
+		})
+	}
+</script>

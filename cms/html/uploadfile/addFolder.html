@@ -1,0 +1,73 @@
+<form class="form-horizontal" name="addFolder_form" role="form" id="addFolder_form">
+    <div class="form-group">
+        <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>文件夹名称：</label>
+        <div class="col-xs-8 col-sm-8">
+            <input type="text" class="form-control" id="folderName" name="folderName" placeholder="请输入文件夹名称" autocomplete="off">
+        </div>
+    </div>
+
+</form>
+<div class="modal-footer" style="padding-bottom: 0;overflow: hidden;">
+    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+    <button type="button" class="btn btn-primary" id="submitFolder" onclick="_doSubmit_folder()">提交</button>
+</div>
+<script type="text/javascript">
+    $(function() {
+        _validateForm();
+    });
+
+    //初始化验证框架
+    function _validateForm() {
+        //进行表单验证
+        $('#addFolder_form').bootstrapValidator({
+            message: '输入值不合法',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            excluded: [':disabled'],
+            fields: {
+                folderName: {
+                    message: '文件夹验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '文件夹名称不能为空'
+                        }
+                    }
+                },
+            }
+        });
+    }
+
+
+    var flag = 0;
+    var index = 1;
+
+    // 提交文件夹
+    function _doSubmit_folder() {
+        _validateForm();
+        var bv = $('#addFolder_form').data('bootstrapValidator').validate();
+        if (bv.isValid()) {
+            $('#submitFolder').attr('disabled', true);
+            var folderPath = $("#folderUrl").val();
+            var folderNameStr = $("#folderName").val();
+            var folderName = folderNameStr.replace(/\s/g,"");
+            var params ={
+                folderName: folderName,
+                folderPath: folderPath,
+                _sys_login_token:login_token()
+            }
+            sendAjax( 'POST', host_url+"/cms/addFolder", params, function(res){
+                Ewin.alert({ message: '恭喜你，操作成功！' }).on(function(e){
+                    if(e){
+                        $("#addFolder_form").parents(".modal").modal("hide");
+                        baseFolder();
+                        $(".table").bootstrapTable('refresh');
+                        $('#submit').attr('disabled',false);
+                    }
+                });
+            });
+        }
+    }
+</script>

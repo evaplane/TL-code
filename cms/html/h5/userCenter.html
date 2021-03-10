@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>极点</title>
+    <script src="https://cdn.bootcss.com/jquery/3.4.0/jquery.js"></script>
+    <link rel="stylesheet" href="./css/common.css">
+    <script type="text/javascript" src="./js/mui.min.js"></script>
+    <link rel="stylesheet" href="./css/mui.min.css" />
+    <script type="text/javascript" src="./js/index.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+
+<body style="background: #fff;">
+    <section id="userBox">
+        <div class="mui-content">
+            <div class="mui-row">
+                <div class="mui-col-sm-12 mui-col-xs-12">
+                    <div id="logo">
+                        <img src="http://img2.imgtn.bdimg.com/it/u=234634259,4236876085&fm=26&gp=0.jpg" alt="">
+                    </div>
+                    <div id="userName"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- <section id="userContent">
+        <div class="mui-content">
+            <div class="mui-row">
+                <div class="mui-col-sm-12 mui-col-xs-12">
+                    <div class="infoBox">
+                        <a href="./userInfo.html" class="userInfo">基本信息
+                            <span class="mui-icon mui-icon-forward"></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section> -->
+    <section id="logout">
+            <div class="mui-content">
+                <div class="mui-row">
+                    <div class="mui-col-sm-12 mui-col-xs-12">
+                       <div class="infoBox">
+                            <button type="button" class="mui-btn mui-btn-danger logoutButton">退出登录</button>
+                       </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    <footer class="footer">
+        <div class="mui-content">
+            <div class="mui-row">
+                <div class="mui-col-sm-6 mui-col-xs-6">
+                    <a href="./index.html" class="mui-table-view-cell">
+                        <i class="fa fa-qrcode" aria-hidden="true"></i>
+                    </a>
+                </div>
+                <div class="mui-col-sm-6 mui-col-xs-6">
+                    <a href="./userCenter.html" class="mui-table-view-cell active">
+                        <i class="fa fa-user-circle" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script type="text/javascript" src="./js/hostUrl.js"></script>
+    <script type="text/javascript" src="./js/common.js"></script>
+    <script>
+        $(function(){
+            var userName = localStorage.getItem('userNameMobile');
+            if(userName == null || userName == ''){
+                mui.alert("会话超时，请重新登录",'温馨提示',function(Response){
+                    if(Response.index == 0){
+                        window.location.href ="../html/login.html";
+                        return;
+                    }
+                })
+            }
+            $("#userName").html(JSON.parse(userName));
+            // 退出登录
+            $('.logoutButton').on('click',function(){
+                var params = {
+                    _sys_login_token: login_token()
+                };
+                mui.confirm('确认退出登录？',function(res){
+                    if(res.index == 1){
+                        // 确定退出
+                        sendAjax('POST', host_url + "/user/logout", params, function (res) {
+                        if (res.retCode == "000000") {
+                            delCookie('userJsonLocal')
+                            window.location.href = "../html/login.html";
+                        } else {
+                            mui.toast(res.retMsg,{ duration:'long', type:'div' });
+                            return false;
+                        }
+                    });
+                    }
+                })
+            })
+        })
+    </script>
+</body>
+
+</html>

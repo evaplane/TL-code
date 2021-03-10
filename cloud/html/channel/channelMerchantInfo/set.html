@@ -1,0 +1,376 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<div class="setTableTitle">
+			<div class="content_center_title">
+				平台(<span id="setTable_tableNum">0</span>个)
+				<button
+					type="button"
+					class="btn btn-primary pull-right"
+					onclick="setTable_add()"
+				>
+					<i class="fa fa-plus"></i> 绑定
+				</button>
+			</div>
+			<table
+				cellpmember_mgp_view_adding="0"
+				cellspacing="0"
+				border="0"
+				id="setTable"
+				class="table table-bordered table-hover"
+			></table>
+		</div>
+		<!-- 要绑定的会员页面 -->
+		<div class="content_center_condition setTableAdd">
+			<form
+				id="setTableForm"
+				name="setTableForm"
+				role="form"
+				class="form-inline"
+			>
+				<div class="form-group">
+					<label class="control-label">平台号：</label>
+					<input
+						name="cusCode"
+						id="member_mgp_mgn_cusCode"
+						class="form-control"
+						type="text"
+						placeholder="平台号"
+						autocomplete="off"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="control-label">平台名称：</label>
+					<input
+						name="cusName"
+						id="member_mgp_mgn_cusName"
+						class="form-control"
+						type="text"
+						placeholder="平台名称"
+						autocomplete="off"
+					/>
+				</div>
+				<div class="form-group pull-right">
+					<button
+						id="setTable_button"
+						type="button"
+						class="btn btn-primary"
+					>
+						<i class="fa fa-search"></i> 查询
+					</button>
+					<button type="reset" class="btn btn-default">
+						<i class="fa fa-refresh"></i> 重置
+					</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+			<table
+				cellpadding="0"
+				cellspacing="0"
+				border="0"
+				id="setTable_unbind_table"
+				class="table table-bordered table-hover"
+			></table>
+		</div>
+	</div>
+	<div class="modal-footer setTableAdd">
+		<a class="btn btn-default" data-dismiss="modal">取消</a>
+		<a class="btn btn-primary" onclick="setTable_addContract()">确认</a>
+	</div>
+</div>
+<style>
+	.setTableTitle button {
+		margin-top: 0;
+	}
+	.setTableAdd {
+		display: none;
+	}
+</style>
+<script type="text/javascript">
+	var setChannelCode, setPayAcctNo, setMerchantNo, setMerchantName;
+	$(function() {
+		setChannelCode = getQueryString("channelCode");
+		setPayAcctNo = getQueryString("payAcctNo");
+		setMerchantNo = getQueryString("merchantNo");
+		setMerchantName = getQueryString("merchantName");
+		setTable();
+	});
+	// 搜索
+	$("#setTable_button").click(function() {
+		$("#setTable_unbind_table").bootstrapTable("refresh");
+	});
+
+	/*表格加载*/
+	function setTable() {
+		$("#setTable").bootstrapTable({
+			url: host_url + "/cloud-web/chnMerchCusRelation/pageList",
+			method: "GET",
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏
+			pageNumber: 1,
+			pageList: [10, 20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: "zh-CN", //中文支持
+			queryParamsType: "limit",
+			queryParams: function(params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = params.offset / params.limit + 1; //页码
+
+				params.merchantNo = setMerchantNo;
+				params.channelCode = setChannelCode;
+				params.payAcctNo = setPayAcctNo;
+				params._sys_login_token = _get_sys_login_token();
+				return params;
+			}, //参数
+			columns: [
+				{
+					title: "序号",
+					field: "index",
+					width: 30,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						var options = $("#setTable").bootstrapTable(
+							"getOptions"
+						);
+						return (
+							(options.pageNumber - 1) * options.pageSize +
+							index +
+							1
+						);
+					}
+				},
+				{
+					title: "操作",
+					field: "id",
+					align: "center",
+					valign: "middle",
+					width: 35,
+					formatter: function(value, row, index) {
+						return (
+							'<a href="javascript:;" onclick="setTable_unbindView(' +
+							row.id +
+							')" class="fa fa-unlock-alt" title="解绑"></a>'
+						);
+					}
+				},
+				{
+					field: "customerNo",
+					title: "平台号",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "customerName",
+					title: "平台名称",
+					width: 140,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "status",
+					title: "平台状态",
+					width: 65,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						var str = "";
+						if (row.status == 100) {
+							str = "正常";
+						} else if (row.status == -100) {
+							str = "停用";
+						} else if (row.status == 20) {
+							str = "待审核";
+						}
+						return str;
+					}
+				},
+				{
+					field: "createTime",
+					title: "加入时间",
+					width: 55,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						return formatterDateTime(value);
+					}
+				}
+			],
+			onLoadSuccess: function(res) {
+				//加载成功时执行
+				$("#setTable_tableNum").html(res.total);
+			}
+		});
+	}
+	// 绑定
+	function setTable_add() {
+		$(".setTableAdd").show();
+		$(".setTableTitle").hide();
+		setTable_unbind();
+	}
+	// 会员未绑定列表
+	function setTable_unbind() {
+		$("#setTable_unbind_table").bootstrapTable({
+			url: host_url + "/cloud-web/cusMemberInfo/loadNoBindCusList",
+			method: "GET",
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏
+			pageNumber: 1,
+			pageList: [10, 20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: "zh-CN", //中文支持
+			queryParamsType: "limit",
+			queryParams: function(params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = params.offset / params.limit + 1; //页码
+				params.cusCode = $("#member_mgp_mgn_cusCode")
+					.val()
+					.trim();
+				params.cusName = $("#member_mgp_mgn_cusName")
+					.val()
+					.trim();
+				//params.status = 100;
+				params._sys_login_token = _get_sys_login_token();
+				return params;
+			}, //参数
+			columns: [
+				{
+					title: "全选",
+					checkbox: true,
+					width: 20,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					title: "序号",
+					field: "index",
+					width: 30,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						var options = $(
+							"#setTable_unbind_table"
+						).bootstrapTable("getOptions");
+						return (
+							(options.pageNumber - 1) * options.pageSize +
+							index +
+							1
+						);
+					}
+				},
+				{
+					field: "cusCode",
+					title: "平台号",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "cusName",
+					title: "平台名称",
+					width: 140,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "mobileNum",
+					title: "手机号码",
+					width: 90,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						return row.mobileArea + value;
+					}
+				},
+				{
+					field: "email",
+					title: "邮箱",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "loginStatus",
+					title: "平台状态",
+					width: 60,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						var cusStatus = "";
+						if (value == 100) {
+							cusStatus = "正常";
+						} else if (value == -100) {
+							cusStatus = "停用";
+						} else {
+							cusStatus = "--";
+						}
+						return cusStatus;
+					}
+				}
+			],
+			onLoadSuccess: function(res) {}
+		});
+	}
+	//会员解绑
+	function setTable_unbindView(id) {
+		Ewin.confirm({
+			message: "是否确认解绑？"
+		}).on(function(e) {
+			if (e) {
+				sendAjax(
+					"GET",
+					host_url + "/cloud-web/chnMerchCusRelation/delete",
+					{
+						id: id
+					},
+					function(res) {
+						alertTips({ message: "恭喜你，操作成功！" });
+						$("#setTable").bootstrapTable("refresh");
+					}
+				);
+			}
+		});
+	}
+	// 确认保存
+	function setTable_addContract() {
+		var arr = $("#setTable_unbind_table").bootstrapTable("getSelections");
+		if (arr.length == 0) {
+			Ewin.alert({
+				message: "请选择要绑定的记录!"
+			});
+			return false;
+		}
+		var params = [];
+		$.each(arr, function(k, v) {
+			params.push({
+				customerNo: v.cusCode,
+				customerName: v.cusName,
+				channelCode: setChannelCode,
+				merchantNo: setMerchantNo,
+				merchantName: setMerchantName,
+				payAcctNo: setPayAcctNo
+			});
+		});
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/chnMerchCusRelation/addSubmit",
+			{
+				params: JSON.stringify(params)
+			},
+			function(res) {
+				$(".setTableAdd").hide();
+				$(".setTableTitle").show();
+
+				alertTips({ message: "恭喜你，操作成功！" });
+				$("#setTable").bootstrapTable("refresh");
+				$("#setTable_unbind_table").bootstrapTable("refresh");
+			}
+		);
+	}
+</script>

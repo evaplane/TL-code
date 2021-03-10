@@ -1,0 +1,183 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal" name="edit_form" role="form"  id="edit_form">
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>系统编码：</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_sysCode" name="sysCode" placeholder="系统编码"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>参数名称：</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_paramName" name="paramName" placeholder="参数名称"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>参数代码：</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_paramCode" name="paramCode" placeholder="参数代码"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>参数值：</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_paramValue" name="paramValue" placeholder="参数值"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group" >
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>是否加密：</label>
+					<div class="col-xs-8 col-sm-8">
+		        	<div class="edit_isEncry" data-on="success" data-off="warning">
+						<input type="checkbox" name="isEncry" id="edit_isEncry"/>
+					</div>
+		        </div>
+				</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">描述：</label>
+				<div class="col-xs-8 col-sm-7">
+					<!-- <input type="text" class="form-control" id="edit_paramDesc" name="paramDesc" placeholder="描述"  autocomplete="off"> -->
+					<textarea type="text" class="form-control" id="edit_paramDesc" name="paramDesc" placeholder="描述"  autocomplete="off" cols="39" rows="3" style="resize:none;"></textarea>
+				</div>
+			</div>
+			<!-- 隐藏域 -->
+			<input id="edit_id" name="id" class="form-control" type="hidden">
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		<button type="button" class="btn btn-primary" onclick="_doSubmit();">确定</button>
+	</div>
+</div>
+
+<script type="text/javascript">
+var baseSysConstansId = getQueryString('id');
+$(function(){
+	_validateForm();
+	$(".edit_isEncry").bootstrapSwitch();
+	var url = host_url+"/cloud-web/pubSysConstans/view";
+	sendAjax( 'POST', url, {'id':baseSysConstansId}, function(res){
+		var data=res.rows;
+		$('#edit_id').val(data.id);
+		$('#edit_sysCode').val(data.sysCode);
+		$('#edit_paramName').val(data.paramName);
+		$('#edit_paramCode').val(data.paramCode);
+        $('#edit_paramValue').val(data.paramValue);
+        if(data.isEncry==100){ //是否对账
+			$(".edit_isEncry").bootstrapSwitch('setState', true);
+		}else{
+			$(".edit_isEncry").bootstrapSwitch('setState', false);
+		}
+		$(".edit_isEncry").on('switch-change', function (e, data) {
+			var $el = $(data.el),
+				value = data.value;
+			if(value){
+				return $(this).val(100);
+			}else{
+				return $(this).val(-100);
+			}
+		});
+        
+        $('#edit_paramDesc').val(data.paramDesc);
+	});
+});
+
+//初始化验证框架
+function _validateForm(){
+	//进行表单验证
+   	$('#edit_form').bootstrapValidator({
+		message: '输入值不合法',
+        feedbackIcons: {valid: 'glyphicon glyphicon-ok',invalid: 'glyphicon glyphicon-remove',validating: 'glyphicon glyphicon-refresh'},
+        fields: {
+			sysCode:{
+				message: '系统编码验证失败',
+				validators: {
+					notEmpty: {message: '系统编码不能为空'},
+					stringLength:{
+						min:1,
+						max:64,
+						message:'长度必须在1-64之间'
+					}
+              	}
+			},
+			paramName:{
+				message: '参数名称验证失败',
+				validators: {
+                	notEmpty: {message: '参数名称不能为空'},
+					stringLength:{
+						min:1,
+						max:64,
+						message:'长度必须在1-64之间'
+					}
+              	}
+			},
+			paramCode:{
+				message: '参数代码验证失败',
+				validators: {
+                	notEmpty: {message: '参数代码不能为空'},
+					stringLength:{
+						min:1,
+						max:64,
+						message:'长度必须在1-64之间'
+					}
+              	}
+			},
+			paramValue:{
+				message: '参数值验证失败',
+				validators: {
+                	notEmpty: {message: '参数值不能为空'},
+					stringLength:{
+						min:1,
+						max:256,
+						message:'长度必须在1-256之间'
+					}
+              	}
+			},
+			status:{
+				message: '状态(100启用、-100停用)验证失败',
+				validators: {
+                	notEmpty: {message: '状态(100启用、-100停用)不能为空'}
+              	}
+			},
+                paramDesc: {
+                    message: '描述验证失败',
+                    validators: {
+                        stringLength: {
+                            max: 128,
+                            message: '长度必须在1-128之间'
+                        }
+                    }
+                }
+     	}
+	});
+}
+
+//提交表单
+function _doSubmit(){
+	var bv = $('#edit_form').data('bootstrapValidator').validate();
+	if (!bv.isValid()) {//验证不通过
+		return;
+	}
+	
+	var paramForm = $("#edit_form").serializeArray();
+	var params = {};
+	$.each(paramForm, function(i, param){
+		params[param.name]=$.trim(param.value);
+	});
+	params.id = baseSysConstansId;
+	if(params.isEncry=='on'){
+		params.isEncry=100;
+	}else{
+		params.isEncry=-100;
+	}
+	sendAjax( 'POST', host_url+"/cloud-web/pubSysConstans/editSubmit", params, function(res){
+		Ewin.alert({ message: '恭喜你，操作成功！' }).on(function(e){
+			if(e){
+				$('#edit_form').parents('.modal').modal('hide');
+				$(".table").bootstrapTable('refresh');
+			}
+		});
+	});
+}
+</script> 
+

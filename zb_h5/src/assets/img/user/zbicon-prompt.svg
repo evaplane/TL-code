@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 57.1 (83088) - https://sketch.com -->
+    <title>ZB.COM/0_Global/notice@2x</title>
+    <desc>Created with Sketch.</desc>
+    <g id="ZB.COM/0_Global/notice" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M12,22 C17.5228475,22 22,17.5228475 22,12 C22,6.4771525 17.5228475,2 12,2 C6.4771525,2 2,6.4771525 2,12 C2,17.5228475 6.4771525,22 12,22 Z" id="Combined-Shape" fill="#E91C41"></path>
+        <rect id="Rectangle" fill="#FFFFFF" transform="translate(12.000000, 10.000000) rotate(90.000000) translate(-12.000000, -10.000000) " x="8" y="9" width="8" height="2" rx="1"></rect>
+        <circle id="椭圆形" fill="#FFFFFF" cx="12" cy="17" r="1.25"></circle>
+    </g>
+</svg>

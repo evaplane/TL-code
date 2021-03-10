@@ -1,0 +1,129 @@
+<div class="content_center">
+    <div class="content_center_content">
+        <form class="form-horizontal" name="form_update_password" role="form"  id="form_update_password">
+                <div class="form-group">
+                    <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>旧密码</label>
+                    <div class="col-xs-8 col-sm-7">
+                        <input type="password" class="form-control" id="old_password" name="oldPassword" placeholder="请输入旧密码"  autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>新密码</label>
+                    <div class="col-xs-8 col-sm-7">
+                        <input type="password" class="form-control" id="new_password" name="newPassword" placeholder="请输入新密码"  autocomplete="off">
+                    </div>
+                    <div class="col-xs-8 col-sm-7 col-sm-offset-3" id="newOld" style="display: none"><span class='inputTip'>新密码不能和旧密码相同</span></div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>确认密码</label>
+                    <div class="col-xs-8 col-sm-7">
+                        <input type="password" class="form-control" id="new_password_2" name="newPassword2" placeholder="请输入新密码"  autocomplete="off">  
+                    </div>
+                    <div class="col-xs-8 col-sm-7 col-sm-offset-3" id="errorTip" style="display: none"><span class='inputTip'>新密码和确认密码不一致</span></div>
+                </div>
+        </form>
+    </div>
+</div>
+<div class="modal-footer" >
+    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+    <button type="button" class="btn btn-primary" onclick="_doSubmit()">确定</button>
+</div>
+<style type="text/css">
+    #load_role {
+        position: absolute;
+        top:33px;
+        left: 25%;
+        z-index: 2000;
+        background: #fff;
+        display: none;
+        overflow: scroll;
+        max-height: 300px;
+    }
+    #load_role::-webkit-scrollbar {
+        display: none;
+    }
+</style>
+<script type="text/javascript" src="../../../js/lib/jquery.md5.js"></script>
+<script type="text/javascript">
+$(function(){
+    _validateForm();//验证初始化
+		
+});
+
+//初始化验证框架
+function _validateForm(){
+    //进行表单验证
+    $('#form_update_password').bootstrapValidator({
+        message: '输入值不合法',
+        feedbackIcons: {valid: 'glyphicon glyphicon-ok',invalid: 'glyphicon glyphicon-remove',validating: 'glyphicon glyphicon-refresh'},
+        excluded : [':disabled'],
+        fields: {
+            oldPassword:{
+                message: '旧密码验证失败',
+                validators: {
+	                notEmpty: {message: '旧密码不能为空'},
+	                stringLength: {
+	                    min: 6,
+	                    max: 32,
+	                    message: '长度必须在6-32之间'
+	                }
+                }
+            },
+            newPassword:{
+                message: '新密码验证失败',
+                validators: {
+                    notEmpty: {message: '新密码不能为空'},
+                    stringLength: {
+                        min: 6,
+                        max: 32,
+                        message: '长度必须在6-32之间'
+                    }
+                }
+            },
+            newPassword2:{
+                message: '新密码验证失败',
+                validators: {
+                    notEmpty: {message: '新密码不能为空'},
+                    stringLength: {
+                        min: 6,
+                        max: 32,
+                        message: '长度必须在6-32之间'
+                    }
+                }
+            }
+        }
+    });
+}
+
+//提交
+function _doSubmit(){
+    var bv = $('#form_update_password').data('bootstrapValidator').validate();
+    if (!bv.isValid()) {//验证不通过
+        return;
+    }
+    if($('#new_password').val()==$('#old_password').val()){
+    	$('#newOld').attr("style","display:block;");
+		$('#errorTip').attr("style","display:none;");
+		return false;
+    }else if($('#new_password').val()!=$('#new_password_2').val()){
+		$('#errorTip').attr("style","display:block;");
+		$('#newOld').attr("style","display:none;");
+		return false;
+	}else{
+	    var params = {};
+	    params.oldPassword = $.md5($("#old_password").val());
+	    params.newPassword = $.md5($("#new_password").val());
+		params.userType = 10;
+		params.userCode = _loginJsonObj.loginName;
+	    
+		sendAjax('POST', host_url+"/cloud-web/ownSsoUser/updateUserPassword", params, function(res){
+	    	Ewin.alert({ message: '恭喜你，操作成功！' }).on(function(e){
+	            //重置密码后跳转登录页面
+	        	localStorage.setItem('sybJsonLocal', '');
+	            window.location.href='../../login/login.html';
+	        });
+	    });
+	}
+    
+}
+</script>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>极点</title>
+    <script src="https://cdn.bootcss.com/jquery/3.4.0/jquery.js"></script>
+    <link rel="stylesheet" href="./css/common.css">
+    <script type="text/javascript" src="./js/mui.min.js"></script>
+    <link rel="stylesheet" href="./css/mui.min.css" />
+    <script type="text/javascript" src="./js/index.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+
+<body style="background-color: #fff;padding-top: 42px;">
+    <header>
+        <div class="searchBox">
+            <input type="text" placeholder="请输入组名或组号或微信号" name="condition" id="searchInput">
+            <div class="iconBox">
+                <i class="fa fa-search seachIcon" aria-hidden="true"></i>
+            </div>
+        </div>
+    </header>
+    <section style="height:100%;">
+        <div id="noDate"
+            style="width:100%;height:100%;text-align:center;font-size:0.5rem;line-height:1rem;display: none;">
+            无更多数据
+        </div>
+        <div id="refreshContainer">
+            <div class="mui-content" id="contentBox" style="background-color:#fff;">
+                <div class="mui-row" id="content">
+                    <!-- <div class="mui-col-sm-12 mui-col-xs-12">
+                    <div class="twoDContent">
+                        <div class="left">
+                            <img src="" alt="">
+                        </div>
+                        <div class="center">
+                            <p class="wechatCode">111111111111</p>
+                            <p><span class="groupName">1</span class="groupCode"><span>-2-</span></p>
+                            <p><span class="createTime"> 2019-04-30</span></p>
+                        </div>
+                        <div class="right">
+                            <div id="mySwitch">
+                                <div class="mui-switch mui-switch-mini mui-active statusButton">
+                                    <div class="mui-switch-handle"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+        <div class="mui-content">
+            <div class="mui-row">
+                <div class="mui-col-sm-6 mui-col-xs-6">
+                    <a href="./index.html" class="mui-table-view-cell active">
+                        <i class="fa fa-qrcode" aria-hidden="true"></i>
+                    </a>
+                </div>
+                <div class="mui-col-sm-6 mui-col-xs-6">
+                    <a href="./userCenter.html" class="mui-table-view-cell">
+                        <i class="fa fa-user-circle" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script type="text/javascript" src="./js/hostUrl.js"></script>
+    <script type="text/javascript" src="./js/common.js"></script>
+    <script>
+        var pageSize = 10, // 当前页数量
+            page = 1; // 当前页
+        $(function () {
+            $('.iconBox').on('click', function () {
+                get_erweima();
+            });
+        })
+
+        mui.init({
+            pullRefresh: {
+                container: '#refreshContainer', //待刷新区域标识，querySelector能定位的css选择器均可，比如：id、.class等
+                down: {
+                    auto: true,//可选,默认false.自动上拉加载一次
+                    contentdown: "正在往下拉",
+                    contentover: "松手刷新",
+                    contentrefresh: "刷新中",
+                    callback: function () {
+                        setTimeout(function () {
+                            page = 1;
+                            get_erweima();
+                            // mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+                            // mui('#refreshContainer').pullRefresh().refresh(true);
+                        }, 500)
+                    }
+                },
+                up: {
+                    // height: 50,//可选.默认50.触发上拉加载拖动距离
+                    // auto: false,//可选,默认false.自动上拉加载一次
+                    contentrefresh: "正在加载...", //可选，正在加载状态时，上拉加载控件上显示的标题内容
+                    contentnomore: '没有更多数据了', //可选，请求完毕若没有更多数据时显示的提醒内容；
+                    callback: function () {
+                        setTimeout(function () {
+                            page++;
+                            var params = {
+                                limit: 10,
+                                pageSize: 10,
+                                page: page,
+                                condition: $('#searchInput').val() || ''
+                            };
+                            sendAjax('GET', host_url + '/wxinfo/list', params, function (res) {
+                                var data = res.rows;
+                                if (res.total >= ($('#content>div').length + 10)) {
+                                    var html = '';
+                                    $.each(data, function (i, item) {
+                                        html +=
+                                            '<div class="mui-col-sm-12 mui-col-xs-12">'
+                                        html += '<div class="twoDContent">'
+                                        html += '<div class="left">'
+                                        html += '<img src="' + item.qrcodeUrl +
+                                            '" alt="">'
+                                        html += '</div>'
+                                        html += '<div class="center">'
+                                        html += '<p class="wechatCode">' + item
+                                            .watchCode + '</p>'
+                                        html += '<p><span class="groupName">' + item
+                                            .groupName +
+                                            ' </span class="groupCode"><span> ' +
+                                            item.groupCode + '</span></p>'
+                                        html += '<p><span class="createTime">' +
+                                            item.createtime + '</span></p>'
+                                        html += '</div>'
+                                        html += '<div class="right">'
+                                        html += '<div class="mySwitch">'
+                                        if (item.status == 100) {
+                                            html +=
+                                                '<div class="mui-switch mui-switch-mini mui-active statusButton" data-id="' +
+                                                item.id + '" data-status="' + item
+                                                    .status + '">'
+                                            html +=
+                                                '<div class="mui-switch-handle"></div>'
+                                        } else {
+                                            html +=
+                                                '<div class="mui-switch mui-switch-mini statusButton" data-id="' +
+                                                item.id + '" data-status="' + item
+                                                    .status + '">'
+                                            html +=
+                                                '<div class="mui-switch-handle"></div>'
+                                        }
+                                        html += '</div>'
+                                        html += '</div>'
+                                        html += '</div>'
+                                        html += '</div>'
+                                        html += '</div>'
+                                    })
+                                    $('#content').append(html);
+
+                                    mui('.mui-switch')['switch']();
+                                    // 修改状态
+                                    mui('.mui-switch').each(function () {
+                                        var _this = this;
+                                        var params = {};
+                                        var id = '';
+                                        var status = '';
+                                        mui(_this).switch();
+                                        _this.addEventListener("toggle", function (
+                                            event) {
+                                            if (event.detail.isActive) {
+                                                params.id = $(event.target).attr('data-id');
+                                                if (parseInt($(event.target).attr('data-status')) == 100) {
+                                                    params.status = -100;
+                                                } else {
+                                                    params.status = 100;
+                                                }
+                                                updateStatus(params);
+                                            } else {
+                                                //关闭
+                                                params.id = $(event.target).attr('data-id');
+                                                if (parseInt($(event.target).attr('data-status')) == 100) {
+                                                    params.status = -100;
+                                                } else {
+                                                    params.status = 100;
+                                                }
+                                                updateStatus(params);
+                                            }
+                                        });
+                                    });
+                                    mui('#refreshContainer').pullRefresh().endPullupToRefresh(false);
+                                } else {
+                                    mui('#refreshContainer').pullRefresh().endPullupToRefresh(true);
+                                }
+                            })
+                        }, 500)
+                    } //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+                }
+            }
+        });
+
+        function get_erweima() {
+            page = 1;
+            var params = {
+                limit: 10,
+                pageSize: 10,
+                page: page,
+                condition: $('#searchInput').val() || ''
+            };
+            sendAjax('GET', host_url + '/wxinfo/list', params, function (res) {
+                var data = res.rows;
+                if (data.length <= 0) {
+                    $('#noDate').show();
+                    $('#refreshContainer').hide();
+                } else {
+                    $('#noDate').hide();
+                    $('#refreshContainer').show();
+                    var html = '';
+                    $.each(data, function (i, item) {
+                        html += '<div class="mui-col-sm-12 mui-col-xs-12">'
+                        html += '<div class="twoDContent">'
+                        html += '<div class="left">'
+                        html += '<img src="' + item.qrcodeUrl + '" alt="">'
+                        html += '</div>'
+                        html += '<div class="center">'
+                        html += '<p class="wechatCode">' + item.watchCode + '</p>'
+                        html += '<p><span class="groupName">' + item.groupName +
+                            ' </span class="groupCode"><span> ' + item.groupCode + '</span></p>'
+                        html += '<p><span class="createTime">' + item.createtime + '</span></p>'
+                        html += '</div>'
+                        html += '<div class="right">'
+                        html += '<div id="mySwitch">'
+                        if (item.status == 100) {
+                            html +=
+                                '<div class="mui-switch mui-switch-mini mui-active statusButton" data-id="' +
+                                item.id + '" data-status="' + item.status + '">'
+                            html += '<div class="mui-switch-handle"></div>'
+                        } else {
+                            html += '<div class="mui-switch mui-switch-mini statusButton" data-id="' + item
+                                .id + '" data-status="' + item.status + '">'
+                            html += '<div class="mui-switch-handle"></div>'
+                        }
+                        html += '</div>'
+                        html += '</div>'
+                        html += '</div>'
+                        html += '</div>'
+                        html += '</div>'
+                    })
+                }
+                $('#content').html(html);
+                mui('.mui-switch')['switch']();
+                // 修改状态
+                mui('.mui-switch').each(function () {
+                    var _this = this;
+                    var params = {};
+                    var id = '';
+                    var status = '';
+                    mui(_this).switch();
+                    _this.addEventListener("toggle", function (event) {
+                        if (event.detail.isActive) {
+                            params.id = $(event.target).attr('data-id');
+                            if (parseInt($(event.target).attr('data-status')) == 100) {
+                                params.status = -100;
+                            } else {
+                                params.status = 100;
+                            }
+                            updateStatus(params);
+                        } else {
+                            //关闭
+                            params.id = $(event.target).attr('data-id');
+                            if (parseInt($(event.target).attr('data-status')) == 100) {
+                                params.status = -100;
+                            } else {
+                                params.status = 100;
+                            }
+                            updateStatus(params);
+                        }
+                    });
+                });
+                mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+                mui('#refreshContainer').pullRefresh().refresh(true);
+                if(data.length < 10){
+                    mui('#refreshContainer').pullRefresh().disablePullupToRefresh();
+                }else{
+                    mui('#refreshContainer').pullRefresh().enablePullupToRefresh();
+                    
+                }
+                window.scroll(0,0)
+            })
+        }
+
+        // 发请求改变状态
+        function updateStatus(params) {
+            sendAjax('POST', host_url + "/wxinfo/updateStatus", params, function (res) {
+                if (res.retCode == "000000") {
+                    mui.toast('恭喜你，操作成功！', {
+                        duration: 1000,
+                        type: 'div'
+                    });
+                } else {
+                    mui.toast(res.retMsg, {
+                        duration: 'long',
+                        type: 'div'
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

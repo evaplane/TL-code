@@ -1,0 +1,248 @@
+<link rel="stylesheet" href="../../../css/fonts/rob/iconfont.css" />
+<div class="content_center" id="showNews">
+	<div class="content_center_content" id="showNewsContent">
+		<button id="batchRobBill" type="button" class="btn btn-primary" style="margin-bottom: 10px;"
+			onclick="newsBatchRobBill()">
+			批量抢单
+		</button>
+		<button type="button" class="btn btn-primary" style="margin-bottom: 10px;float: right;"
+			onclick="showNewsTable()">
+			查询
+		</button>
+		<table id="showNewsTable" cellpadding="0" cellspacing="0" border="0" class="table table-bordered table-hover">
+			<thead>
+				<tr>
+					<th><input type="checkbox" id="news_select_all" /></th>
+					<th>序号</th>
+					<th>平台号</th>
+					<th>平台名称</th>
+					<th>平台单号</th>
+					<th>描述</th>
+					<th>创建时间</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody id="showNewsBody"></tbody>
+		</table>
+		<div class="modal-footer" id="showNewsFooter">
+			<button type="button" class="btn btn-default" data-dismiss="modal">
+				关闭
+			</button>
+		</div>
+	</div>
+</div>
+<style>
+	#showNews {
+		width: 100%;
+		position: relative;
+		height: 793px;
+	}
+
+	#showNewsFooter {
+		position: absolute;
+		bottom: 0px;
+	}
+
+	#showNews>li {
+		width: 100%;
+		height: 50px;
+		line-height: 50px;
+		border-bottom: 1px solid #e5e5e5;
+		cursor: pointer;
+	}
+
+	.blue {
+		color: blue;
+	}
+</style>
+<script>
+	$(function () {
+		showNewsTable();
+	});
+	// 显示表格
+	function showNewsTable() {
+		sendAjax(
+			"POST",
+			host_url + "cloud-web/coreMessageNotify/getCoreMessageList",
+			{},
+			function (res) {
+				var data = res.rows;
+				$("#header_tip").html(data.length);
+				if (data.length > 0) {
+					var newsContent = "";
+					$.each(data, function (i, item) {
+						var notify = "提款";
+						newsContent +=
+							"<tr>" +
+							"<td><input type='checkbox' name='news_select' data-routecode=" +
+							item.routeCode +
+							" data-orderno=" +
+							item.orderNo +
+							"></td>" +
+							"<td>" +
+							(i + 1) +
+							"</td>" +
+							"<td >" +
+							item.customerNo +
+							"</td>" +
+							"<td >" +
+							item.customerName +
+							"</td>" +
+							"<td>" +
+							item.orderNo +
+							"</td>" +
+							"<td>一笔新的提款订单 金额：***元待领取进入工作台快速处理</td>" +
+							"<td>" +
+							formatterDateTime(item.createTime) +
+							"</td>" +
+							"<td><i class='iconfont icon-qiangdan' title='抢单' style='color:#3e7fff;font-size:20px;cursor:pointer;' onclick='robBill(\"" +
+							item.orderNo +
+							'","' +
+							item.routeCode +
+							"\")'></i></td>" +
+							"</tr>";
+					});
+					$("#showNewsBody").html(newsContent);
+					newSelect();
+				} else {
+					$("#showNewsBody").html("<tr><td colspan='8'>没有找到匹配的记录</td></tr>");
+				}
+			}
+		);
+	}
+	// 抢单
+	function robBill(orderNo, routeCode) {
+		var params = {
+			orderNo: orderNo,
+			routeCode: routeCode,
+			operatorCode: _loginJsonObj.loginName
+		};
+		sendAjax_special(
+			"POST",
+			host_url + "cloud-web/corePayTransFlow/financeGrabOrder",
+			params,
+			function (res) {
+				if (res.retCode == "000000") {
+					$(".account_children li").each(function (i, item) {
+						if (
+							$(item).text() == "提款作业" ||
+							$(item).text() == "出金作业"
+						) {
+							dataTab = $(item).attr("data-tab");
+							$("#tabContainer")
+								.data("tabs")
+								.$element.find(
+									".nav-tabs li a[href='#" + dataTab + "']"
+								)
+								.click();
+							$(
+								".account_children li[data-tab='" +
+								dataTab +
+								"']"
+							).click();
+							$("#corePayTransFlowTable").bootstrapTable(
+								"refresh"
+							);
+							$("#showNewsBody td :checkbox").prop(
+								"checked",
+								false
+							);
+							showNewsTable();
+							// $('#showNews').parents('.modal').modal('hide');
+						}
+					});
+					alertTips({ message: res.retMsg });
+					showNewsTable();
+				} else {
+					alertTips({ message: res.retMsg, id: "alert-danger" });
+					showNewsTable();
+				}
+			}
+		);
+	}
+
+	// 全选和反选
+	function newSelect() {
+		$("#news_select_all").on("click", function () {
+			var checkAll = $("#news_select_all").prop("checked");
+			$("#showNewsBody td :checkbox").prop("checked", checkAll);
+		});
+
+		$("#showNewsBody").on("click", "input[type=checkbox]", function (e) {
+			e.stopPropagation();
+			var allLength = $("#showNewsBody td :checkbox").length;
+			var checkLength = $("#showNewsBody input[type='checkbox']:checked")
+				.length;
+			if (checkLength == allLength) {
+				$("#news_select_all").prop("checked", true);
+			} else {
+				$("#news_select_all").prop("checked", false);
+			}
+		});
+	}
+
+	// 批量抢单
+	function newsBatchRobBill() {
+		var checkLength = $("#showNewsBody input[type='checkbox']:checked")
+			.length;
+		if (checkLength == 0) {
+			Ewin.alert({ message: "请选中一行进行抢单" });
+			return false;
+		}
+		var allChecked = document.getElementsByName("news_select");
+		var check_val = [];
+		for (var i = 0; i < allChecked.length; i++) {
+			if (allChecked[i].checked) check_val.push(allChecked[i]);
+		}
+		var orderList = [];
+		for (var i = 0; i < check_val.length; i++) {
+			orderList.push({
+				orderNo: check_val[i].dataset["orderno"],
+				routeCode: check_val[i].dataset.routecode,
+				operatorCode: _loginJsonObj.loginName
+			});
+		}
+		sendAjax_special(
+			"POST",
+			host_url + "cloud-web/corePayTransFlow/batchFinanceGrabOrder",
+			{ orderList: JSON.stringify(orderList) },
+			function (res) {
+				if (res.retCode == "000000") {
+					$(".account_children li").each(function (i, item) {
+						if (
+							$(item).text() == "提款作业" ||
+							$(item).text() == "出金作业"
+						) {
+							dataTab = $(item).attr("data-tab");
+							$("#tabContainer")
+								.data("tabs")
+								.$element.find(
+									".nav-tabs li a[href='#" + dataTab + "']"
+								)
+								.click();
+							$(
+								".account_children li[data-tab='" +
+								dataTab +
+								"']"
+							).click();
+							$("#corePayTransFlowTable").bootstrapTable(
+								"refresh"
+							);
+							$("#showNewsBody td :checkbox").prop(
+								"checked",
+								false
+							);
+							$("#news_select_all").prop("checked", false);
+							showNewsTable();
+						}
+					});
+					showNewsTable();
+					alertTips({ message: res.retMsg });
+				} else {
+					showNewsTable();
+					alertTips({ message: res.retMsg, id: "alert-danger" });
+				}
+			}
+		);
+	}
+</script>

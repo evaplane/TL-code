@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>极点</title>
+    <script src="https://cdn.bootcss.com/jquery/3.4.0/jquery.js"></script>
+    <link rel="stylesheet" href="./css/common.css">
+    <script type="text/javascript" src="./js/mui.min.js"></script>
+    <link rel="stylesheet" href="./css/mui.min.css" />
+    <script type="text/javascript" src="./js/index.min.js"></script>
+</head>
+
+<body style="background: #fff;">
+    <section id="login">
+        <div class="mui-content">
+            <div class="mui-row">
+                <div class="mui-col-sm-12 mui-col-xs-12">
+                    <form class="mui-input-group">
+                        <div class="mui-input-row">
+                            <label>用户名</label>
+                            <input type="text" id="username" class="mui-input-clear" placeholder="请输入用户名">
+                        </div>
+                        <div class="mui-input-row">
+                            <label>密码</label>
+                            <input type="password" id="password" class="mui-input-password" placeholder="请输入密码">
+                        </div>
+                        <div class="mui-button-row">
+                            <button type="button" class="mui-btn mui-btn-primary" onclick="login()">登录</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script type="text/javascript" src="./js/hostUrl.js"></script>
+    <script>
+        function login() {
+        var username = $("#username").val();
+        var password = $("#password").val();
+        if (username == "") {
+            mui.toast("用户名不能为空",{ duration:'long', type:'div' });
+            return false;
+        }
+        if (password == "") {
+            mui.toast("密码不能为空",{ duration:'long', type:'div' });
+            return false;
+        }
+
+        var params = {
+            username: $("#username").val(),
+            password: $("#password").val()
+        }
+        $.ajax({
+            type: 'POST',
+            url: host_url + "/user/login",
+            cache: false, //清楚ie缓存
+            data: params,
+            dataType: 'json',
+            success: function(res) {
+                if (res.retCode == "200") {
+                    window.localStorage.setItem('userJsonLocalMobile',JSON.stringify(res._sys_login_token));
+                    if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+                        console.log('手机端')
+                    } else {
+                        console.log('电脑端')
+                    }
+                    window.location.href = "./index.html";
+                } else {
+                    mui.toast(res.retMsg,{ duration:'long', type:'div' });
+                }
+            },
+            error: function() {
+                mui.toast(res.retMsg,{ duration:'long', type:'div' });
+            }
+        });
+    }
+    </script>
+</body>
+
+</html>

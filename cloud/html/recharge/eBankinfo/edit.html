@@ -1,0 +1,374 @@
+<div class="content_center">
+	<div class="content_center_content basic">
+		<form class="form-horizontal" name="edit_form" role="form" id="edit_form">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">账户类型</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="e_edit_acctType" name="acctType" value="对私" readonly>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>账号用途</label>
+				<div class="col-xs-8 col-sm-7">
+					<!-- <select class="form-control" id="e_edit_cardUseType" name="cardUseType" ></select> -->
+					<input type="text" class="form-control" id="e_edit_cardUseType" name="cardUseType" value="出款卡"
+						readonly>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>账户别名</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="edit_aliasName" name="aliasName" placeholder="请输入银行账户户名"
+						autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">账号预警(万元)</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="edit_cardLimit" name="cardLimit" placeholder="请输入账号预警"
+						autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group finance">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>出金限额</label>
+				<div class="col-xs-8 col-sm-7">
+					<select class="form-control" id="e_edit_amtCode" name="cardUseCode"></select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>开户姓名</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="edit_acctName" name="acctName" placeholder="请输入开户姓名"
+						autocomplete="off" readonly>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>银行卡号</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="edit_acctNo" name="acctNo" placeholder="请输入银行卡号"
+						autocomplete="off" onchange="num2(this)" readonly>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>开户银行</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="edit_bankName" name="bankName" readonly></input>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>开户地址</label>
+				<div class="col-xs-8 col-sm-7">
+					<div class="col-sm-12" style="padding: 0;">
+						<div class="form-group col-sm-6" style="padding-left: 0;">
+							<select id="edit_provinceCode" name="provinceCode" class="form-control">
+								<option value="">--省--</option>
+							</select>
+						</div>
+						<div class="form-group col-sm-6" style="padding-right: 0;">
+							<select id="edit_cityCode" name="cityCode" class="form-control">
+								<option value="">--市--</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">支行行名</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="edit_subBankName" name="subBankName"
+						placeholder="请输入支行行名" autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">备注</label>
+				<div class="col-xs-8 col-sm-7">
+					<textarea type="text" class="form-control" id="edit_remark" name="remark" placeholder="备注"
+						autocomplete="off" cols="39" rows="3" style="resize:none;"></textarea>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		<button type="button" class="btn btn-primary submitCheck" onclick="_doSubmit()">提交审核</button>
+	</div>
+</div>
+<script type="text/javascript">
+	var id = getQueryString('id');
+	var authStatus = getQueryString('authStatus');
+	var bankCode = '', selectedLevelValue;
+	$(function () {
+		_validateForm();//验证初始化
+		if (authStatus == 100) {
+			$('.submitCheck').text('保存');
+		} else {
+			$('.submitCheck').text('提交审核');
+		}
+		$('#edit_provinceCode').on('change', function () {
+			new Promise(cityBind);
+		});
+
+		listOptionInit2('#e_edit_amtCode', PAY_QUOTA)
+		$('#e_edit_amtCode').comboSelect();
+		// 回显数据
+		new Promise(proviceBind).then(function () {
+			sendAjax('POST', host_url + "/cloud-web/cardBankCardInfo/view", {
+				'id': id
+			}, function (res) {
+				var data = res.rows;
+
+				$('#edit_aliasName').val(data.aliasName);
+				if (data.cardLimit != 0) {
+					$('#edit_cardLimit').val(data.cardLimit);
+				}
+				$('#edit_acctName').val(data.acctName);
+				$('#edit_acctNo').val(data.acctNo);
+				$('#edit_subBankName').val(data.subBankName);
+				$('#edit_remark').val(data.remark);
+				$('#edit_bankName').val(data.bankName);
+
+
+				$("#e_edit_amtCode option[value='" + data.cardUseCode + "']").attr("selected", "selected");
+				$("#e_edit_amtCode+.combo-input").val($('#e_edit_amtCode option[selected]').text());
+				$('#e_edit_amtCode').comboSelect();
+				bankCode = data.bankCode;
+				$("#edit_provinceCode option[value='" + data.provinceCode + "']").attr("selected", "selected");
+				$("#edit_provinceCode+.combo-input").val($('#provinceCode option[selected]').text());
+				$('#edit_provinceCode').comboSelect();
+				new Promise(cityBind).then(function () {
+					$("#edit_cityCode option[value='" + data.cityCode + "']").attr("selected", "selected");
+					$("#edit_cityCode+.combo-input").val($('#cityCode option[selected]').text());
+					$('#edit_cityCode').comboSelect();
+				});
+			});
+		});
+	});
+	//初始化验证框架
+	function _validateForm() {
+		//进行表单验证
+		$('#edit_form').bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: { valid: 'glyphicon glyphicon-ok', invalid: 'glyphicon glyphicon-remove', validating: 'glyphicon glyphicon-refresh' },
+			excluded: [':disabled'],
+			fields: {
+				aliasName: {
+					verbose: false,
+					message: '账号别名验证失败',
+					validators: {
+						stringLength: {
+							min: 2,
+							max: 32,
+							message: '账号别名长度2-32'
+						},
+						notEmpty: {
+							message: '账号别名不能为空'
+						}
+					}
+				},
+				cardUseType: {
+					verbose: false,
+					message: '账号用途验证失败',
+					validators: {
+						notEmpty: { message: '请选择账号用途' }
+					}
+				},
+				cardUseCode: {
+					verbose: false,
+					message: '出金限额验证失败',
+					validators: {
+						notEmpty: { message: '出金限额不能为空' }
+					}
+				},
+				acctName: {
+					verbose: false,
+					message: '开户姓名验证失败',
+					validators: {
+						stringLength: {
+							min: 2,
+							max: 32,
+							message: '开户姓名长度2-32'
+						},
+						notEmpty: {
+							message: '开户姓名不能为空'
+						}
+					}
+				},
+				cardLimit: {
+					verbose: false,
+					message: '账号预警验证失败',
+					validators: {
+						stringLength: {
+							max: 4,
+							message: '账号预警长度不能超过4位数字'
+						},
+						regexp: {
+							regexp: /^[1-9]([0-9])*$/,
+							message: '请输入正确的正整数'
+						},
+					}
+				},
+				acctNo: {
+					verbose: false,
+					message: '银行卡号验证失败',
+					validators: {
+						notEmpty: { message: '银行卡号不能为空' },
+						stringLength: {
+							max: 32,
+							min: 8,
+							message: '银行卡号只能输入数字且长度8-32位'
+						},
+						regexp: {
+							regexp: /^[\d\s]+$/,
+							message: '银行卡号只能输入数字'
+						},
+					}
+				},
+				bankName: {
+					verbose: false,
+					message: '开户银行验证失败',
+					validators: {
+						notEmpty: { message: '开户银行不能为空' }
+					}
+				},
+				provinceCode: {
+					verbose: false,
+					message: '省份验证失败',
+					validators: {
+						notEmpty: { message: '省份不能为空' }
+					}
+				},
+				cityCode: {
+					verbose: false,
+					message: '城市验证失败',
+					validators: {
+						notEmpty: { message: '城市不能为空' }
+					}
+				},
+				remark: {
+					verbose: false,
+					message: '备注验证失败',
+					validators: {
+						// notEmpty: {message: '城市不能为空'},
+						stringLength: {
+							max: 32,
+							min: 0,
+							message: '备注长度0-32位'
+						},
+					}
+				},
+			}
+		});
+	}
+	// 开户银行
+	function bank(suc) {
+		sendAjax('POST', host_url + "/cloud-web/pubBankSupport/queryList", {}, function (res) {
+			var data = res.rows;
+			var bankList = [];
+			$.each(data, function (i, item) {
+				bankList.push({
+					id: item.ucode,
+					text: item.bname
+				});
+			});
+			listOptionInit2('#edit_bankName', bankList)
+			$('#edit_bankName').comboSelect();
+			if (suc) {
+				suc();
+			}
+		});
+	}
+	/**
+	  * 获取省份
+	  * @param url
+	  * @returns {String}
+	  */
+	function proviceBind(suc) {
+		sendAjax('POST', host_url + '/cloud-web/pubProvinceInfo/getProList', {}, function (res) {
+			var provinceList = res.rows;
+			var str1 = '';
+			$.each(provinceList, function (i, param) {
+				str1 += '<option value="' + param.provinceCode + '">' + param.provinceName + '</option>'
+			});
+			$('#edit_provinceCode').append(str1);
+			$('#edit_provinceCode').comboSelect();
+			if (suc) {
+				suc();
+			}
+		});
+	}
+
+	//获取账号用途
+	function cardUseTypeLoad(suc) {
+		sendAjax("POST", host_url + "/cloud-web/pubTypeGroup/findPubTypeGroupList", { sysCode: 'Card', 'groupName': 'card_type' }, function (data) {
+			$('#e_edit_cardUseType').html('');
+			var cardUseTypeHtml = '<option value="">请选择</option>';
+			$.each(data.rows, function (i, item) {
+				cardUseTypeHtml += '<option value="' + item.keyValue + '">' + item.keyName + '</option>';
+			});
+			$('#e_edit_cardUseType').append(cardUseTypeHtml);
+			$("#e_edit_cardUseType").comboSelect();
+			if (suc) {
+				suc();
+			}
+		})
+	}
+	//获取城市信息
+	function cityBind(suc) {
+		var provinceCode = $('#edit_provinceCode').find("option:selected").val();
+		$('#edit_cityCode').html('');
+		var str1 = '';
+		sendAjax('POST', host_url + '/cloud-web/pubProvinceInfo/getCityMapByCode', {
+			'provinceCode': provinceCode
+		}, function (res) {
+			var provinceList = res.rows;
+
+			if (provinceCode != "") {
+				str1 = '<option value="">--市--</option>';
+				$.each(provinceList, function (i, param) {
+					str1 += '<option value="' + param.cityCode + '">' + param.cityName + '</option>'
+				})
+			}
+			$('#edit_cityCode').append(str1);
+			$('#edit_cityCode').comboSelect();
+			if (suc) {
+				suc();
+			}
+		});
+	}
+	//提交
+	function _doSubmit() {
+		var bv = $('#edit_form').data('bootstrapValidator').validate();
+		if (!bv.isValid()) {//验证不通过
+			return;
+		}
+
+		var paramForm = $("#edit_form").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		if (params.subBankName != "" && params.subBankName.length > 32) {
+			Ewin.alert({
+				message: "支行行名不能超过最大长度32"
+			});
+			return;
+		}
+		if (params.cardLimit.trim() == "") {
+			params.cardLimit = 0;
+		}
+		params.id = id;
+		params.acctType = 1;
+		params.provinceName = $("#edit_provinceCode option:selected").text();
+		params.cityName = $("#edit_cityCode option:selected").text();
+		params.bankCode = bankCode;
+		params.cardUseType = 20
+		sendAjax('POST', host_url + "/cloud-web/cardBankCardInfo/editSubmit", params, function (res) {
+			Ewin.alert({ message: '恭喜你，操作成功！' }).on(function (e) {
+				if (e) {
+					$('#edit_form').parents('.modal').modal('hide');
+					$("#eeBankTable").bootstrapTable('refresh');
+				}
+			});
+		});
+	}
+</script>

@@ -1,0 +1,110 @@
+<div class="content_center">
+    <div class="content_center_content">
+        <form class="form-horizontal" name="form_update_password" role="form"  id="form_update_password">
+                <div class="form-group">
+                    <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>新密码</label>
+                    <div class="col-xs-8 col-sm-7">
+                        <input type="password" class="form-control" id="new_password" name="newPassword" placeholder="请输入新密码"  autocomplete="off">
+                        
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>确认密码</label>
+                    <div class="col-xs-8 col-sm-7">
+                        <input type="password" class="form-control" id="new_password_2" name="newPassword2" placeholder="请输入新密码"  autocomplete="off">
+                    </div>
+                    <div class="col-xs-8 col-sm-7 col-sm-offset-3" id="errorTip" style="display: none"><span class='inputTip'>新密码和确认密码不一致</span></div>
+                </div>
+        </form>
+    </div>
+</div>
+<div class="modal-footer" >
+    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+    <button type="button" class="btn btn-primary" onclick="_doSubmit()">确定</button>
+</div>
+<style type="text/css">
+    #load_role {
+        position: absolute;
+        top:33px;
+        left: 25%;
+        z-index: 2000;
+        background: #fff;
+        display: none;
+        overflow: scroll;
+        max-height: 300px;
+    }
+    #load_role::-webkit-scrollbar {
+        display: none;
+    }
+</style>
+<script type="text/javascript" src="../../../js/lib/jquery.md5.js"></script>
+<script type="text/javascript">
+$(function(){
+    _validateForm();//验证初始化
+		
+});
+
+//初始化验证框架
+function _validateForm(){
+    //进行表单验证
+    $('#form_update_password').bootstrapValidator({
+        message: '输入值不合法',
+        feedbackIcons: {valid: 'glyphicon glyphicon-ok',invalid: 'glyphicon glyphicon-remove',validating: 'glyphicon glyphicon-refresh'},
+        excluded : [':disabled'],
+        fields: {
+            newPassword:{
+                message: '新密码验证失败',
+                validators: {
+                    notEmpty: {message: '新密码不能为空'},
+                    stringLength: {
+                        min: 6,
+                        max: 32,
+                        message: '长度必须在6-32之间'
+                    }
+                }
+            },
+            newPassword2:{
+                message: '新密码验证失败',
+                validators: {
+                    notEmpty: {message: '新密码不能为空'},
+                    stringLength: {
+                        min: 6,
+                        max: 32,
+                        message: '长度必须在6-32之间'
+                    }
+                }
+            }
+        }
+    });
+}
+
+//提交
+function _doSubmit(){
+    var bv = $('#form_update_password').data('bootstrapValidator').validate();
+    if (!bv.isValid()) {//验证不通过
+        return;
+    }
+    if($('#new_password').val()!=$('#new_password_2').val()){
+		$('#errorTip').attr("style","display:block;");
+		return false;
+	}else{
+		var params = {};
+	    params.oldPassword = $.md5('111111');
+	    params.newPassword = $.md5($("#new_password").val());
+	    params.token = _get_sys_login_token();
+	    
+	    sendAjax('POST', host_url+"/auth-web/authUser/updatePass", params, function(res){
+	    	if (res.retCode == SUCCESS_CODE) {//成功
+	            Ewin.alert({ message: '恭喜你，操作成功！' }).on(function(e){
+	                //重置密码后跳转登录页面
+	            	localStorage.setItem('sybJsonLocal', '');
+	                window.location.href='../../login/login.html';
+	            });
+	        } else {
+	            Ewin.alert({ message: res.retMsg }).on(function(e){});
+	        }
+	    });
+	}
+    
+}
+</script>

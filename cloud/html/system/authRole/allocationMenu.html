@@ -1,0 +1,156 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal" name="allocation_form_menu" role="form" id="allocation_form_menu">
+			<!-- <div class="form-group">
+                    <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>所属系统</label>
+                    <div class="col-xs-8 col-sm-7">
+                        <select class="form-control" id="allocation_menu_platform" name="menuPlatform" style="display: none">
+                            <option value ="">-- 请选择 --</option>
+                        </select>
+                    </div>
+                </div> -->
+			<div class="form-group" id="treeview"></div>
+			<!-- 隐藏域 -->
+			<!-- <input id="edit_id" name="id" class="form-control" type="hidden"> -->
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		<button type="button" class="btn btn-primary" onclick="_doSubmit();">确定</button>
+	</div>
+</div>
+<script src="../../../js/lib/bootstrap-treeview.min.js" type="text/javascript" charset="utf-8"></script>
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript">
+	$(function () {
+		var role_id = getQueryString('id');
+		var platform = getQueryString('platform');
+		sendAjax('POST', host_url + "/cloud-web/authMenu/viewMenuByRoleId", { "roleIds": role_id, "platform": 20 }, function (res) {
+			$('#tree').treeview('remove');
+			$('#treeview').treeview({
+				data: res.rows,
+				bootstrap2: false,
+				showTags: true,
+				showCheckbox: true,
+				levels: 1,//设置继承树默认展开的级别设置继承树默认展开的级别
+				onNodeChecked: nodeChecked,
+				onNodeUnchecked: nodeUnchecked
+			});
+		});
+		/* listOption("select[name=menuPlatform]", AUTH_PLATFORM);
+		$('#allocation_menu_platform').comboSelect({extendStyle: false}); */
+	});
+	//提交表单
+	function _doSubmit() {
+		var role_id = getQueryString('id');
+		var menuArr = [];
+		var paramArr = $('#treeview').treeview('getChecked');
+		$.each(paramArr, function (i, param) {
+			if (param.id != 0) {
+				menuArr.push(param.id);
+			}
+
+		});
+		if (menuArr.length == 0) {
+			menuArr.push(0);
+		}
+		sendAjax('POST', host_url + "/cloud-web/authRoleMenu/allocationMenu", { "roleId": role_id, "menuIds": menuArr.join(",") }, function (res) {
+			Ewin.alert({ message: '恭喜你，操作成功！' }).on(function (e) {
+				if (e) {
+					$('#allocation_form_menu').parents('.modal').modal('hide');
+					$("#table_auth_role").bootstrapTable('refresh');
+				}
+			});
+		});
+	}
+
+	//加载菜单
+	function _loadMenu() {
+		var platform = $('#allocation_menu_platform').find(':selected').val();
+		if (platform != 0) {
+			sendAjax('POST', host_url + "/cloud-web/authMenu/selectAllMenuByPlatform", { "platform": platform }, function (res) {
+				for (var i in res.rows) {
+					res.rows[i].text = res.rows[i].roleName
+				}
+				$('#treeview').treeview({
+					data: res.rows,
+					showTags: true,
+					showCheckbox: true,
+					levels: 1,//设置继承树默认展开的级别设置继承树默认展开的级别
+					onNodeChecked: nodeChecked,
+					onNodeUnchecked: nodeUnchecked
+				});
+			});
+		}
+	}
+	var nodeCheckedSilent = false;
+	function nodeChecked(event, node) {
+		if (nodeCheckedSilent) {
+			return;
+		}
+		nodeCheckedSilent = true;
+		checkAllParent(node);
+		checkAllSon(node);
+		nodeCheckedSilent = false;
+	}
+
+	var nodeUncheckedSilent = false;
+	function nodeUnchecked(event, node) {
+		if (nodeUncheckedSilent)
+			return;
+		nodeUncheckedSilent = true;
+		uncheckAllParent(node);
+		uncheckAllSon(node);
+		nodeUncheckedSilent = false;
+	}
+
+	//选中全部父节点
+	function checkAllParent(node) {
+		$('#treeview').treeview('checkNode', node.nodeId, { silent: true });
+		var parentNode = $('#treeview').treeview('getParent', node.nodeId);
+		if (!("nodeId" in parentNode)) {
+			return;
+		} else {
+			checkAllParent(parentNode);
+		}
+	}
+	//取消全部父节点
+	function uncheckAllParent(node) {
+		$('#treeview').treeview('uncheckNode', node.nodeId, { silent: true });
+		var siblings = $('#treeview').treeview('getSiblings', node.nodeId);
+		var parentNode = $('#treeview').treeview('getParent', node.nodeId);
+		if (!("nodeId" in parentNode)) {
+			return;
+		}
+		var isAllUnchecked = true;  //是否全部没选中
+		for (var i in siblings) {
+			if (siblings[i].state.checked) {
+				isAllUnchecked = false;
+				break;
+			}
+		}
+		if (isAllUnchecked) {
+			uncheckAllParent(parentNode);
+		}
+
+	}
+
+	//级联选中所有子节点
+	function checkAllSon(node) {
+		$('#treeview').treeview('checkNode', node.nodeId, { silent: true });
+		if (node.nodes != null && node.nodes.length > 0) {
+			for (var i in node.nodes) {
+				checkAllSon(node.nodes[i]);
+			}
+		}
+	}
+	//级联取消所有子节点
+	function uncheckAllSon(node) {
+		$('#treeview').treeview('uncheckNode', node.nodeId, { silent: true });
+		if (node.nodes != null && node.nodes.length > 0) {
+			for (var i in node.nodes) {
+				uncheckAllSon(node.nodes[i]);
+			}
+		}
+	}
+</script>

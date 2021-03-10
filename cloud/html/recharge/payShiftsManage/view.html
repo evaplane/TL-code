@@ -1,0 +1,108 @@
+<form class="form-horizontal" name="pay_edit_form" role="form" id="pay_edit_form">
+    <table cellpadding="0" cellspacing="0" border="0" id="table" class="table table-bordered">
+        <tbody class="basic">
+        <tr>
+            <td class='title col-sm-2'>代理编号：</td>
+            <td class="col-sm-4" id="pay_view_dlsCode"></td>
+            <td class='title col-sm-2'>代理名称：</td>
+            <td class="col-sm-4" id="pay_view_dlsName"></td>
+        </tr>
+		<tr>
+			<td class='title col-sm-2'>交易备注：</td>
+			<td class="col-sm-4" id="pay_view_remark"></td>
+			<td class='title col-sm-2'>平台订单号：</td>
+			<td class="col-sm-4" id="pay_view_orderNo"></td>
+		</tr>
+        <tr>
+            <td class='title col-sm-2'>订单金额（元）：</td>
+            <td class="col-sm-4" id="pay_view_orderAmt"></td>
+            <td class='title col-sm-2'>交易金额（元）：</td>
+            <td class="col-sm-4" id="pay_view_payAmt"></td>
+        </tr>
+        <tr>
+            <td class='title col-sm-2'>交易类型：</td>
+            <td class="col-sm-4" id="pay_view_tradeType"></td>
+            <td class='title col-sm-2'>交易状态：</td>
+            <td class="col-sm-4" id="pay_view_status"></td>
+        </tr>
+        <tr>
+            <td class='title col-sm-2'>赠送金额（元）：</td>
+            <td class="col-sm-4" id="pay_view_profitAmt"></td>
+            <td class='title col-sm-2'>收款方账号：</td>
+            <td class="col-sm-4" id="pay_view_recAcctNo"></td>
+        </tr>
+        <tr>
+            <td class='title col-sm-2'>收款方户名：</td>
+            <td class="col-sm-4" id="pay_view_recAcctName"></td>
+            <td class='title col-sm-2'>收款银行名称：</td>
+            <td class="col-sm-4" id="pay_view_recBankName"></td>
+        </tr>
+        <tr>
+            <td class='title col-sm-2'>付款银行名称：</td>
+            <td class="col-sm-4" id="pay_view_payBankName"></td>
+            <td class='title col-sm-2'>付款方账号：</td>
+            <td class="col-sm-4" id="pay_view_payAcctNo"></td>
+        </tr>
+        <tr>
+            <td class='title col-sm-2'>付款方户名：</td>
+            <td class="col-sm-4" id="pay_view_payAcctName"></td>
+            <td class='title col-sm-2'>费率（%）：</td>
+            <td class="col-sm-4" id="pay_view_feePercent"></td>
+        </tr>
+		<tr>
+		    <td class='title col-sm-2'>创建时间：</td>
+		    <td class="col-sm-4" id="pay_view_createTime"></td>
+		    <td class='title col-sm-2'>更新时间：</td>
+		    <td class="col-sm-4" id="pay_view_updateTime"></td>
+		</tr>
+		<tr>
+		    <td class='title col-sm-2'>审核时间：</td>
+		    <td class="col-sm-4" id="pay_view_auditTime"></td>
+		    <td class='title col-sm-2'>审核人：</td>
+		    <td class="col-sm-4" id="pay_view_operator"></td>
+		</tr>
+        <tr>
+            <td class='title col-sm-2'>审核状态：</td>
+            <td class="col-sm-4" id="pay_view_auditStatus"></td>
+            <td class='title col-sm-2'>审核意见：</td>
+            <td class="col-sm-4" id="pay_view_auditRemark"></td>
+        </tr>
+        </tbody>
+    </table>
+</form>
+<div class="modal-footer">
+    <button type="button" class="btn btn-primary cancel" data-dismiss="modal">关闭</button>
+</div>
+<script type="text/javascript">
+    $(function () {
+    	var view_id = getQueryString('id');
+        sendAjax('POST', host_url + "/own-web/dlsAuthOrderInfo/view", {'id': view_id}, function (res) {
+            var data = res.rows;
+			
+            $('#pay_view_dlsCode').html(data.dlsCode);
+            $('#pay_view_dlsName').html(data.dlsName);
+            $('#pay_view_orderNo').html(data.orderNo);
+            $('#pay_view_tradeType').html(sys_getTitle_Id(data.tradeType,TRADE_TYPE));
+            $('#pay_view_status').html(sys_getTitle_Id(data.status,TRADE_STATUS));
+			$('#pay_view_orderAmt').html(formatterMoney(data.orderAmt, 2));
+            $('#pay_view_payAmt').html(formatterMoney(data.payAmt, 2));
+            $('#pay_view_profitAmt').html(formatterMoney(data.profitAmt, 2));
+			$('#pay_view_recAcctNo').html(data.recAcctNo);
+			$('#pay_view_recAcctName').html(data.recAcctName);
+			$('#pay_view_recBankName').html(data.recBankName);
+			$('#pay_view_payBankName').html(data.payBankName);
+			$('#pay_view_payAcctNo').html(data.payAcctNo);
+			$('#pay_view_payAcctName').html(data.payAcctName);
+            $('#pay_view_feePercent').html(data.feePercent*100);
+            $('#pay_view_auditTime').html(getDateStr(data.auditTime));
+            $('#pay_view_operator').html(data.operator);
+			
+			$('#pay_view_createTime').html(getDateStr(data.createTime));
+			$('#pay_view_updateTime').html(getDateStr(data.updateTime));
+			$('#pay_view_auditStatus').html(sys_getTitle_Id(data.auditStatus,BUYKEY_AUDIT_STATUS));
+            $('#pay_view_auditRemark').html(data.auditRemark);
+            $('#pay_view_remark').html(data.remark);
+			
+        });
+    });
+</script>

@@ -1,0 +1,305 @@
+body {
+  margin: 0;
+  background-color: #000;
+}
+
+.zb-vip {
+  font-family: 'PingFang SC', 'Hiragino Sans GB', 'Helvetica Neue', Helvetica, sans-serif;
+  background-color: #000;
+  text-align: center;
+  line-height: 1.15;
+  font-size: 12px;
+}
+
+.zb-vip img {
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+.zb-vip .vip-header {
+  position: relative;
+}
+
+.zb-vip .vip-header .header-second-layer {
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.zb-vip .vip-header .header-second-layer img {
+  transform: translateX(-15px);
+}
+
+.zb-vip .vip-header .header-third-layer {
+  width: 220px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.zb-vip .vip-info {
+  font-size: 14px;
+  color: #9d9387;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.zb-vip .vip-info .vip-grade {
+  width: 60px;
+  margin-right: 10px;
+}
+
+.zb-vip .vip-title {
+  margin: 30px 0 20px 0;
+}
+
+.zb-vip .vip-title .decorate {
+  font-family: Impact, 'Arial Narrow Bold', sans-serif;
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  background-image: linear-gradient(180deg, #423c3a, #000);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.zb-vip .vip-title .title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zb-vip .vip-title .title h2 {
+  font-size: 20px;
+  white-space: nowrap;
+  margin: 0;
+  padding: 0 15px;
+  color: #d4a978;
+  font-weight: bold;
+}
+
+.zb-vip .vip-title .title span {
+  flex: none;
+  height: 2px;
+  width: 60px;
+  position: relative;
+}
+
+.zb-vip .vip-title .title span::before {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background-color: #d4a978;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.zb-vip .vip-title .title span.left-line {
+  background-image: linear-gradient(-90deg, #d4a978, #000);
+}
+
+.zb-vip .vip-title .title span.left-line::before {
+  right: 0;
+}
+
+.zb-vip .vip-title .title span.right-line {
+  background-image: linear-gradient(90deg, #d4a978, #000);
+}
+
+.zb-vip .vip-title .title span.right-line::before {
+  left: 0;
+}
+
+.zb-vip .vip-title .text {
+  color: #ebb579;
+  opacity: 0.5;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 0 15px;
+  margin: 8px 0 0 0;
+}
+
+.zb-vip .vip-list {
+  padding: 0 15px;
+}
+
+.zb-vip .vip-list .vip-item {
+  border-radius: 10px;
+  color: #593b0f;
+  text-align: left;
+  padding: 15px 20px 15px 70px;
+  overflow: hidden;
+  position: relative;
+}
+
+.zb-vip .vip-list .vip-item + .vip-item {
+  margin-top: 15px;
+}
+
+.zb-vip .vip-list .vip-item:nth-child(1), .zb-vip .vip-list .vip-item:nth-child(2), .zb-vip .vip-list .vip-item:nth-child(3) {
+  background-image: linear-gradient(159deg, #cfaa78 0%, #e7d2b0 50%);
+}
+
+.zb-vip .vip-list .vip-item:nth-child(4), .zb-vip .vip-list .vip-item:nth-child(5), .zb-vip .vip-list .vip-item:nth-child(6) {
+  background-image: linear-gradient(159deg, #d1aa78 0%, #f4d5bd 50%);
+}
+
+.zb-vip .vip-list .vip-item:nth-child(7), .zb-vip .vip-list .vip-item:nth-child(8), .zb-vip .vip-list .vip-item:nth-child(9) {
+  background-image: linear-gradient(159deg, #d1aa78 0%, #fde6b0 50%);
+}
+
+.zb-vip .vip-list .vip-item .icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+}
+
+.zb-vip .vip-list .vip-item .top {
+  display: flex;
+}
+
+.zb-vip .vip-list .vip-item .top b {
+  color: #1b1814;
+  font-weight: bold;
+  font-size: 18px;
+  margin-left: 5px;
+}
+
+.zb-vip .vip-list .vip-item .top b em {
+  font-style: normal;
+  font-size: 12px;
+}
+
+.zb-vip .vip-list .vip-item .top .top-item:last-child {
+  padding-left: 15px;
+  margin-left: 15px;
+  position: relative;
+}
+
+.zb-vip .vip-list .vip-item .top .top-item:last-child::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background-image: linear-gradient(180deg, rgba(238, 238, 238, 0) 0%, #8a7353 50%, rgba(216, 216, 216, 0) 100%);
+}
+
+.zb-vip .vip-list .vip-item .bottom {
+  display: inline-flex;
+  background-color: rgba(2, 2, 2, 0.08);
+  border-radius: 20px;
+  border-radius: 20px;
+  padding: 4px 8px;
+  margin-top: 8px;
+}
+
+.zb-vip .vip-list .vip-item .bottom span:last-child {
+  margin-left: 10px;
+}
+
+.zb-vip .vip-list .vip-item .right-text {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-image: linear-gradient(0deg, #231b18 0%, #51493e 100%);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.zb-vip .vip-list .vip-item .right-text::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-right: 6px solid #3a332b;
+  position: absolute;
+  left: -5px;
+}
+
+.zb-vip .vip-list .vip-item .right-text span {
+  color: #fff;
+  width: 18px;
+}
+
+.zb-vip .vip-list .vip-item.vip-item--upgrade .right-text {
+  background-image: linear-gradient(0deg, #9d8d76 0%, #ab9b82 100%);
+}
+
+.zb-vip .vip-list .vip-item.vip-item--upgrade .right-text::before {
+  border-right-color: #a4947c;
+}
+
+.zb-vip .vip-equity {
+  padding: 0 15px;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+}
+
+.zb-vip .vip-equity li .icon {
+  width: 50px;
+}
+
+.zb-vip .vip-equity li p {
+  color: #bba886;
+  margin: 5px 0 0 0;
+  line-height: 1.5;
+}
+
+.zb-vip .vip-table {
+  padding: 0 15px;
+}
+
+.zb-vip .vip-table table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  border-top: 1px solid #302f30;
+  border-left: 1px solid #302f30;
+}
+
+.zb-vip .vip-table table th,
+.zb-vip .vip-table table td {
+  border-right: 1px solid #302f30;
+  border-bottom: 1px solid #302f30;
+  padding: 15px 5px;
+}
+
+.zb-vip .vip-table table th {
+  background-color: #121011;
+  color: #d4a978;
+  font-weight: bold;
+}
+
+.zb-vip .vip-table table td {
+  line-height: 1.3;
+  color: #a69576;
+}
+
+.zb-vip .vip-tips {
+  padding: 30px 15px;
+  color: #6c6c6c;
+  text-align: left;
+  line-height: 2;
+}
+
+.zb-vip .vip-tips p {
+  margin: 0;
+}

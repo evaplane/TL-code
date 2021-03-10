@@ -1,0 +1,27 @@
+html.theme-dark .chart-page {
+  background: #0f202d;
+}
+html.theme-light .chart-page {
+  background: #eee;
+}
+.group-wWM3zP_M- {
+  background: transparent;
+}
+.time-button {
+  padding: 0 5px;
+}
+.time-button.active{
+  color: #e71f19 !important;
+  position: relative;
+}
+.time-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  height: 4px;
+  border-radius: 2px;
+  width: 13px;
+  background: #e71f19;
+  transform: translateX(-50%);
+}

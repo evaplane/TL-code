@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="renderer" content="webkit">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<title>页面跳转</title>
+<link rel="stylesheet" href="../../../css/lib/bootstrap.min.css" />
+<link rel="stylesheet" href="../../../css/lib/combo.select.css" />
+<link rel="stylesheet" href="../../../css/com.css" />
+</head>
+<style>
+	.contentPc{
+		height: 400px;
+		text-align: center;
+	}
+	.contentPc img{
+		margin-top: 50px;
+		width: 500px;
+		height: 150px;
+	}
+	.contentPc span{
+		font-size: 24px;
+		color: #0260A7;    
+		margin-top: 50px;
+    	display: inherit;
+	}
+</style>
+<body>
+	<div class="contentPc">
+		<img src="../../../img/timg.jpg" />
+		<span>页面跳转中，请耐心等待</span>
+	</div>
+
+<script type="text/javascript" src="../../../js/lib/jquery.min.js"></script>
+<script type="text/javascript" src="../../../js/lib/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../../js/serviceUrl.js"></script>
+<script type="text/javascript" src="../../../js/common.js"></script>
+<script type="text/javascript" src="../../../js/lib/bootstrap_confirm.js"></script>
+<script>
+$(function(){
+	queryLogin();
+});
+
+function queryLogin(){
+	var params = {};
+	sendAjax('POST', host_url + "/cloud-web/vipAgency/queryDlsSystemLoginInfo", params, function(res) {
+        var data = res.rows;
+        window.location.href = kb_page_url + '/html/common/login/thridAdminLogin.html?content='+data;
+    });
+}
+</script>
+</body>
+</html>

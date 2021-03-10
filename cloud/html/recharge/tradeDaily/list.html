@@ -1,0 +1,163 @@
+<link rel="stylesheet" href="../../../css/lib/daterangepicker-bs3.css">
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="trade_daily_Form" name="trade_daily_Form" role="form" class="form-inline">
+				<div class="form-group">
+					<label class="control-label">操作员：</label>
+					<input name="operatorName" class="form-control" type="text" placeholder="操作员" autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">开放量级：</label>
+					<select id="tradeDaily_acctLevel" name="userLevel"></select>
+				</div>
+				<div class="form-group">
+					<label class="control-label">账单时间：</label>
+					<input id="tradeDailyTradeDate" type="text" name="tradeDate" class="form-control dateranges"
+						placeholder="账单时间" readonly="readonly">
+				</div>
+				<div class="form-group pull-right">
+					<button id="trade_daily_button" type="button" class="btn btn-primary refreshBtn"><i
+							class="fa fa-search"></i>查询</button>
+					<button type="button" class="btn btn-default proceedsquery_list_reset" onclick="tradeDailyReset()"><i class="fa fa-refresh"></i>
+						重置</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<button type="button" class="btn btn-primary" onclick="trade_daily_download()" style="margin-bottom: 6px;">
+				导出excel</button>
+			<table cellpadding="0" cellspacing="0" border="0" id="trade_daily_Table"
+				class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<script>
+	var tradeTypeList;
+	var today = formatterDateTime(new Date()).substr(0,10);
+	$(function () {
+		listOptionInit($('#TradeStatus_select'), PAY_STATUS);
+		$('#TradeStatus_select').comboSelect();
+		listOptionInit($('#isFirst_select'), IS_STATUS);
+		$('#isFirst_select').comboSelect();
+		
+		initDateRange("#tradeDailyTradeDate");
+		$("#tradeDailyTradeDate").val(today+' 00:00:00' +' - ' + today + ' 23:59:59');
+
+		//获取开放量级
+		var getAllLevel = '';
+		sendAjax("POST", host_url + "/cloud-web/cardBankCardInfo/loadLevel", {}, function (data) {
+			getAllLevel += '<option value="">全部</option>';
+			$.each(data.rows, function (i, item) {
+				getAllLevel += '<option value="' + item.keyValue + '">' + item.keyName + '</option>';
+			});
+			$('#tradeDaily_acctLevel').append(getAllLevel);
+			$("#tradeDaily_acctLevel").comboSelect();
+		})
+		tradeDailyTable();
+	});
+	// 搜索
+	$("#trade_daily_button").click(function () {
+		$("#trade_daily_Table").bootstrapTable('refresh');
+	});
+	// 重置
+	function tradeDailyReset(){
+		$("#trade_daily_Form")[0].reset();
+		$("#tradeDailyTradeDate").val(today+' 00:00:00' +' - ' + today + ' 23:59:59');
+	}
+	/*表格加载*/
+	function tradeDailyTable() {
+		$('#trade_daily_Table').bootstrapTable({
+			url: host_url + '/cloud-web/corePayTradeFlow/tradeDailyList',
+			method: 'GET',
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏  
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: 'zh-CN', //中文支持
+			queryParamsType: 'limit',
+			queryParams: function (params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = (params.offset / params.limit) + 1; //页码
+				params._sys_login_token = _get_sys_login_token();
+
+				var paramForm = $("#trade_daily_Form").serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				if (params.tradeDate) {
+					params.startTime = params.tradeDate.substring(0, 19);
+					params.endTime = params.tradeDate.substring(21, 41);
+				}
+				delete params.tradeDate;
+				return params;
+			}, //参数  
+			columns: [{
+				title: '序号',
+				// checkbox: true,
+				width: 30,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					var options = $('#trade_daily_Table').bootstrapTable("getOptions");
+					return (options.pageNumber - 1) * (options.pageSize) + index + 1;
+				}
+			},
+			{ field: 'operatorName', title: '操作员', width: 120, align: "center", valign: "middle" },
+			{ field: 'acctLevel', title: '开放量级', width: 30, align: "center", valign: "middle",
+				formatter: function (value, row, index) {
+					return value+'星';
+				} },
+			{
+				field: 'successAmt', title: '成功处理资金(元)', width: 100, align: "right", valign: "middle",
+				formatter: function (value, row, index) {
+					return formatterMoney(value, 2)
+				}
+			},
+			{ field: 'totalTakeTime', title: '总用时(秒)', width: 100, align: "center", valign: "middle" },
+			{ field: 'totalCount', title: '总笔数', width: 100, align: "center", valign: "middle" },
+			{ field: 'successCount', title: '成功笔数', width: 100, align: "center", valign: "middle" },
+			{ field: 'failCount', title: '失败笔数', width: 100, align: "center", valign: "middle" },
+			{ field: 'timeOutCount', title: '超时笔数', width: 100, align: "center", valign: "middle" }
+
+			],
+			onClickRow: function (row, $element) {
+				$($element).addClass('table_info').siblings().removeClass('table_info');
+			},
+			onLoadSuccess: function (res) {
+				//加载成功时执行
+			},
+		});
+	}
+	// 导出
+	function trade_daily_download() {
+		var params = {};
+		params._sys_login_token = _get_sys_login_token();
+		var paramForm = $("#trade_daily_Form").serializeArray();
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		if (params.tradeDate) {
+			params.startTime = params.tradeDate.substring(0, 19);
+			params.endTime = params.tradeDate.substring(21, 41);
+			delete params.tradeDate;
+		} else {
+			var today = formatterDateTime(new Date()).substr(0, 10);
+			params.startTime = today + ' 00:00:00';
+			params.endTime = today + ' 23:59:59';
+		}
+		var url = '';
+		$.each(params, function (i, item) {
+			url += '&' + i + '=' + item;
+		})
+		sendAjax('POST', host_url + "/cloud-web/corePayTradeFlow/checkDown", {}, function (res) {
+			window.location.href = host_url + "/cloud-web/corePayTradeFlow/downDaily?" + url;
+		});
+	}
+</script>

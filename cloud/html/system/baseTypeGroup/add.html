@@ -1,0 +1,203 @@
+﻿<div class="content_center">
+    <div class="content_center_content">
+        <form class="form-horizontal" name="add_form" role="form" id="add_form">
+            <div class="form-group">
+                <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>系统名称：</label>
+                <div class="col-xs-8 col-sm-7">
+                    <!-- <select class="form-control" id="add_sysCode" name="sysCode"></select>
+                     -->
+                    <input type="text" class="form-control" id="add_sysCode" name="sysCode" placeholder="系统名称"
+                        autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>类组解释：</label>
+                <div class="col-xs-8 col-sm-7">
+                    <input type="text" class="form-control" id="add_groupName" name="groupName" placeholder="类组解释"
+                        autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>类组别名：</label>
+                <div class="col-xs-8 col-sm-7">
+                    <input type="text" class="form-control" id="add_groupAlias" name="groupAlias" placeholder="类组别名"
+                        autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>键值：</label>
+                <div class="col-xs-8 col-sm-7">
+                    <input type="text" class="form-control" id="add_keyValue" name="keyValue" placeholder="键值"
+                        autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>键名：</label>
+                <div class="col-xs-8 col-sm-7">
+                    <input type="text" class="form-control" id="add_keyName" name="keyName" placeholder="键名"
+                        autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-4 col-sm-3"><span class="red"></span>排序：</label>
+                <div class="col-xs-8 col-sm-7">
+                    <input type="text" class="form-control" id="add_sortNo" name="sortNo" placeholder="排序" autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-4 col-sm-3"><span class="red"></span>描述：</label>
+                <div class="col-xs-8 col-sm-7">
+
+                    <textarea class="form-control" id="add_paramDesc" name="paramDesc" placeholder="描述" autocomplete="off"
+                        cols="39" rows="4" style="resize:none;"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+    <button type="button" class="btn btn-primary" onclick="_doSubmit()">确定</button>
+</div>
+<script type="text/javascript">
+    $(function () {
+        _validateForm(); //验证初始化
+    });
+
+    //初始化验证框架
+    function _validateForm() {
+        //进行表单验证
+        $('#add_form').bootstrapValidator({
+            message: '输入值不合法',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            excluded: [':disabled'],
+            fields: {
+                sysCode: {
+                    message: '系统名称验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '系统名称不能为空'
+                        },
+                        stringLength: {
+                            min: 1,
+                            max: 32,
+                            message: '长度必须在1-32之间'
+                        }
+                    }
+                },
+                groupName: {
+                    message: '类组解释验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '类组解释不能为空'
+                        },
+                        stringLength: {
+                            min: 1,
+                            max: 64,
+                            message: '长度必须在1-64之间'
+                        }
+                    }
+                },
+                groupAlias: {
+                    message: '类组别名验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '类组别名不能为空'
+                        },
+                        stringLength: {
+                            min: 1,
+                            max: 32,
+                            message: '长度必须在1-32之间'
+                        }
+                    }
+                },
+                keyValue: {
+                    message: '键值验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '键值不能为空'
+                        },
+                        stringLength: {
+                            min: 1,
+                            max: 64,
+                            message: '长度必须在1-64之间'
+                        }
+                    }
+                },
+                keyName: {
+                    message: '键名验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '键名不能为空'
+                        },
+                        stringLength: {
+                            min: 1,
+                            max: 128,
+                            message: '长度必须在1-128之间'
+                        }
+                    }
+                },
+                paramDesc: {
+                    message: '描述验证失败',
+                    validators: {
+                        stringLength: {
+                            max: 128,
+                            message: '长度必须在1-128之间'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    //提交
+    function _doSubmit() {
+        var bv = $('#add_form').data('bootstrapValidator').validate();
+        if (!bv.isValid()) { //验证不通过
+            return;
+        }
+
+        var paramForm = $("#add_form").serializeArray();
+        var params = {};
+        $.each(paramForm, function (i, param) {
+            params[param.name] = $.trim(param.value);
+        });
+        if ($.trim(params.sortNo) != "") {
+            var sort = /^[1-9]{1,4}$/;
+            if (sort.test(params.sortNo)) {
+                sendAjax('POST', host_url + "/cloud-web/pubTypeGroup/addSubmit", params, function (res) {
+                    Ewin.alert({
+                        message: '恭喜你，操作成功！'
+                    }).on(function (e) {
+                        if (e) {
+                            $('#add_form').parents('.modal').modal('hide');
+                            $("#baseTypeGroupTable").bootstrapTable('refresh');
+                        }
+                    });
+                });
+            } else {
+                Ewin.alert({
+                    message: '请输入1-4位正整数排序字段！'
+                });
+            }
+        } else if ($.trim(params.sortNo) == "") {
+            params.sortNo = '9999';
+            sendAjax('POST', host_url + "/cloud-web/pubTypeGroup/addSubmit", params, function (res) {
+                Ewin.alert({
+                    message: '恭喜你，操作成功！'
+                }).on(function (e) {
+                    if (e) {
+                        $('#add_form').parents('.modal').modal('hide');
+                        $("#baseTypeGroupTable").bootstrapTable('refresh');
+                        sysGet();
+                    }
+
+                });
+            });
+        }
+    }
+</script>

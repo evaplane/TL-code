@@ -1,0 +1,137 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal" name="payShiftsManage_form" role="form" id="payShiftsManage_form">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>账号别名</label>
+				<div class="col-xs-8 col-sm-7">
+					<input class="form-control" id="payShiftsManage_aliasName" name="aliasName" readonly />
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>银行卡号</label>
+				<div class="col-xs-8 col-sm-7">
+					<input class="form-control" id="payShiftsManage_acctNo" name="acctNo" readonly />
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>账户期初余额(元)</label>
+				<div class="col-xs-8 col-sm-7">
+					<input class="form-control" id="payShiftsManage_payAmt" name="payAmt" placeholder="账户期初余额" autocomplete="off"/>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">
+			取消
+		</button>
+		<button type="button" class="btn btn-primary" onclick="_doSubmit()">
+			保存
+		</button>
+	</div>
+</div>
+<link rel="stylesheet" href="../../../css/lib/bootstrap-multiselect.css" />
+<script type="text/javascript" src="../../../js/lib/bootstrap-multiselect.js"></script>
+<script type="text/javascript">
+	var payShiftsManage_id = getQueryString("id"),payShiftsManage_routeCode,payShiftsManage_routeName,
+	payShiftsManage_aliasName = getQueryString("aliasName");
+	$(function () {
+		payShiftsManage_validateForm(); //验证初始化
+		
+		sendAjax("POST",host_url + "/cloud-web/cardRoutePoolMerch/view",{ 'id': payShiftsManage_id},
+			function (res) {
+				var data = res.rows;
+				
+				$('#payShiftsManage_acctNo').val(data.acctNo);
+				$('#payShiftsManage_aliasName').val(data.aliasName);
+				payShiftsManage_routeCode = data.routeCode;
+				payShiftsManage_routeName = data.routeName;
+				
+				if(data ==null || data == ""){
+					$("#payShiftsManage_payAmt").val('0');
+				}else{
+					$("#payShiftsManage_payAmt").val((parseFloat(data.dayStartAmt)/100).toFixed(2));
+				}
+			}
+		);
+	});
+	//初始化验证框架
+	function payShiftsManage_validateForm() {
+		//进行表单验证
+		$("#payShiftsManage_form").bootstrapValidator({
+			message: "输入值不合法",
+			feedbackIcons: {
+				valid: "glyphicon glyphicon-ok",
+				invalid: "glyphicon glyphicon-remove",
+				validating: "glyphicon glyphicon-refresh"
+			},
+			excluded: [":disabled"],
+			fields: {
+				payAmt:{
+				    verbose: false,
+					message: '账户期初余额验证失败',
+					validators: {
+				      	notEmpty: {message: '账户期初余额不能为空'}, 
+				      	regexp: {
+				            regexp: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/,
+				            message: '请输入正确的金额'
+				        },
+				        callback: {
+				            message: '账户期初余额的整数部位不能大于等于一亿',
+				            callback: function(value) {
+				                if (value >= 100000000) {
+				                    return false;
+				                }
+				                return true;
+				            }
+				        },
+				        greaterThan: {
+				            value: 0.00000000000000000000000000000000001,
+				            message: '账户期初余额必须大于0'
+				        }
+					}
+				},
+			}
+		});
+	}
+
+	//提交
+	function _doSubmit() {
+		var bv = $("#payShiftsManage_form")
+			.data("bootstrapValidator")
+			.validate();
+		if (!bv.isValid()) {
+			//验证不通过
+			return;
+		}
+		var paramForm = $("#payShiftsManage_form").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		params.payAmt = (parseFloat(params.payAmt)*100).toFixed(0);
+		
+		params.acctNo = $('#payShiftsManage_acctNo').val();
+		params.cardUseType = 20;
+		params.routeCode = payShiftsManage_routeCode;
+		params.routeName = payShiftsManage_routeName;
+		params.debitCredit = 1;
+		params.aliasName=payShiftsManage_aliasName;
+		
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/cardRoutePoolMerch/setCardAcctBalanceAmt",
+			params,
+			function (res) {
+				Ewin.alert({ message: "恭喜你，操作成功！" }).on(function (e) {
+					if (e) {
+						$("#payShiftsManage_form")
+							.parents(".modal")
+							.modal("hide");
+						getAllPayShiftsSearch();
+					}
+				});
+			}
+		);
+	}
+</script>

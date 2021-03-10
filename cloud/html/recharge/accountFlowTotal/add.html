@@ -1,0 +1,185 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal" name="add_form" role="form"  id="add_form">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">账户别名：</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="add_aliasName" readonly />
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">开户姓名：</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="add_acctName" readonly />
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">银行卡号：</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="add_acctNo" readonly />
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">当日累计收入(元)：</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="add_dayRecAmt" readonly />
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">当日累计支出(元)：</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="add_dayPayAmt" readonly />
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>账户类型：</label>
+				<div class="col-xs-8 col-sm-7">
+					<label><input type="radio" name="acctType" value="10"/>收入</label>
+					<label><input type="radio" name="acctType" value="20"/>支出</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>调额类型：</label>
+				<div class="col-xs-8 col-sm-7">
+					<label class="surplus"><input type="radio" name="debitCredit" value="1"/>调增</label>
+					<label class="surplus"><input type="radio" name="debitCredit" value="2"/>调减</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>调整金额(元)：</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="add_totalAmt" name="payAmt" placeholder="请输入调整金额" autocomplete="off" oninput="payAmtChange(this)">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>备注：</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="add_remark" name="remark" autocomplete="off" />
+				</div>
+			</div>
+		</form>
+	</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+			<button type="button" class="btn btn-primary" onclick="_doSubmit()">确定</button>
+		</div>
+</div>
+<style>
+	.form-group .col-sm-7{
+		line-height: 26px;
+	}
+</style>
+<script type="text/javascript">
+var edit_acctNo,edit_id = getQueryString('id'),edit_url = getQueryString('url');
+$(function(){
+	_validateForm();//验证初始化
+	if(edit_url.indexOf('cardAcctInfoHistory')>0){
+		edit_url=host_url+"/cloud-web/cardAcctInfoHistory/view";
+	}else{
+		edit_url=host_url+"/cloud-web/cardAcctInfo/view";
+	}
+	sendAjax( 'POST',edit_url , {'id':edit_id}, function(res){
+		var data=res.rows;
+		
+		edit_acctNo=data.acctNo;
+		$('#add_acctNo').val(edit_acctNo);
+		
+		
+		$('#add_aliasName').val(data.aliasName);
+		$('#add_acctName').val(data.acctName);
+		$('#add_dayRecAmt').val(formatterMoney(data.dayRecAmt));
+		$('#add_dayPayAmt').val(formatterMoney(data.dayPayAmt));
+	});
+	$('#add_remark').val(_loginJsonObj.userName + '调整额度0元');
+});
+function payAmtChange(value){
+	$('#add_remark').val(_loginJsonObj.userName + '调整额度' + value.value + '元');
+}
+//初始化验证框架
+function _validateForm(){
+	//进行表单验证
+ 	$('#add_form').bootstrapValidator({
+	  	message: '输入值不合法',
+      	feedbackIcons: {valid: 'glyphicon glyphicon-ok',invalid: 'glyphicon glyphicon-remove',validating: 'glyphicon glyphicon-refresh'},
+      	excluded : [':disabled'],
+      	fields: {
+      		acctType:{
+                verbose: false,
+      			message: '账户类型验证失败',
+				validators: {
+	              	notEmpty: {message: '账户类型不能为空'}, 
+	            }
+      		},
+      		debitCredit:{
+                verbose: false,
+      			message: '调额类型验证失败',
+				validators: {
+	              	notEmpty: {message: '调额类型不能为空'}, 
+	            }
+      		},
+			payAmt:{
+                verbose: false,
+				message: '调整金额验证失败',
+				validators: {
+	              	notEmpty: {message: '调整金额不能为空'}, 
+	              	regexp: {
+	                    regexp: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/,
+	                    message: '请输入正确的金额'
+	                },
+	                callback: {
+	                    message: '调整金额的整数部位不能大于等于一亿',
+	                    callback: function(value) {
+	                        if (value >= 100000000) {
+	                            return false;
+	                        }
+	                        return true;
+	                    }
+	                },
+	                greaterThan: {
+	                    value: 0.00000000000000000000000000000000001,
+	                    message: '调整金额必须大于0'
+	                }
+            	}
+			},
+			remark:{
+                verbose: false,
+      			message: '备注验证失败',
+				validators: {
+	              	notEmpty: {message: '备注不能为空'}, 
+					stringLength: {
+					    max: 64,
+					    message: '长度不能超过64位'
+					},
+	            }
+      		},
+   		}
+	});
+}
+
+//提交
+function _doSubmit(){
+	var bv = $('#add_form').data('bootstrapValidator').validate();
+	if (!bv.isValid()) {//验证不通过
+		return;
+	}
+	
+	var paramForm = $("#add_form").serializeArray();
+	var params = {};
+	$.each(paramForm, function(i, param){
+		params[param.name]=$.trim(param.value);
+	});
+	if(params.payAmt != null && params.payAmt != '') {
+		params.payAmt = parseInt(params.payAmt*100).toFixed(0);
+	}
+	params.acctNo = edit_acctNo;
+	
+	sendAjax( 'POST', host_url+"/cloud-web/cardAcctInfo/adjustCardAcct", params, function(res){
+		Ewin.alert({ message: '恭喜你，操作成功！' }).on(function(e){
+			if(e){
+				$('#add_form').parents('.modal').modal('hide');
+				$("#accountFlowTotalTable").bootstrapTable('refresh');
+			}
+		});
+	});
+}
+</script>

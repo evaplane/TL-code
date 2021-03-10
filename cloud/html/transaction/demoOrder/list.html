@@ -1,0 +1,297 @@
+<link rel="stylesheet" href="../../../css/lib/daterangepicker-bs3.css">
+<link rel="stylesheet" href="../../../css/lib/bootstrap-table.min.css" />
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="demoOrder_Form" name="demoOrder_Form" role="form" class="form-inline">
+				<div class="form-group customerNo">
+					<label class="control-label">平台号：</label>
+					<input name="customerNo" class="form-control" type="text" placeholder="平台号" autocomplete="off">
+				</div>
+				<div class="form-group customerName">
+					<label class="control-label">平台名称：</label>
+					<input name="customerName" class="form-control" type="text" placeholder="平台名称" autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">用户名：</label>
+					<input name="userAcct" class="form-control" type="text" placeholder="用户名" autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">真实姓名：</label>
+					<input type="text" name="userName" class="form-control" type="text" placeholder="真实姓名"
+						autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">拆单流水号：</label>
+					<input type="text" name="orderNo" class="form-control" type="text" placeholder="拆单流水号"
+						autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">客户单号：</label>
+					<input name="cusOrderNo" class="form-control" type="text" placeholder="客户单号" autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">订单状态：</label>
+					<select name="status" class="form-control" id="demoOrder_status"></select>
+				</div>
+				<div class="form-group">
+					<label class="control-label">提款银行卡号：</label>
+					<input name="recAcctNo" class="form-control" type="text" placeholder="提款银行卡号" autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">账户姓名：</label>
+					<input name="recAcctName" class="form-control" type="text" placeholder="账户姓名" autocomplete="off">
+				</div>
+				<!-- <div class="form-group">
+					<label class="control-label">是否首次提款：</label>
+					 <select name="isFirst" class="form-control" id="isFirst_selectDemo"></select>
+				</div> -->
+				<div class="form-group">
+					<label class="control-label">创建时间：</label>
+					<input type="text" name="tradeCreateTime" id="demoCreateTime" class="form-control dateranges"
+						placeholder="创建时间" autocomplete="off" readonly="readonly" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">完成时间：</label>
+					<input type="text" name="tradePayTime" id="demoPayTime" class="form-control dateranges"
+						placeholder="完成时间" autocomplete="off" readonly="readonly" />
+				</div>
+				<div class="form-group pull-right">
+					<button id="demoOrder_button" type="button" class="btn btn-primary refreshBtn"><i
+							class="fa fa-search"></i>查询</button>
+					<button type="button" class="btn btn-default" onclick="demoOrder_resetButton()"><i
+							class="fa fa-refresh"></i> 重置</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<button type="button" class="btn btn-primary" onclick="demoOrder_download()" style="margin-bottom: 6px;">
+				导出excel</button>
+			<table cellpadding="0" cellspacing="0" border="0" id="demoOrder_Table"
+				class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<style type="text/css">
+	#demoOrder_Table.table {
+		width: 2500px;
+	}
+</style>
+<script>
+	$(function () {
+		listOptionInit($('#demoOrder_status'), PAY_STATUS);
+		$('#demoOrder_status').comboSelect();
+		initDate();
+
+		demoOrder_Table();
+	});
+	// 重置
+	function demoOrder_resetButton() {
+		$("#demoOrder_Form")[0].reset();
+		var today = sys_formatDate(new Date().getTime(), 'yyyy-MM-dd');
+		var startDate = today + ' 00:00:00';
+		var endDate = today + ' 23:59:59';
+		//$('#demoCreateTime').val(startDate + ' - ' + endDate);
+	}
+	// 搜索
+	$("#demoOrder_button").click(function () {
+		$("#demoOrder_Table").bootstrapTable('refresh');
+	});
+	function initDate() {
+		// 初始化双日历日期控件
+		var today = sys_formatDate(new Date().getTime(), 'yyyy-MM-dd');
+		var startDate = today + ' 00:00:00';
+		var endDate = today + ' 23:59:59';
+		//$('#demoCreateTime').attr('placeholder', startDate + ' - ' + endDate);
+		//$('#demoCreateTime').val(startDate + ' - ' + endDate);
+		$('#demoCreateTime').daterangepicker({
+			timePicker: true,
+			timePickerIncrement: 1,
+			format: 'YYYY-MM-DD HH:mm:ss',
+			startDate: startDate,
+			endDate: endDate,
+			opens: 'center',
+
+		}, function (start, end, label) {
+
+		});
+		// 初始化双日历日期控件
+		var today = sys_formatDate(new Date().getTime(), 'yyyy-MM-dd');
+		var startDate = today + ' 00:00:00';
+		var endDate = today + ' 23:59:59';
+		// $('#tradePayTime').attr('placeholder', startDate + ' - ' + endDate);
+		// $('#tradePayTime').val(startDate + ' - ' + endDate);
+		$('#demoPayTime').daterangepicker({
+			timePicker: true,
+			timePickerIncrement: 1,
+			format: 'YYYY-MM-DD HH:mm:ss',
+			startDate: startDate,
+			endDate: endDate,
+			opens: 'center',
+
+		}, function (start, end, label) {
+
+		});
+	}
+
+	/*表格加载*/
+	function demoOrder_Table() {
+		$('#demoOrder_Table').bootstrapTable({
+			url: host_url + '/cloud-web/coreSplitOrderFlow/pageList',
+			method: 'GET',
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏  
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: 'zh-CN', //中文支持
+			queryParamsType: 'limit',
+			queryParams: function (params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = (params.offset / params.limit) + 1; //页码
+				params._sys_login_token = _get_sys_login_token();
+
+				var paramForm = $("#demoOrder_Form").serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				if (params.tradeCreateTime) {
+					params.startTime = params.tradeCreateTime.substring(0, 19);
+					params.endTime = params.tradeCreateTime.substring(21, 41);
+				}
+				if (params.tradePayTime) {
+					params.startPayTime = params.tradePayTime.substring(0, 19);
+					params.endPayTime = params.tradePayTime.substring(21, 41);
+				}
+				return params;
+			}, //参数  
+			columns: [{
+				title: '序号',
+				width: 30,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					var options = $('#demoOrder_Table').bootstrapTable("getOptions");
+					return (options.pageNumber - 1) * (options.pageSize) + index + 1;
+				}
+			},
+			{ field: 'customerNo', title: '平台号', width: 100, align: "center", valign: "middle", hidden: true },
+			{ field: 'customerName', title: '平台名称', width: 100, align: "center", valign: "middle", hidden: true },
+			{ field: 'userAcct', title: '用户名', width: 100, align: "center", valign: "middle" },
+			{ field: 'userName', title: '真实姓名', width: 100, align: "center", valign: "middle" },
+			{
+				field: 'orderAmt', title: '订单金额(元)', width: 80, align: "right", valign: "middle",
+				formatter: function (value, row, index) {
+					return formatterMoney(value);
+				},
+			}, {
+				field: 'payAmt', title: '提款金额(元)', width: 80, align: "right", valign: "middle",
+				formatter: function (value, row, index) {
+					return formatterMoney(value);
+				},
+			},
+			{
+				field: 'feeAmt',
+				title: '手续费(元)',
+				width: 80,
+				align: "right",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					return formatterMoney(value);
+				}
+			},
+			{
+				field: 'status',
+				title: '订单状态',
+				width: 80,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					return visualParams(PAY_STATUS, value);
+				}
+			},
+			{ field: 'cusOrderNo', title: '客户单号', width: 180, align: "center", valign: "middle" },
+			{ field: 'orderNo', title: '拆单流水号', width: 180, align: "center", valign: "middle" },
+			{ field: 'splitNum', title: '拆单笔数', width: 80, align: "center", valign: "middle" },
+			{ field: 'successNum', title: '成功笔数', width: 80, align: "center", valign: "middle" },
+			{ field: 'failNum', title: '失败笔数', width: 80, align: "center", valign: "middle" },
+			{
+				field: 'takeTime', title: '财务处理时长（秒）', width: 60, align: "center", valign: "middle",
+				formatter: function (value, row, index) {
+					if (row.status == 20) {
+						return '-';
+					} else {
+						return value;
+					}
+				}
+			},
+			{ field: 'recBankName', title: '提款银行', width: 100, align: "center", valign: "middle" },
+			{ field: 'recAcctName', title: '账户姓名', width: 40, align: "center", valign: "middle" },
+			{ field: 'recAcctNo', title: '提款银行卡号', width: 150, align: "center", valign: "middle" },
+			{ field: 'recSubBankName', title: '开户支行', width: 100, align: "center", valign: "middle" },
+			{
+				field: 'payTime', title: '完成时间', width: 150, align: "center", valign: "middle",
+				formatter: function (value, row, index) {
+					return getDateStr(value);
+				}
+			},
+			{
+				field: 'createTime', title: '创建时间', width: 150, align: "center", valign: "middle",
+				formatter: function (value, row, index) {
+					return getDateStr(value);
+				}
+			}
+			],
+			onDblClickRow: function (row) {
+				Ewin.dialog({ url: '../../transaction/demoOrder/view.html?id=' + row.id + '&orderNo=' + row.orderNo, title: '详情' });
+			},
+			onClickRow: function (row, $element) {
+				$($element).addClass('table_info').siblings().removeClass('table_info');
+			},
+			onLoadSuccess: function (res) {
+				//加载成功时执行
+			},
+		});
+	}
+	// 导出
+	function demoOrder_download() {
+		var params = {};
+		params._sys_login_token = _get_sys_login_token();
+		var paramForm = $("#demoOrder_Form").serializeArray();
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		if (params.tradeCreateTime) {
+			params.startTime = params.tradeCreateTime.substring(0, 19);
+			params.endTime = params.tradeCreateTime.substring(21, 41);
+		}
+		if (params.tradePayTime) {
+			params.startPayTime = params.tradePayTime.substring(0, 19);
+			params.endPayTime = params.tradePayTime.substring(21, 41);
+		}
+		var url = '';
+		$.each(params, function (i, item) {
+			url += '&' + i + '=' + item;
+		});
+		if (params.tradeCreateTime == "" && params.tradePayTime == "") {
+			Ewin.alert({ message: '未选择时间范围筛选，仅下载当天数据' }).on(function (e) {
+				if (e) {
+					sendAjax('POST', host_url + "/cloud-web/corePayTradeFlow/checkDown", {}, function (res) {
+						window.location.href = host_url + "/cloud-web/coreSplitOrderFlow/down?" + url;
+					});
+				} else {
+					return;
+				}
+			});
+		} else {
+			sendAjax('POST', host_url + "/cloud-web/corePayTradeFlow/checkDown", {}, function (res) {
+				window.location.href = host_url + "/cloud-web/coreSplitOrderFlow/down?" + url;
+			});
+		}
+	}
+</script>

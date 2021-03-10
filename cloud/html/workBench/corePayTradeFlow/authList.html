@@ -1,0 +1,408 @@
+<link rel="stylesheet" href="../../../css/lib/daterangepicker-bs3.css">
+<link rel="stylesheet" href="../../../css/lib/bootstrap-table.min.css" />
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form
+				id="authCorePayTradeFlowForm"
+				name="queryForm"
+				role="form"
+				class="form-inline"
+			>
+				<div class="form-group">
+					<label class="control-label">用户名：</label>
+					<input
+						name="userAcct"
+						class="form-control"
+						type="text"
+						placeholder="用户名"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="control-label">真实姓名：</label>
+					<input
+						name="userName"
+						class="form-control"
+						type="text"
+						placeholder="真实姓名"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="control-label">账户别名：</label>
+					<input
+						name="userAliasName"
+						class="form-control"
+						type="text"
+						placeholder="账户别名"
+						autocomplete="off"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="control-label">平台号：</label>
+					<input
+						name="customerNo"
+						class="form-control"
+						type="text"
+						placeholder="平台号"
+						autocomplete="off"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="control-label">平台名称：</label>
+					<input
+						name="customerName"
+						class="form-control"
+						type="text"
+						placeholder="平台名称"
+						autocomplete="off"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="control-label">客户单号：</label>
+					<input
+						name="cusOrderNo"
+						class="form-control"
+						type="text"
+						placeholder="客户单号"
+						autocomplete="off"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="control-label">平台流水号：</label>
+					<input
+						type="text"
+						name="orderNo"
+						class="form-control"
+						type="text"
+						placeholder="平台流水号"
+						autocomplete="off"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="control-label">创建时间：</label>
+					<input type="text" name="createTime" id="authcorePayTradeFlowForm_createTime"
+						class="form-control dateranges" placeholder="创建时间" autocomplete="off" readonly="readonly" />
+				</div>
+				<div class="form-group">
+					<button
+						id="authCorePayTradeFlowForm_button"
+						type="button"
+						class="btn btn-primary"
+					>
+						<i class="fa fa-search"></i> 查询
+					</button>
+					<button type="reset" class="btn btn-default">
+						<i class="fa fa-refresh"></i> 重置
+					</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<table
+				cellpadding="0"
+				cellspacing="0"
+				border="0"
+				id="authCorePayTradeFlowFormTable"
+				class="table table-bordered table-hover"
+			></table>
+		</div>
+	</div>
+</div>
+<style type="text/css">
+	#authCorePayTradeFlowFormTable.table {
+		width: 2500px;
+	}
+</style>
+<script>
+	var tradeTypeList;
+	$(function() {
+		// 存款方式
+		findConstantValue("Core", "pay_type");
+		setTimeout(function() {
+			tradeTypeList = lists;
+			authCorePayTradeFlowFormTable();
+		}, 500);
+		window.setInterval(function() {
+			$("#authCorePayTradeFlowFormTable").bootstrapTable("refresh");
+		}, 30000);
+		
+		var firstDay = sys_formatDate(new Date().setDate(1)) + ' 00:00:00';
+		var lastDay = getCurrentMonthLast() + ' 23:59:59';
+		$('#authcorePayTradeFlowForm_createTime').daterangepicker({
+			timePicker: true,
+			timePickerIncrement: 1,
+			format: 'YYYY-MM-DD HH:mm:ss',
+			startDate: firstDay,
+			endDate: lastDay,
+			opens: 'center',
+		
+		}, function (start, end, label) {
+		
+		});
+	});
+	// 搜索
+	$("#authCorePayTradeFlowForm_button").click(function() {
+		var payAcceptTime = $('#authcorePayTradeFlowForm_createTime').val();
+		if (payAcceptTime != '') {
+			payAcceptTimestart = payAcceptTime.split(' - ')[0];
+			payAcceptTimeEnd = payAcceptTime.split(' - ')[1];
+		
+			var start = parserDate(payAcceptTimestart),
+				end = parserDate(payAcceptTimeEnd);
+			if(start.getFullYear() != end.getFullYear()){
+				Ewin.alert({
+					message: "暂不支持跨年查询"
+				});
+				return;
+			}else if (start.getMonth()+1 != end.getMonth()+1) {
+				Ewin.alert({
+					message: "暂不支持跨月查询"
+				});
+				return;
+			}
+		}
+		$("#authCorePayTradeFlowFormTable").bootstrapTable("refresh");
+	});
+
+	/*表格加载*/
+	function authCorePayTradeFlowFormTable() {
+		$("#authCorePayTradeFlowFormTable").bootstrapTable({
+			url: host_url + "/cloud-web/corePayTradeFlow/authList",
+			method: "GET",
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: "zh-CN", //中文支持
+			queryParamsType: "limit",
+			queryParams: function(params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = params.offset / params.limit + 1; //页码
+				params._sys_login_token = _get_sys_login_token();
+				var paramForm = $("#authCorePayTradeFlowForm").serializeArray();
+				$.each(paramForm, function(i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				params.status = 30;
+				params.authCode = JSON.parse(
+					localStorage.getItem("sybJsonLocal")
+				).loginName;
+				if (params.createTime) {
+					params.startTime = params.createTime.substring(0, 19);
+					params.endTime = params.createTime.substring(21, 41);
+				}
+				delete params.createTime;
+				return params;
+			}, //参数
+			columns: [
+				{
+					title: "序号",
+					field: "index",
+					width: 40,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						var pageSize = $(
+							"#authCorePayTradeFlowFormTable"
+						).bootstrapTable("getOptions").pageSize;
+						var pageNumber = $(
+							"#authCorePayTradeFlowFormTable"
+						).bootstrapTable("getOptions").pageNumber;
+						return pageSize * (pageNumber - 1) + index + 1;
+					}
+				},
+				{
+					title: "操作",
+					field: "operation",
+					align: "center",
+					valign: "middle",
+					width: 80,
+					formatter: function(value, row, index) {
+						return (
+							'<a class="fa fa-check-square operation a_size" onclick="workBench_trade_authList_examine(\'' +
+							row.id +
+							'\')" title="复核"></a> '
+						);
+					}
+				},
+				{
+					field: "customerNo",
+					title: "平台号",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "customerName",
+					title: "平台名称",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "userAcct",
+					title: "用户名",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "userName",
+					title: "真实姓名",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "userAliasName",
+					title: "账户别名",
+					width: 80,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "payAmt",
+					title: "存款金额(元)",
+					width: 100,
+					align: "right",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						return formatterMoney(value, 2);
+					}
+				},
+				{
+					field: "payAcctName",
+					title: "存款人",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "userLevel",
+					title: "用户星级",
+					width: 100,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						return value + "星";
+					}
+				},
+				{
+					field: "payType",
+					title: "存款方式",
+					width: 100,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						return visualParams(tradeTypeList, value);
+					}
+				},
+				{
+					field: "createTime",
+					title: "创建时间",
+					width: 150,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						return getDateStr(value);
+					}
+				},
+				{
+					field: "cusOrderNo",
+					title: "客户单号",
+					width: 200,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "orderNo",
+					title: "平台流水号",
+					width: 200,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "operatorCode",
+					title: "操作员账号",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "operatorName",
+					title: "操作员名称",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "recAcctName",
+					title: "收款户名",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "recAcctNo",
+					title: "收款卡号",
+					width: 200,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "recBankName",
+					title: "收款银行",
+					width: 120,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "recSubBankName",
+					title: "收款支行名称",
+					width: 120,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "recRemark",
+					title: "银行附言",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "routeName",
+					title: "班次名称",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				}
+			],
+			onClickRow: function(row, $element) {
+				$($element)
+					.addClass("table_info")
+					.siblings()
+					.removeClass("table_info");
+			},
+			onLoadSuccess: function(res) {
+				//加载成功时执行
+			}
+		});
+	}
+
+	//编辑
+	function workBench_trade_authList_examine(id) {
+		Ewin.dialog({
+			url:
+				"../../../html/workBench/corePayTradeFlow/examine.html?id=" +
+				id,
+			title: "入款复核"
+		});
+	}
+</script>

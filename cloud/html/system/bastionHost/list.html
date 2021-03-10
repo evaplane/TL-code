@@ -1,0 +1,261 @@
+<link rel="stylesheet" href="../../../css/lib/daterangepicker-bs3.css">
+<div class="content_center">
+	<div class="content_center_content" style='overflow-y: visible;'>
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<div class="content_center_title route_content_center_title">
+			<p id="bastionHostPlatformBox" style="line-height: 50px;">
+				<span>平台名称：</span>
+				<span class="title" id="bastionHostPlatform"></span>
+				<div id="bastionHostRequesturlName">接口地址：</div>
+				<div class="title" id="bastionHostRequesturl"></div>
+			</p>
+			<span id="update_bastionHost_requestUrl" class="update_hide">
+				<form name="update_requestUrl_from" role="form" id="update_bastionHost_requestUrl_from">
+					<div class="form-group" style="vertical-align: top;display: inline-block;margin-right: 20px;margin-bottom: 0;">
+						<input id="update_requestUrl" name="requestUrl" class="form-control update_requestUrl" type="text" placeholder="接口地址"
+								autocomplete="off">
+					</div>
+					<button id="route_requestUrl_save" type="button" onclick="update_bastion_doSubmit()" class="btn btn-primary">保存</button>
+					<button id="route_requestUrl_cancel" type="button" class="btn btn-default">取消</button>
+				</form>
+			</span>
+			<div class="pull-right"><button class="btn btn-primary" id="editGroup_requestUrl">修改地址</button></div>
+		</div>
+		</div>
+		<div class="content_center_table">
+			<button type="button" class="btn btn-primary marginBottom" onclick="bastionHost_add()"></i> 配置白名单</button>
+			<button type="button" class="btn btn-primary marginBottom" style="float: right;" onclick="bastionHostTableFresh()"></i> 查询</button>
+			<table cellpadding="0" cellspacing="0" border="0" id="bastionHostTable"
+				   class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<style type="text/css">
+	.update_hide{
+		display: none;
+	}
+	.route_content_center_title{
+		line-height: 0;
+		height: 50px;
+		margin-left: 100px;
+	}
+	.content_center_title{
+		border: 0;
+	}
+	#update_bastionHost_requestUrl{
+		position: absolute;
+		top:42px;
+		left: 473px;
+	}
+	#bastionHostPlatformBox{
+		position: absolute;
+	}
+	#bastionHostPlatform{
+		font-weight: normal;
+	}
+	#update_bastionHost_requestUrl_from{
+		display: inline-block;
+	}
+	.content_center_title button{
+		margin-top: 0;
+	}
+	#bastionHostRequesturlName{
+		position: relative;
+		left: 250px;
+		line-height: 50px;
+	}
+	#bastionHostRequesturl{
+		position: absolute;
+		left: 475px;
+		top: 56px;
+		font-weight: normal;
+	}
+	#editGroup_requestUrl{
+		position: absolute;
+		top: 40px;
+		right: 50px;
+	}
+	@media (max-width: 1200px) {
+		.route_content_center_title{
+			line-height: 0;
+			height: 100px;
+			margin-left: 100px;
+		}
+		#update_bastionHost_requestUrl{
+			position: absolute;
+			top:100px;
+			left: 240px;
+		}
+		#bastionHostRequesturlName{
+			position: relative;
+			left: 0px;
+			line-height: 50px;
+			top: 60px;
+		}
+		#bastionHostRequesturl{
+			position: absolute;
+			left: 224px;
+			top: 116px;
+			font-weight: normal;
+		}
+		#editGroup_requestUrl{
+			position: absolute;
+			top: 100px;
+			right: 50px;
+		}
+	}
+</style>
+<script type="text/javascript">
+    var cardUseTypeList = [];
+    $(function () {
+    	bastionHostTable();
+		showBastionHost();
+		_validateForm();
+		$(window).resize(function () {
+			$('#bastionHostTable').bootstrapTable('resetView');
+		});
+		$("#editGroup_requestUrl").on('click',function(){
+			$(this).hide()
+			$('#bastionHostRequesturl').hide()
+			$('#update_bastionHost_requestUrl').show()
+			$('#update_requestUrl').val($('#bastionHostRequesturl').text());
+		})
+		$("#route_requestUrl_cancel").click(function(){
+			$('#update_bastionHost_requestUrl').hide()
+			$('#bastionHostRequesturl').show()
+			$("#editGroup_requestUrl").show()
+		})
+    });
+	function showBastionHost(){
+		sendAjax('GET', host_url + "/cloud-web/pubBastionHost/view",{}, function (res) {
+				$('#bastionHostPlatform').text(res.rows.platform)
+				$('#bastionHostRequesturl').text(res.rows.requestUrl)
+		})
+	}
+	function bastionHostTableFresh(){
+		$('#bastionHostTable').bootstrapTable('refresh');
+	}
+    /*表格加载*/
+    function bastionHostTable() {
+        $('#bastionHostTable').bootstrapTable({
+            url: host_url + '/cloud-web/pubBastionHost/whiteList',
+            method: 'GET',
+            dataType: "json",
+            contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+            pagination: false, //在表格底部显示分页工具栏
+            pageNumber: 1,
+			pageList: [20, 50, 100],
+            clickToSelect: true,
+            sidePagination: "server",//表格分页的位置
+            cache: false,//是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            locale: 'zh-CN',//中文支持
+            queryParamsType: 'limit',
+            queryParams: function (params) {
+                params._sys_login_token = _get_sys_login_token();
+                return params;
+            }, //参数
+            columns: [
+                {
+                    title: '序号', field: 'index',width: 30, align: "center", valign: "middle",
+                    formatter: function (value, row, index) {
+                        var options = $('#bastionHostTable').bootstrapTable('getOptions');
+                        return (options.pageNumber - 1) * options.pageSize + index + 1;
+                    }
+                },
+                {
+                    title: '操作', field: 'operation', align: "center", valign: "middle", width: 70,
+                    formatter: function (value, row, index) {
+						return '<a class="fa fa-trash-o operation a_size" title="删除" onclick="bastionHost_del(\''+ row.ip+'\')"></a> '; 
+                    }
+                },
+				{field: 'ip', title: 'IP地址', width: 140, align: "center", valign: "middle"},
+				{field: 'remark', title: '地址备注', width: 100, align: "center", valign: "middle"},
+				{field: 'strategy', title: '规则', width: 100, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						return visualParams(BLJ_STATUS, value);
+					}},
+				{field: 'create_time', title: '创建时间', width: 150, align: "center", valign: "middle",
+					    formatter: function (value, row, index) {
+				        return sys_formatDate(value,"yyyy-MM-dd HH:mm:ss");
+				    }
+				},
+				{field: 'username', title: '操作员', width: 150, align: "center", valign: "middle",},
+				{field: 'oper_ip', title: '操作IP', width: 150, align: "center", valign: "middle",}
+            ],
+            onLoadSuccess: function (res) {},
+        });
+    }
+
+    //  添加
+    function bastionHost_add() {
+        Ewin.dialog({url: '../../system/bastionHost/add.html', title: '白名单管理'});
+    }
+	//  保存接口地址
+	function update_bastion_doSubmit(){
+		var bv = $('#update_bastionHost_requestUrl_from').data('bootstrapValidator').validate();
+		if (!bv.isValid()) { //验证不通过
+			return;
+		}
+		var paramForm = $("#update_bastionHost_requestUrl_from").serializeArray();
+		var params = {};
+		$.each(paramForm, function(i, param) {
+			params[param.name] = param.value.trim();
+		});
+		sendAjax('POST', host_url + "/cloud-web/pubBastionHost/config", params, function(res) {
+			if(res.retCode=="000000"){
+				$('#update_bastionHost_requestUrl').hide()
+				$('#bastionHostRequesturl').show()
+				$("#editGroup_requestUrl").show()
+				showBastionHost()
+			}
+		});
+	}
+	//  初始化验证框架
+    function _validateForm() {
+        //进行表单验证
+        $('#update_bastionHost_requestUrl_from').bootstrapValidator({
+            message: '输入值不合法',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                requestUrl: {
+                    message: '接口地址验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '接口地址不能为空'
+                        },
+                        stringLength: {
+                            min: 1,
+                            max: 128,
+                            message: '长度必须在1-128之间'
+                        },
+						regexp: {
+							regexp: /^https?:\/\//i,
+							message: '接口地址开头必须为http://或者https://'
+						},
+                    }
+                },
+            }
+        });
+    }
+
+    //  删除
+    function bastionHost_del(ip) {
+        Ewin.confirm({message: '是否删除该行？'}).on(function (e) {
+            if (e) {//成功
+                sendAjax('POST', host_url + "/cloud-web/pubBastionHost/delWhite", {'ip': ip}, function (res) {
+                    Ewin.alert({message: '恭喜你，操作成功！'}).on(function (e) {
+                        if (e) {
+                            //重新加载
+                            $("#bastionHostTable").bootstrapTable('refresh');
+                        }
+                    });
+                });
+            }
+        });
+    }
+</script>

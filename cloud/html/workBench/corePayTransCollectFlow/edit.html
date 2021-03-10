@@ -1,0 +1,177 @@
+<div class="content_center">
+	<div class="content_center_content" id="corePayTransCollectFlowEditBox">
+		<h5 style="text-align: center;" class="marginBottom">
+			距离订单结束还有
+			<span id="collect_surplusTime" style="color: red; font-size: 20px;"></span>
+			秒，请及时办理！
+		</h5>
+		<table cellpadding="0" cellspacing="0" border="0" id="workBench_trade_collect_pay_edit_table"
+			style="margin-top: 3px;" class="table table-bordered">
+			<tbody class="basic">
+				<tr>
+					<td class="title col-sm-2">平台流水号：</td>
+					<td class="col-sm-4" id="edit_orderNo"></td>
+					<td class="title col-sm-2">归集金额(元)：</td>
+					<td class="col-sm-4" id="edit_payAmt"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">转出户名：</td>
+					<td class="col-sm-4" id="edit_payAcctName"></td>
+					<td class="title col-sm-2">转出卡号：</td>
+					<td class="col-sm-4" id="edit_payAcctNo"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">转出银行：</td>
+					<td class="col-sm-4" id="edit_payBankName"></td>
+					<td class="title col-sm-2">转出账户别名：</td>
+					<td class="col-sm-4" id="edit_payAliasName"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">创建时间：</td>
+					<td class="col-sm-4" id="edit_createTime"></td>
+					<td class="title col-sm-2">申请操作员：</td>
+					<td class="col-sm-4" id="edit_operatorName"></td>
+				</tr>
+			</tbody>
+		</table>
+		<form class="form-horizontal" id="corePayTransCollectFlow_edit_form">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-2"><span class="red">*</span>转入卡号：</label>
+				<div class="col-xs-8 col-sm-9">
+					<select id="loadBankByTime" name="acctNo"></select>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal" id="corePayTransCollectFlowEditCancel">
+			取消
+		</button>
+		<button type="button" class="btn btn-primary" onclick="workBench_trade_collect_submit()"
+			id="corePayTransCollectFlowEditConfirm">
+			确定
+		</button>
+	</div>
+</div>
+<script type="text/javascript">
+	var edit_id = getQueryString("id");
+	var userLevel = "";
+	$(function () {
+		var countTimer = setInterval(function () {
+			if ($("#collect_surplusTime").text() == 0) {
+				$("#corePayTransCollectFlowEditConfirm").prop("disabled", true);
+			}
+		}, 1000);
+		loadBankByTime(); //获取转入卡号
+		workBench_trade_collect_initValidate();
+		for (var key in timer) {
+			if (timer.hasOwnProperty(key)) {
+				clearInterval(timer[key]);
+				delete timer[key];
+			}
+		}
+		sendAjax(
+			"GET",
+			host_url + "/cloud-web/corePayMergeFlow/view",
+			{ id: edit_id },
+			function (res) {
+				var data = res.rows;
+				workBench_trade_collect_edit_obj = data;
+				$("#edit_createTime").text(formatterDateTime(data.createTime));
+				$("#edit_payAmt").text((data.payAmt / 100).toFixed(2));
+				$("#edit_orderNo").text(data.orderNo);
+				$("#edit_payAcctName").text(data.payAcctName);
+				$("#edit_payAcctNo").text(data.payAcctNo);
+				$("#edit_operatorName").text(data.operatorName);
+				$("#edit_payBankName").text(data.payBankName);
+				$("#edit_payAliasName").text(data.payAliasName);
+				$("#collect_surplusTime").text(data.surplusTime);
+				if (data.payAliasName == "") {
+					$("#edit_payAliasName").text("-");
+				}
+				countDown(data.surplusTime, "collect_surplusTime");
+			}
+		);
+
+		$("#corePayTransCollectFlowEditCancel").on("click", function () {
+			$("#corePayTransCollectFlowTable").bootstrapTable("refresh");
+		});
+	});
+	// 获取转入卡号
+	function loadBankByTime() {
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/cardBankCardInfo/loadBankByTime",
+			{ operatorCode: _loginJsonObj.loginName },
+			function (res) {
+				var loadBankList = '<option value="">请选择</option>';
+				$.each(res.rows, function (i, item) {
+					loadBankList +=
+						'<option value="' +
+						item.acctNo +
+						'" data-routeCode=' +
+						item.routeCode +
+						">" +
+						item.aliasName +
+						" | " +
+						item.acctNo;
+					("</option>");
+				});
+				$("#loadBankByTime").html(loadBankList);
+				$("#loadBankByTime").comboSelect();
+			}
+		);
+	}
+	//初始化验证框架
+	function workBench_trade_collect_initValidate() {
+		//进行表单验证
+		$("#corePayTransCollectFlow_edit_form").bootstrapValidator({
+			message: "输入值不合法",
+			feedbackIcons: {
+				valid: "glyphicon glyphicon-ok",
+				invalid: "glyphicon glyphicon-remove",
+				validating: "glyphicon glyphicon-refresh"
+			},
+			excluded: [":disabled"],
+			fields: {
+				acctNo: {
+					validators: {
+						notEmpty: {
+							message: "请选择转入卡号"
+						}
+					}
+				}
+			}
+		});
+	}
+	// 提交
+	function workBench_trade_collect_submit() {
+		var bv = $("#corePayTransCollectFlow_edit_form")
+			.data("bootstrapValidator")
+			.validate();
+		if (!bv.isValid()) {
+			//验证不通过
+			return;
+		}
+		var params = {
+			orderNo: workBench_trade_collect_edit_obj.orderNo,
+			acctNo: $("#loadBankByTime option:selected").val(),
+			routeCode: $("#loadBankByTime option:selected").attr(
+				"data-routeCode"
+			)
+		};
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/corePayMergeFlow/coreMergeHandler",
+			params,
+			function (res) {
+				$("#workBench_trade_collect_pay_edit_table")
+					.parents(".modal")
+					.modal("hide");
+				showCollectNewsTable();
+				$("#corePayTransCollectFlowTable").bootstrapTable("refresh");
+				Ewin.alert({ message: "恭喜你，操作成功！" });
+			}
+		);
+	}
+</script>

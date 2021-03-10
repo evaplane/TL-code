@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="35px" height="36px" viewBox="0 0 35 36" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 55.1 (78136) - https://sketchapp.com -->
+    <title>Icon card</title>
+    <desc>Created with Sketch.</desc>
+    <g id="场外" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="场外付款完成-light" transform="translate(-35.000000, -481.000000)">
+            <g id="Use-card" transform="translate(19.000000, 466.000000)">
+                <g id="HSBC">
+                    <g id="Group-32" transform="translate(16.000000, 15.000000)">
+                        <g id="Card">
+                            <g id="Icon-card" transform="translate(0.000000, 0.500000)">
+                                <path d="M2.09590426,19.5209149 C0.32356383,18.4887872 -0.482925532,16.2279362 0.298244681,14.2366596 L4.84228723,2.65761702 C5.69271277,0.490595745 8.11441489,-0.566851064 10.2226064,0.305914894 L32.4140957,9.4952766 C34.5230319,10.3695319 35.5521809,12.856766 34.7017553,15.0222979 L33.8535638,17.1833617" id="Stroke-1" fill-opacity="0.5" fill="#186BFE"></path>
+                                <path d="M34.0349681,30.7536809 C34.0349681,33.0882553 32.1755,34.9998511 29.9019894,34.9998511 L5.97464894,34.9998511 C3.70262766,34.9998511 1.84167021,33.0882553 1.84167021,30.7536809 L1.84167021,18.2668723 C1.84167021,15.9322979 3.70262766,14.0199574 5.97464894,14.0199574 L29.9019894,14.0199574 C32.1755,14.0199574 34.0349681,15.9322979 34.0349681,18.2668723 L34.0349681,30.7536809 Z" id="Stroke-3" fill="#00B4FE"></path>
+                                <path d="M4.59017043,17.7588536 L9.43208532,17.7588536" id="Stroke-5" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path d="M4.58942575,20.9812341 L9.43208532,20.9812341" id="Stroke-7" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <g id="Group-10" transform="translate(17.031761, 23.441785)">
+                                    <circle id="Oval-2" fill="#FE685A" cx="4.11947217" cy="4.21648009" r="4.08333333"></circle>
+                                    <circle id="Oval-2" fill="#FEA400" cx="9.72051997" cy="4.21648009" r="4.08333333"></circle>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

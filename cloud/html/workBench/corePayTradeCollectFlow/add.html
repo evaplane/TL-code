@@ -1,0 +1,198 @@
+<div class="content_center">
+	<div class="content_center_content" id="workBench_trade_collect_add_form">
+		<form class="form-horizontal" name="trade_collect_add_form" role="form" id="trade_collect_add_form">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">平台流水号</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="view_tradeCollectOrderNo" name="tradeOrderNo"
+						autocomplete="off" readonly />
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>转出卡</label>
+				<div class="col-xs-8 col-sm-7">
+					<select class="form-control" id="trade_collect_add_payAcctNo" name="payAcctNo"></select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">转出银行</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="trade_collect_add_payBank" name="bankName"
+						autocomplete="off" placeholder="转出银行" readonly />
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>归集金额(元)</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="trade_collect_add_payAmt" name="payAmt"
+						autocomplete="off" placeholder="请输入归集金额" />
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>归集对象</label>
+				<div class="col-xs-8 col-sm-7">
+					<select class="form-control" id="trade_collect_add_mergeType" name="mergeType"></select>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">
+			取消
+		</button>
+		<button type="button" class="btn btn-primary" onclick="trade_collect_submit()">
+			确定
+		</button>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var trade_collect_add_payAcctNo_list = {};
+	$(function () {
+		trade_collect_initValidate();
+		listOptionInit2($('#trade_collect_add_mergeType'),MERGE_TYPE);
+		$("#trade_collect_add_mergeType").comboSelect();
+		// 归集流水号
+		sendAjax(
+			"GET",
+			host_url + "/cloud-web/pubCommon/getOrderNo",
+			{},
+			function (res) {
+				$("#view_tradeCollectOrderNo").val(res.rows);
+			}
+		);
+		// 转出卡下拉框加载
+		sendAjax(
+			"GET",
+			host_url + "/cloud-web/cardBankCardInfo/loadBankByTime",
+			{ operatorCode: _loginJsonObj.loginName },
+			function (res) {
+				$("#trade_collect_add_payAcctNo").html("");
+				var Member = '<option value="">请选择</option>';
+				$.each(res.rows, function (i, item) {
+					Member +=
+						'<option value="' +
+						item.acctNo +
+						"|" +
+						item.routeCode +
+						'">' +
+						item.aliasName +
+						"|" +
+						item.acctNo +
+						"</option>";
+					trade_collect_add_payAcctNo_list[item.acctNo] =
+						item.bankName;
+				});
+				$("#trade_collect_add_payAcctNo").append(Member);
+				$("#trade_collect_add_payAcctNo").comboSelect();
+			}
+		);
+		$("#trade_collect_add_payAcctNo").on("change", function () {
+			if ($(this).val()) {
+				var bankCode = $(this)
+					.val()
+					.split("|")[0];
+				for (v in trade_collect_add_payAcctNo_list) {
+					if (v == bankCode) {
+						$("#trade_collect_add_payBank").val(
+							trade_collect_add_payAcctNo_list[v]
+						);
+					}
+				}
+			} else {
+				$("#trade_collect_add_payBank").val("");
+			}
+		});
+	});
+	//初始化验证框架
+	function trade_collect_initValidate() {
+		//进行表单验证
+		$("#trade_collect_add_form").bootstrapValidator({
+			message: "输入值不合法",
+			feedbackIcons: {
+				valid: "glyphicon glyphicon-ok",
+				invalid: "glyphicon glyphicon-remove",
+				validating: "glyphicon glyphicon-refresh"
+			},
+			excluded: [":disabled"],
+			fields: {
+				payAmt: {
+					verbose: false,
+					validators: {
+						notEmpty: {
+							message: "归集金额不能为空"
+						},
+						regexp: {
+							regexp: /^-?\d+\.?\d{0,2}$/,
+							message: "请输入正确的金额(小数点后最多两位)"
+						},
+						lessThan: {
+							message: "不能大于1百万",
+							value: 1000000.0
+						},
+						greaterThan: {
+							value: 0.01,
+							message: "必须大于等于0.01"
+						}
+					}
+				},
+				payAcctNo: {
+					verbose: false,
+					message: "转出卡验证失败",
+					validators: {
+						notEmpty: { message: "转出卡不能为空" }
+					}
+				},
+				mergeType: {
+					verbose: false,
+					message: "归集对象验证失败",
+					validators: {
+						notEmpty: { message: "请选择归集对象" }
+					}
+				},
+			}
+		});
+	}
+	// 保存
+	function trade_collect_submit() {
+		var bv = $("#trade_collect_add_form")
+			.data("bootstrapValidator")
+			.validate();
+		if (!bv.isValid()) {
+			//验证不通过
+			return;
+		}
+		var params = {
+			routeCode: $("#trade_collect_add_payAcctNo")
+				.val()
+				.split("|")[1],
+			payAcctNo: $("#trade_collect_add_payAcctNo")
+				.val()
+				.split("|")[0],
+			payAmt: ($("#trade_collect_add_payAmt").val() * 100).toFixed(0),
+			orderNo: $("#view_tradeCollectOrderNo").val(),
+			mergeType:$("#trade_collect_add_mergeType").val(),
+			operatorCode: _loginJsonObj.loginName,
+			operatorName: _loginJsonObj.userName
+		};
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/corePayMergeFlow/mergeApplay",
+			params,
+			function (res) {
+				$("#workBench_trade_collect_add_form")
+					.parents(".modal")
+					.modal("hide");
+				Ewin.alert({
+					message: "恭喜你，操作成功！"
+				}).on(function (e) {
+					if (e) {
+						$("#corePayTradeCollectFlowFormTable").bootstrapTable(
+							"refresh"
+						);
+					}
+				});
+			}
+		);
+	}
+</script>

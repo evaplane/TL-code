@@ -1,0 +1,117 @@
+﻿<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal" name="add_form" role="form"  id="add_form">
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>�����̺�</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="add_dlsCode" name="dlsCode" placeholder="����������̺�"  autocomplete="off">
+						
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>���������</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="add_dlsName" name="dlsName" placeholder="��������������"  autocomplete="off">
+						
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>��ֵ���</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="add_payAmt" name="payAmt" placeholder="�������ֵ���"  autocomplete="off">
+						
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>״̬</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="add_status" name="status" placeholder="������״̬"  autocomplete="off">
+						
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>������</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="add_createUser" name="createUser" placeholder="�����봴����"  autocomplete="off">
+						
+					</div>
+				</div>
+		</form>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">ȡ��</button>
+			<button type="button" class="btn btn-primary" onclick="_doSubmit()">ȷ��</button>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	_validateForm();//��֤��ʼ��
+});
+
+//��ʼ����֤���
+function _validateForm(){
+	//���б?��֤
+ 	$('#add_form').bootstrapValidator({
+	  	message: '����ֵ���Ϸ�',
+      	feedbackIcons: {valid: 'glyphicon glyphicon-ok',invalid: 'glyphicon glyphicon-remove',validating: 'glyphicon glyphicon-refresh'},
+      	excluded : [':disabled'],
+      	fields: {
+			dlsCode:{
+				message: '�����̺���֤ʧ��',
+				validators: {
+              	notEmpty: {message: '�����̺Ų���Ϊ��'}
+            	}
+			},
+			dlsName:{
+				message: '�����������֤ʧ��',
+				validators: {
+              	notEmpty: {message: '��������Ʋ���Ϊ��'}
+            	}
+			},
+			payAmt:{
+				message: '��ֵ�����֤ʧ��',
+				validators: {
+              	notEmpty: {message: '��ֵ����Ϊ��'}
+            	}
+			},
+			status:{
+				message: '״̬��֤ʧ��',
+				validators: {
+              	notEmpty: {message: '״̬����Ϊ��'}
+            	}
+			},
+			createUser:{
+				message: '��������֤ʧ��',
+				validators: {
+              	notEmpty: {message: '�����˲���Ϊ��'}
+            	}
+			},
+   		}
+	});
+}
+
+//�ύ
+function _doSubmit(){
+	var bv = $('#add_form').data('bootstrapValidator').validate();
+	if (!bv.isValid()) {//��֤��ͨ��
+		return;
+	}
+	
+	var paramForm = $("#add_form").serializeArray();
+	var params = {};
+	$.each(paramForm, function(i, param){
+		params[param.name]=$.trim(param.value);
+	});
+	sendAjax( 'POST', host_url+"/cloud-web/dlsAcctFlow/addSubmit", params, function(res){
+		Ewin.alert({ message: '��ϲ�㣬�����ɹ���' }).on(function(e){
+			if(e){
+				$('#add_form').parents('.modal').modal('hide');
+				$(".table").bootstrapTable('refresh');
+			}
+		});
+	});
+}
+</script>
+<!--/�����Ϸ�д��ҳ��ҵ����صĽű�-->
+</body>
+</html>

@@ -1,0 +1,204 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<table cellpadding="0" cellspacing="0" border="0" id="table" class="table table-bordered">
+		    <tbody class="basic">
+				<tr>
+				    <td class='title col-sm-2'>主键：</td>
+				    <td class="col-sm-4" id="view_id"></td>
+				    <td class='title col-sm-2'>主商户编号：</td>
+				    <td class="col-sm-4" id="view_customerNo"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>主商户名称：</td>
+				    <td class="col-sm-4" id="view_customerName"></td>
+				    <td class='title col-sm-2'>交易类型（收单、网银、代付）：</td>
+				    <td class="col-sm-4" id="view_tradeType"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>平台流水号：</td>
+				    <td class="col-sm-4" id="view_orderNo"></td>
+				    <td class='title col-sm-2'>交易金额（元）：</td>
+				    <td class="col-sm-4" id="view_payAmt"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>手续费（元）：</td>
+				    <td class="col-sm-4" id="view_feeAmt"></td>
+				    <td class='title col-sm-2'>成本：</td>
+				    <td class="col-sm-4" id="view_costAmt"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>币种：</td>
+				    <td class="col-sm-4" id="view_currencyType"></td>
+				    <td class='title col-sm-2'>付款方:卡类型：</td>
+				    <td class="col-sm-4" id="view_payCardType"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>付款方:账户类型：</td>
+				    <td class="col-sm-4" id="view_payAcctType"></td>
+				    <td class='title col-sm-2'>付款方:账号：</td>
+				    <td class="col-sm-4" id="view_payAcctNo"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>付款方:户名：</td>
+				    <td class="col-sm-4" id="view_payAcctName"></td>
+				    <td class='title col-sm-2'>付款方:银行名称：</td>
+				    <td class="col-sm-4" id="view_payBankName"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>付款方:清算行号：</td>
+				    <td class="col-sm-4" id="view_payBankCode"></td>
+				    <td class='title col-sm-2'>付款方:开户行名称：</td>
+				    <td class="col-sm-4" id="view_paySubBankName"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>付款方:开户行行号：</td>
+				    <td class="col-sm-4" id="view_paySubBankCode"></td>
+				    <td class='title col-sm-2'>收款方:卡类型：</td>
+				    <td class="col-sm-4" id="view_recCardType"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>收款方:账户类型：</td>
+				    <td class="col-sm-4" id="view_recAcctType"></td>
+				    <td class='title col-sm-2'>收款方:账号：</td>
+				    <td class="col-sm-4" id="view_recAcctNo"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>收款方:户名：</td>
+				    <td class="col-sm-4" id="view_recAcctName"></td>
+				    <td class='title col-sm-2'>收款方:银行名称：</td>
+				    <td class="col-sm-4" id="view_recBankName"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>收款方:清算行号：</td>
+				    <td class="col-sm-4" id="view_recBankCode"></td>
+				    <td class='title col-sm-2'>收款方:开户行名称：</td>
+				    <td class="col-sm-4" id="view_recSubBankName"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>收款方:开户行行号：</td>
+				    <td class="col-sm-4" id="view_recSubBankCode"></td>
+				    <td class='title col-sm-2'>收款方:开户行省份：</td>
+				    <td class="col-sm-4" id="view_recSubBankProvince"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>收款方:开户行城市：</td>
+				    <td class="col-sm-4" id="view_recBankCity"></td>
+				    <td class='title col-sm-2'>交易备注：</td>
+				    <td class="col-sm-4" id="view_recRemark"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>摘要：</td>
+				    <td class="col-sm-4" id="view_recAbstract"></td>
+				    <td class='title col-sm-2'>借贷标识（1借、2贷）：</td>
+				    <td class="col-sm-4" id="view_debitCredit"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>交易状态：</td>
+				    <td class="col-sm-4" id="view_tradeStatus"></td>
+				    <td class='title col-sm-2'>记账状态（成功、失败、不记账）：</td>
+				    <td class="col-sm-4" id="view_voucherStatus"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>结算状态（待结算、已结算）：</td>
+				    <td class="col-sm-4" id="view_settleStatus"></td>
+				    <td class='title col-sm-2'>结算金额（元）：</td>
+				    <td class="col-sm-4" id="view_settleAmt"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>结算时间：</td>
+				    <td class="col-sm-4" id="view_settleTime"></td>
+				    <td class='title col-sm-2'>产品码：</td>
+				    <td class="col-sm-4" id="view_productCode"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>合同码：</td>
+				    <td class="col-sm-4" id="view_contractCode"></td>
+				    <td class='title col-sm-2'>渠道编码：</td>
+				    <td class="col-sm-4" id="view_channelCode"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>主商户号：</td>
+				    <td class="col-sm-4" id="view_merchantNoMain"></td>
+				    <td class='title col-sm-2'>商户号：</td>
+				    <td class="col-sm-4" id="view_merchantNoSub"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>渠道流水号：</td>
+				    <td class="col-sm-4" id="view_channelFlowNo"></td>
+				    <td class='title col-sm-2'>交易完成时间：</td>
+				    <td class="col-sm-4" id="view_endTime"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>返回码：</td>
+				    <td class="col-sm-4" id="view_retSubCode"></td>
+				    <td class='title col-sm-2'>返回描述：</td>
+				    <td class="col-sm-4" id="view_retSubMsg"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>创建时间：</td>
+				    <td class="col-sm-4" id="view_createTime"></td>
+				    <td class='title col-sm-2'>更新时间：</td>
+				    <td class="col-sm-4" id="view_updateTime"></td>
+				</tr>
+		    </tbody>
+		</table>
+	</div>
+</div>
+<div class="modal-footer" id="close">
+    <button type="button" class="btn btn-default cancel" data-dismiss="modal">关闭</button>
+</div>
+<script type="text/javascript">
+$(function(){
+	var view_id = getQueryString('id');
+	sendAjax( 'POST', host_url+"/odr-web/odrPayTransFlow/view", {'id':view_id}, function(res){
+		var data=res.rows;
+
+		$('#view_id').html(data.id);
+		$('#view_customerNo').html(data.customerNo);
+		$('#view_customerName').html(data.customerName);
+		$('#view_tradeType').html(data.tradeType);
+		$('#view_orderNo').html(data.orderNo);
+		$('#view_payAmt').html(data.payAmt);
+		$('#view_feeAmt').html(data.feeAmt);
+		$('#view_costAmt').html(data.costAmt);
+		$('#view_currencyType').html(data.currencyType);
+		$('#view_payCardType').html(data.payCardType);
+		$('#view_payAcctType').html(data.payAcctType);
+		$('#view_payAcctNo').html(data.payAcctNo);
+		$('#view_payAcctName').html(data.payAcctName);
+		$('#view_payBankName').html(data.payBankName);
+		$('#view_payBankCode').html(data.payBankCode);
+		$('#view_paySubBankName').html(data.paySubBankName);
+		$('#view_paySubBankCode').html(data.paySubBankCode);
+		$('#view_recCardType').html(data.recCardType);
+		$('#view_recAcctType').html(data.recAcctType);
+		$('#view_recAcctNo').html(data.recAcctNo);
+		$('#view_recAcctName').html(data.recAcctName);
+		$('#view_recBankName').html(data.recBankName);
+		$('#view_recBankCode').html(data.recBankCode);
+		$('#view_recSubBankName').html(data.recSubBankName);
+		$('#view_recSubBankCode').html(data.recSubBankCode);
+		$('#view_recSubBankProvince').html(data.recSubBankProvince);
+		$('#view_recBankCity').html(data.recBankCity);
+		$('#view_recRemark').html(data.recRemark);
+		$('#view_recAbstract').html(data.recAbstract);
+		$('#view_debitCredit').html(data.debitCredit);
+		$('#view_tradeStatus').html(data.tradeStatus);
+		$('#view_voucherStatus').html(data.voucherStatus);
+		$('#view_settleStatus').html(data.settleStatus);
+		$('#view_settleAmt').html(data.settleAmt);
+		$('#view_settleTime').html(data.settleTime);
+		$('#view_productCode').html(data.productCode);
+		$('#view_contractCode').html(data.contractCode);
+		$('#view_channelCode').html(data.channelCode);
+		$('#view_merchantNoMain').html(data.merchantNoMain);
+		$('#view_merchantNoSub').html(data.merchantNoSub);
+		$('#view_channelFlowNo').html(data.channelFlowNo);
+		$('#view_endTime').html(data.endTime);
+		$('#view_retSubCode').html(data.retSubCode);
+		$('#view_retSubMsg').html(data.retSubMsg);
+		$('#view_createTime').html(data.createTime);
+		$('#view_updateTime').html(data.updateTime);
+	});
+});
+</script>

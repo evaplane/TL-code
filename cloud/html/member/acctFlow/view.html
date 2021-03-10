@@ -1,0 +1,60 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<table cellpadding="0" cellspacing="0" border="0" id="table" class="table table-bordered">
+		    <tbody class="basic">
+		        <tr>
+		            <td class='title col-sm-4'>主键ID：</td>
+		            <td class="col-sm-8" id="view_id"></td>
+		        </tr>
+		        <tr>
+		            <td class='title col-sm-4'>代理商号：</td>
+		            <td class="col-sm-8" id="view_dlsCode"></td>
+		        </tr>
+		        <tr>
+		            <td class='title col-sm-4'>代理商名称：</td>
+		            <td class="col-sm-8" id="view_dlsName"></td>
+		        </tr>
+		        <tr>
+		            <td class='title col-sm-4'>充值金额：</td>
+		            <td class="col-sm-8" id="view_payAmt"></td>
+		        </tr>
+		        <tr>
+		            <td class='title col-sm-4'>状态：</td>
+		            <td class="col-sm-8" id="view_status"></td>
+		        </tr>
+		        <tr>
+		            <td class='title col-sm-4'>创建人：</td>
+		            <td class="col-sm-8" id="view_createUser"></td>
+		        </tr>
+		        <tr>
+		            <td class='title col-sm-4'>创建时间：</td>
+		            <td class="col-sm-8" id="view_createTime"></td>
+		        </tr>
+		        <tr>
+		            <td class='title col-sm-4'>更新时间：</td>
+		            <td class="col-sm-8" id="view_updateTime"></td>
+		        </tr>
+		    </tbody>
+		</table>
+		<div class="modal-footer" id="close">
+		    <button type="button" class="btn btn-primary cancel" data-dismiss="modal">关闭</button>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	var view_id = getQueryString('id');
+	sendAjax( 'POST', host_url+"/own-web/dlsAcctFlow/view", {'id':view_id}, function(res){
+		var data=res.rows;
+
+		$('#view_id').html(data.id);
+		$('#view_dlsCode').html(data.dlsCode);
+		$('#view_dlsName').html(data.dlsName);
+		$('#view_payAmt').html(data.payAmt);
+		$('#view_status').html(data.status);
+		$('#view_createUser').html(data.createUser);
+		$('#view_createTime').html(data.createTime);
+		$('#view_updateTime').html(data.updateTime);
+	});
+});
+</script>

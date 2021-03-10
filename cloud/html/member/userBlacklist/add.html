@@ -1,0 +1,190 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal bv-form" name="add_form" role="form" id="userBlacklist_add_form"
+			novalidate="novalidate">
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>平台号</label>
+				<div class="col-xs-6 col-sm-7 add_Member">
+					<select class="multiselect multiselectMember form-control" id="pay_cusList" name="cusList"
+						multiple="multiple"></select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>用户账号</label>
+				<div class="col-xs-6 col-sm-7">
+					<input type="text" class="form-control" id="add_userAcct" name="userAcct"
+						placeholder="用户账号" autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2">用户名称</label>
+				<div class="col-xs-6 col-sm-7">
+					<input type="text" class="form-control" id="add_userName" name="userName" placeholder="用户名称"
+						autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2">备注</label>
+				<div class="col-xs-6 col-sm-7">
+					<input type="text" class="form-control" id="add_remark" name="remark" placeholder="备注" autocomplete="off" />
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	<button type="button" class="btn btn-primary" onclick="userBlacklist_add_doSubmit(this)">保存</button>
+</div>
+<style>
+	.add_Member .multiselect-container {
+		width: 100%;
+	}
+</style>
+<script type="text/javascript" src="../../../js/lib/bootstrap-multiselect.js"></script>
+<script>
+	$(function () {
+		userBlacklist_add_initValidate();
+		getUserMember();
+	})
+	var selectedUserMember = "";
+	// 获取 会员配置 下拉框
+	function getUserMember() {
+		selectedUserMember = "";
+		new Promise(multiselectGetUserMember).then(function () {
+			$('.multiselectMember').multiselect({
+				buttonClass: 'btn',
+				buttonWidth: '100%',
+				buttonText: function (options) {
+					if (options.length == 0) {
+						return '请选择';
+					} else {
+						var select = '';
+						options.each(function () {
+							select += $(this).text() + ',';
+						});
+						return select.substr(0, select.length - 1);
+					}
+				},
+				onChange: function (option, checked) {
+					selectedUserMember = "";
+					$('select#pay_cusList option:selected').each(function (i, item) {
+						selectedUserMember += $(item).val() + ',';
+					});
+				}
+			});
+		})
+	
+	}
+	function multiselectGetUserMember(suc) {
+		// 会员配置
+		sendAjax("POST", host_url + "/cloud-web/cusMemberInfo/getAllCusMember", {}, function (data) {
+			$('#pay_cusList').html('');
+			$.each(data.rows, function (i, item) {
+				var Member = '<option value="' + item.cusCode + '">' + item.cusCode + '(' + item.cusName + ')</option>';
+				$('#pay_cusList').append(Member);
+			});
+			if (suc) {
+				suc();
+			}
+		})
+	}
+	//初始化验证框架
+	function userBlacklist_add_initValidate() {
+		//进行表单验证
+		$('#userBlacklist_add_form').bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: {
+				valid: 'glyphicon glyphicon-ok',
+				invalid: 'glyphicon glyphicon-remove',
+				validating: 'glyphicon glyphicon-refresh'
+			},
+			excluded: [':disabled'],
+			fields: {
+				cusList: {
+					verbose: false,
+					message: '平台号验证失败',
+					validators: {
+						notEmpty: { message: '请选择平台号' }
+					}
+				},
+				userAcct: {
+					verbose: false,
+					message: '用户账号验证失败',
+					validators: {
+						notEmpty: { message: '用户账号不能为空' },
+						stringLength: {
+							min: 2,
+							max: 16,
+							message: '长度必须在2-16之间'
+						},
+						regexp: {
+							regexp: /^[0-9a-zA-Z]+$/,
+							message: '用户账号只支持字母和数字'
+						}
+					}
+				},
+				userName: {
+					verbose: false,
+					// message: '用户名称验证失败',
+					validators: {
+						// notEmpty: { message: '用户名称不能为空' },
+						regexp: {
+							regexp: /^[\u4e00-\u9fa5A-Za-z0-9]+$/,
+							message: '用户名称只能输入中文、英文和数字'
+						},
+						stringLength: {
+							min: 2,
+							max: 16,
+							message: '长度必须在2-16之间'
+						}
+					}
+				},
+				remark:{
+					verbose: false,
+					// message: '备注验证失败',
+					validators: {
+						// notEmpty: {message: '备注不能为空'}, 
+						stringLength: {
+							max: 64,
+							message: '长度不能超过64位'
+						},
+					}
+				},
+			}
+		})
+	}
+
+	function userBlacklist_add_doSubmit() {
+		var bv = $('#userBlacklist_add_form').data('bootstrapValidator').validate();
+		if (!bv.isValid()) { //验证不通过
+			return;
+		}
+		var paramForm = $("#userBlacklist_add_form").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = param.value.trim();
+		});
+		if (selectedUserMember) {
+			if (selectedUserMember.split(',').length > 21) {
+				Ewin.alert({
+					message: '最多可添加20个会员'
+				});
+				return;
+			}
+		
+			params.cusList = selectedUserMember.slice(0, selectedUserMember.length - 1);
+		}
+		
+		sendAjax('POST', host_url + "/cloud-web/cusUserBlack/batchAdd", params, function (res) {
+			Ewin.alert({
+				message: '恭喜你，操作成功！'
+			}).on(function (e) {
+				if (e) {
+					$('#userBlacklist_add_form').parents('.modal').modal('hide');
+					$("#userBlacklistTable").bootstrapTable('refresh');
+				}
+			});
+		});
+	}
+</script>

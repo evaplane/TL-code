@@ -1,0 +1,235 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="queryFormAuthRole" name="queryFormAuthRole" role="form" class="form-inline">
+				<div class="form-group">
+					<label class="control-label">角色名称：</label>
+					<select class="form-control" id="queryRoleName" name="roleName" style="display: none"></select>
+				</div>
+				<div class="form-group">
+					<label class="control-label">角色状态：</label>
+					<select class="form-control" id="queryRoleStatus" name="status" style="display: none"></select>
+				</div>
+				<div class="form-group pull-right">
+					<button id="queryButton_authRole" type="button" class="btn btn-primary refreshBtn"><i
+							class="fa fa-search"></i> 查询</button>
+					<button type="reset" class="btn btn-default"><i class="fa fa-refresh"></i> 重置</button>
+				</div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<div class="marginBottom">
+				<button type="button" class="btn btn-primary" onclick="_addAuthRole()"><i class="fa fa-plus"></i>
+					新增</button>
+				<!--<button type="button" class="btn btn-default" onclick="_del()"><i class="fa fa-trash-o"></i> 删除</button>-->
+			</div>
+			<table cellpadding="0" cellspacing="0" border="0" id="table_authRole"
+				class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<script>
+	$(function () {
+		authRoleTable();
+		listOptionInit($('#queryRoleStatus'), CORE_STATUS);
+		$('#queryRoleStatus').comboSelect({ extendStyle: false });
+		roleUserList();
+
+	});
+	// 搜索
+	$("#queryButton_authRole").click(function () {
+		$("#table_authRole").bootstrapTable('refresh');
+		authRoleTable();
+	});
+	function roleUserList() {
+		sendAjax('POST', host_url + "/cloud-web/authRole/selectRoleListByUser", {}, function (res) {
+			$('#queryRoleName').html("<option value=''>全部</option>");
+			var html = '';
+			$.each(res.rows, function (i, item) {
+				html += "<option value='" + item.roleCode + "'>" + item.roleName + "</option>";
+			});
+			$('#queryRoleName').append(html);
+			$('#queryRoleName').comboSelect({ extendStyle: false });
+		});
+	}
+	//判断是否为手动修改产品状态按钮
+	var flag_btn = true;
+	/*表格加载*/
+	function authRoleTable() {
+		$('#table_authRole').bootstrapTable({
+			url: host_url + '/cloud-web/authRole/pageList',
+			method: 'GET',
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏  
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server",//表格分页的位置  
+			cache: false,//是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: 'zh-CN',//中文支持
+			queryParamsType: 'limit',
+			queryParams: function (params) {
+				params.pageSize = params.limit;                        //页面大小
+				params.page = (params.offset / params.limit) + 1;     //页码
+				params._sys_login_token = _get_token();
+
+				var paramForm = $("#queryFormAuthRole").serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				var roleName = $('#queryRoleName option:selected').text();
+				if (roleName == "全部") {
+					params.roleName = "";
+				} else {
+					params.roleName = roleName;
+				}
+				return params;
+			}, //参数  
+			columns: [
+				// {title:'全选',checkbox:true,width:30,align:"center",valign:"middle"},
+				{
+					title: '序号',
+					field: 'index',
+					width: 40,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						var pageSize = $('#table_authRole').bootstrapTable('getOptions').pageSize;
+						var pageNumber = $('#table_authRole').bootstrapTable('getOptions').pageNumber;
+						return pageSize * (pageNumber - 1) + index + 1;
+					}
+				},
+				{
+					title: '操作', field: 'operation', valign: "middle", width: 100,
+					formatter: function (value, row, index) {
+						var str = '';
+						if (row.isOperator == 1) {
+							str += '<a class="fa fa-edit operation a_size" onclick="_editAuthRole(' + row.id + ')" title="编辑"></a> ';
+						}
+						str += '<a class="fa fa-list-alt operation a_size" onclick="_viewMenu(' + row.id + ',' + row.platform + ')" title="分配菜单"></a> ';
+						return str;
+					}
+				},
+				{ field: 'roleCode', title: '角色编码', width: 100, align: "center", valign: "middle" },
+				{ field: 'roleName', title: '角色名称', width: 100, align: "center", valign: "middle" },
+				{ field: 'roleDesc', title: '角色描述', width: 100, align: "center", valign: "middle" },
+				/* {field:'platform',title:'所属系统',width:80,align:"center",valign:"middle",
+					formatter:function (value, row, index) {
+						return sys_getTitle_Id(value,AUTH_PLATFORM);
+					}               
+				}, */
+				{
+					field: 'status', title: '角色状态', width: 100, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						var authRoleSwitch;
+						if (value == 100) {
+							authRoleSwitch = '<div class="authRoleSwitch" data-on="success" data-off="warning"><input type="checkbox" value="' + row.id + '" checked /></div>';
+						} else {
+							authRoleSwitch = '<div class="authRoleSwitch" data-on="success" data-off="warning"><input type="checkbox" value="' + row.id + '"/></div>';
+						}
+						return authRoleSwitch;
+					}
+				},
+				{ field: 'sort', title: '排序', width: 80, align: "center", valign: "middle" },
+				{
+					field: 'createTime', title: '创建时间', width: 110, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						return getDateStr(value);
+					}
+				},
+				{
+					field: 'updateTime', title: '更新时间', width: 110, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						return getDateStr(value);
+					}
+				}
+			],
+			onDblClickRow: function (row) {
+				Ewin.dialog({ url: '../../../html/system/authRole/view.html?id=' + row.id, title: '详情', width: 950, height: 500 });
+			},
+			onClickRow: function (row, $element) {
+				$($element).addClass('table_info').siblings().removeClass('table_info');
+			},
+			onLoadSuccess: function (res) {
+				//加载成功时执行  
+				$('.authRoleSwitch').bootstrapSwitch();
+				//开关
+				$('.authRoleSwitch').on('switch-change', function (e, data) {
+					if (!flag_btn) {
+						flag_btn = true;
+						return;
+					} else {
+						var el = $(data.el),
+							value = data.value;
+						var id = el[0].value;
+						var values;
+						if (value) {//on
+							values = 100;
+						} else {//offS
+							values = -100;
+						}
+
+						var params = { "id": id, "status": values };
+						_updateAuthRoleStatus(params);
+					}
+				});
+			},
+		});
+	}
+
+	//添加
+	function _addAuthRole() {
+		Ewin.dialog({ url: '../../../html/system/authRole/add.html', title: '添加', height: 500 });
+	}
+
+	//编辑
+	function _editAuthRole(id) {
+		Ewin.dialog({ url: '../../../html/system/authRole/edit.html?id=' + id, title: '编辑', height: 500 });
+	}
+
+	//删除
+	function _del() {
+		var table_authRole = $("#table_authRole").bootstrapTable('getSelections');
+		//将选中行数据转成jsonStr
+		var jsonStr = JSON.stringify(table_authRole);
+		//将jsonStr转成jsonObject对象
+		var jsonObject = jQuery.parseJSON(jsonStr);
+		if (jsonObject.length == 0) {
+			Ewin.alert({ message: '请选中一行进行删除？' });
+		} else {
+			var roleIds = [];
+			$.each(jsonObject, function (i, item) {
+				roleIds += item.id + ',';
+			});
+			roleIds = roleIds.slice(0, roleIds.length - 1);
+
+			Ewin.confirm({ message: '是否删除该行？' }).on(function (e) {
+				if (e) {//成功
+					sendAjax('POST', host_url + "/cloud-web/authRole/delete", { 'ids': roleIds }, function (res) {
+						Ewin.alert({ message: '恭喜你，操作成功！' }).on(function (e) {
+							if (e) {
+								//重新加载
+								$("#table_authRole").bootstrapTable('refresh');
+							}
+						});
+					});
+				}
+			});
+		}
+	}
+	//修改角色状态
+	function _updateAuthRoleStatus(params) {
+		sendAjax('POST', host_url + "/cloud-web/authRole/updateRoleStatus", params, function (res) {
+			alertTips({ message: '恭喜你，操作成功！', id: 'alert-success' });
+			$("#table_authRole").bootstrapTable('refresh');
+		});
+	}
+
+	//查看角色对应的菜单
+	function _viewMenu(id, platform) {
+		Ewin.dialog({ url: '../../../html/system/authRole/allocationMenu.html?id=' + id + '&platform=' + platform, title: '分配菜单' });
+	}
+
+</script>

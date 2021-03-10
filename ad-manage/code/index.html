@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="./webuploader.css">
+</head>
+<body>
+    <div id="uploader" class="wu-example">
+            <ul class="resources_body_modal_add_list">
+                <li class="resources_body_modal_add_list_item">
+                  <div class="resources_body_modal_add_list_item_hd"></div> 
+                  <div class="resources_body_modal_add_list_item_bd">
+                    <input type="text" name="" placeholder="此处为视频名称，点击可修改" class="form-control" />
+                  </div>
+                  <span class="resources_body_modal_add_list_item_icon">x</span> 
+                  <div class="resources_body_modal_add_list_item_bar">
+                    <div class="resources_body_modal_add_list_item_bar_progress"></div>
+                  </div>
+                </li> 
+            </ul>
+            <!--文件上传按钮-->
+            <div class="resources_body_modal_add_field">
+                <div class="resources_body_modal_add_field_cell">
+                  <!--配置所用id-->
+                <div id="filePicker" class="resources_body_modal_add_field_cell_icon">+</div>
+                <p class="g-mb20">点击上传视频</p>
+                <p class="js-empty">每次最多上传1个，单个视频不超过4G</p>
+                <p class="js-full">
+                  已选择
+                  <span class="js-uploadLength"></span>个，
+                  <span class="js-uploadLeft"></span>
+                </p>
+            </div> 
+        </div> 
+    </div>
+</body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="./webuploader.min.js"></script>
+<script>
+
+    var app = new Vue({
+      el: '#uploader',
+      data: {
+        url:'http://192.168.1.159:8183/storage-web/storageObj/multipartUpload'
+      },
+      methods: {
+          initWebUploader(){
+            uploader = WebUploader.create({
+                resize: false, // 不压缩image     
+                swf: base_URL + './Uploader.swf', // swf文件路径
+                method: "post",
+                sendAsBinary : true,//文件上传二进制流
+                fileNumLimit: 10,//验证文件总数量, 超出则不允许加入队列
+                fileSingleSizeLimit: 4*1024*1024*1024,//验证单个文件大小是否超出限制, 超出则不允许加入队列
+                server: this.url,// 文件接收服务端
+                pick: {
+                    id: '#filePicker', //这个id是你要点击上传文件按钮的外层div的id  
+                    multiple : true //是否可以批量上传，true可以同时选择多个文件  
+                },    
+                chunked: true,//是否要分片处理大文件上传
+                threads: true, //上传并发数
+                chunkSize:10*1024*1024, //分片上传，每片2M，默认是5M
+                prepareNextFile: true,//上传当前分片时预处理下一分片 
+                //auto: false //选择文件后是否自动上传
+                chunkRetry : 1, //如果某个分片由于网络问题出错，允许自动重传次数
+                duplicate: false, //重复选择
+                // runtimeOrder: 'html5, flash'
+                accept: {
+                    extensions: 'avi,wmv,rm,rmvb,mov,mkv,flv,mp4,f4v,3gp,ts,wma,wav,aac',
+                    mimeTypes: '.avi,.wmv,.rm,.rmvb,.mov,.mkv,.flv,.mp4,.f4v,.3gp,.ts,.wma,.wav,.aac'
+                }//视频文件后缀
+            });
+          }
+      },
+    })
+</script>

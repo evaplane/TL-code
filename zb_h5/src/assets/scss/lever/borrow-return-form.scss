@@ -1,0 +1,111 @@
+.lever-borrow-return-form {
+  background-color: var(--default-bg);
+  margin-top: 10px;
+  padding: 15px;
+  .lever-form-item {
+    margin-bottom: 10px;
+  }
+  .form-control {
+    padding-left: 0;
+  }
+  .input-field .form-placeholder {
+    left: 2px;
+  }
+  .amount, .auto-borrow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .auto-borrow {
+    padding: 6px 0;
+  }
+  .input {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--line-color); /* no */
+    .input-item {
+      height: 30px;
+      flex: 1;
+    }
+  }
+  .submit-btn {
+    button {
+      background-color: var(--color);
+      height: 44px;
+      outline: none;
+      border: none;
+      width: 100%;
+      color: #fff;
+      font-size: 14px;
+      border-radius: 2px;
+    }
+  }
+  .tips {
+    line-height: 22px;
+  }
+  .input-label {
+    font-weight: 500;
+    .coin-name {
+      position: relative;
+      padding-right: 10px;
+      margin-right: 8px;
+      &:after {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        content: '';
+        height: 100%;
+        width: 2px; /* no */
+        background-color: var(--line-color);
+      }
+    }
+    .return-btn {
+      color: var(--color);
+    }
+  }
+}
+.lever-detail-list {
+  background-color: var(--default-bg);
+}
+.detail-hover {
+  @include dark {
+    background-color: rgba(0, 0, 0, 0.459);
+  }
+  @include light {
+    background-color: rgb(240, 240, 240);
+  }
+}
+.lever-detail-item {
+  height: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;
+  font-size: 14px;
+  label {
+    color: var(--default-color);
+    font-size: 14px;
+  }
+  p {
+    color: var(--heavy-color);
+    font-weight: 500;
+  }
+}
+.bottom-border {
+  position: relative;
+  &::after {
+    // 下边线
+    position: absolute;
+    bottom: 0;
+    left: 15px;
+    right: 15px;
+    height: 1px; /* no */
+    background-color: var(--line-color);
+    content: '';
+  }
+  &:last-child:after {
+    display: none;
+  }
+}

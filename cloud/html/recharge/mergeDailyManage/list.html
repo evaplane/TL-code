@@ -1,0 +1,590 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<p class="pull-right">
+			<!-- <button id="query_button" type="button" class="btn btn-primary" onclick="shiftsTime()">
+				<i class="fa fa-edit"></i> 配置班次
+			</button> -->
+		</p>
+		<div class="clearfix"></div>
+		<div id="allMergeDailyManageListBox"></div>
+	</div>
+</div>
+<style>
+	.popover-content {
+		width: 250px;
+	}
+	.popover {
+		word-break: break-word;
+	}
+	input {
+		font-weight: normal;
+	}
+</style>
+<script type="text/javascript">
+	$(function() {
+		mergeDailyManageLists();
+	});
+
+	function mergeDailyManageLists() {
+		sendAjax(
+			"GET",
+			host_url + "/cloud-web/cardRoutePoolInfo/load",
+			{ cardUseType: 30 },
+			function(res) {
+				let data = res.rows.list;
+				let str = "";
+				$.each(data, function(k, v) {
+					str += '<div class="content_center_table">';
+					str +=
+						'<div class="content_center_title">' +
+						v.routeName +
+						" | " +
+						v.timeLimit;
+
+					str +=
+						'<form id="mergeDailyManageForm_' +
+						v.id +
+						'" name="accountFlowForm" role="form" class="form-inline">' +
+						'<div class="form-group">' +
+						'<label class="control-label">银行账号：</label>' +
+						'<select id="mergeDailyManage_acctNo' +
+						v.id +
+						'" name="acctNo"></select>' +
+						"</div>" +
+						// '<div class="form-group">'+
+						// 	'<label class="control-label">账号用途：</label>'+
+						// 	'<select id="mergeDailyManage_cardUseType'+v.id+'" name="cardUseType"></select>'+
+						// '</div>'+
+						'<div class="form-group">' +
+						'<label class="control-label">财务人员：</label>' +
+						'<select id="mergeDailyManage_operatorName' +
+						v.id +
+						'" name="operatorCode"></select>' +
+						"</div>" +
+						// '<div class="form-group">'+
+						// 	'<label class="control-label">会员配置：</label>'+
+						// 	'<select id="mergeDailyManage_cusList'+v.id+'" name="cusCode"></select>'+
+						// '</div>'+
+						'<div class="form-group">'+
+							'<label class="control-label">开放量级：</label>'+
+							'<select id="mergeDailyManage_acctLevel'+v.id+'" name="acctLevel"></select>'+
+						'</div>'+
+						// '<div class="form-group">' +
+						// '<label class="control-label">出金限额：</label>' +
+						// '<select id="mergeDailyManage_amtCode' +
+						// v.id +
+						// '" name="amtCode"></select>' +
+						// "</div>" +
+						'<div class="form-group">' +
+						'<label class="control-label">状态：</label>' +
+						'<select id="mergeDailyManage_status' +
+						v.id +
+						'" name="status"></select>' +
+						"</div>" +
+						'<div class="form-group pull-right">' +
+						'<button type="button" class="btn btn-primary refreshBtn" onclick="mergeDailyManageSearch(' +
+						v.id +
+						')">查询</button>' +
+						'<button type="reset" class="btn btn-default marginLeft">重置</button>' +
+						"</div>" +
+						'<div class="clearfix"></div>' +
+						"</form>";
+
+					str += "</div>";
+					str +=
+						'<button type="button" class="btn btn-primary marginBottom" style="margin-top:0;" onclick="mergeAdd(\'' +
+						v.id +
+						"','" +
+						v.routeCode +
+						"')\">新增卡号</button>";
+					str +=
+						'<button type="button" class="btn btn-primary marginBottom marginLeft" style="margin-top:0;" onclick="mergeDailyManageAllEdit(' +
+						v.id +
+						')">批量修改</button>';
+					str +=
+						'<table cellpadding="0" cellspacing="0" border="0" id="mergeDailyManage_' +
+						v.id +
+						'" class="table mergeDailyManage table-bordered table-hover"></table>';
+					str += "</div>";
+				});
+				$("#allMergeDailyManageListBox").html(str);
+
+				for (let i = 0; i < data.length; i++) {
+					CusMember("mergeDailyManage_cusList" + data[i].id); //会员配置
+					getOperatorName(
+						"mergeDailyManage_operatorName" + data[i].id,
+						data[i].routeCode
+					); //财务人员
+					getBankByRouteCode(
+						"mergeDailyManage_acctNo" + data[i].id,
+						data[i].routeCode
+					); //银行账号
+					getCardUseType("mergeDailyManage_cardUseType" + data[i].id); //账号用途
+					getLevel('mergeDailyManage_acctLevel'+data[i].id); //开放量级
+					listOption(
+						$("#mergeDailyManage_status" + data[i].id),
+						SYS_STATUS
+					);
+					listOptionInit(
+						$("#mergeDailyManage_amtCode" + data[i].id),
+						PAY_QUOTA
+					);
+					$("#mergeDailyManage_status" + data[i].id).comboSelect();
+					$("#mergeDailyManage_amtCode" + data[i].id).comboSelect();
+					initmergeDailyManageTable(
+						"mergeDailyManage_" + data[i].id,
+						data[i].merchList,
+						data[i].routeCode,
+						data[i].id
+					);
+				}
+			}
+		);
+	}
+	// 查询
+	function mergeDailyManageSearch(obj) {
+		var paramForm = $("#mergeDailyManageForm_" + obj).serializeArray();
+		var params = {};
+		$.each(paramForm, function(i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		params.cardUseType = 30;
+		var reg = /^\d+(\.\d+)?$/
+		if(params.acctLevel){
+			if(!params.acctLevel.match(reg) && params.acctLevel!=''){
+				Ewin.alert({
+					message: '开放量级只能输入正数'
+				});
+				return
+			}
+		}
+		sendAjax(
+			"Post",
+			host_url + "/cloud-web/cardRoutePoolInfo/load",
+			params,
+			function(res) {
+				let data = res.rows.list;
+
+				for (let i = 0; i < data.length; i++) {
+					if (obj == data[i].id) {
+						$("#mergeDailyManage_" + data[i].id).bootstrapTable(
+							"refresh"
+						);
+						initmergeDailyManageTable(
+							"mergeDailyManage_" + data[i].id,
+							data[i].merchList,
+							data[i].routeCode,
+							data[i].id
+						);
+					}
+				}
+			}
+		);
+	}
+	// 会员配置
+	function CusMember(obj) {
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/cusMemberInfo/getAllCusMember",
+			{},
+			function(data) {
+				$("#" + obj).html("");
+				let Member = '<option value="">全部</option>';
+				$.each(data.rows, function(i, item) {
+					Member +=
+						'<option value="' +
+						item.cusCode +
+						'">' +
+						item.cusCode +
+						"(" +
+						item.cusName +
+						")</option>";
+				});
+				$("#" + obj).append(Member);
+				$("#" + obj).comboSelect();
+			}
+		);
+	}
+	// 开放量级
+	function getLevel(obj) {
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/cardBankCardInfo/loadLevel",
+			{},
+			function(res) {
+				$("#" + obj).html("");
+				let Level = '<option value="">全部</option>';
+				$.each(res.rows, function(i, item) {
+					Level +=
+						'<option value="' +
+						item.keyValue +
+						'" data-value="' +
+						item.id +
+						'">' +
+						item.keyName +
+						"</option>";
+				});
+				$("#" + obj).append(Level);
+				$("#" + obj).comboSelect();
+			}
+		);
+	}
+	// 财务人员
+	function getOperatorName(obj, code) {
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/cardRoutePoolMerch/queryGroupOperatorCode",
+			{ routeCode: code, cardUseType: 30 },
+			function(res) {
+				let lists = '<option value="">全部</option>';
+				$.each(res.rows, function(i, item) {
+					lists +=
+						'<option value="' +
+						item.operatorCode +
+						'">' +
+						item.operatorName +
+						"</option>";
+				});
+				$("#" + obj).append(lists);
+				$("#" + obj).comboSelect();
+			}
+		);
+	}
+	// 银行账号
+	function getBankByRouteCode(obj, code) {
+		sendAjax(
+			"get",
+			host_url + "/cloud-web/cardRoutePoolMerch/loadBankByRouteCode",
+			{ routeCode: code, cardUseType: 30 },
+			function(res) {
+				let str = '<option value="">全部</option>';
+				$.each(res.rows, function(i, item) {
+					str +=
+						'<option value="' +
+						item.acctNo +
+						'" aliasName="' +
+						item.aliasName +
+						'">' +
+						item.aliasName +
+						"| " +
+						item.acctNo +
+						"</option>";
+				});
+				$("#" + obj).append(str);
+				$("#" + obj).comboSelect();
+			}
+		);
+	}
+	// 账号用途
+	function getCardUseType(obj) {
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/pubTypeGroup/findPubTypeGroupList",
+			{ sysCode: "Card", groupName: "card_type" },
+			function(data) {
+				let cardUseType = '<option value="">全部</option>';
+				$.each(data.rows, function(i, item) {
+					cardUseType +=
+						'<option value="' +
+						item.keyValue +
+						'">' +
+						item.keyName +
+						"</option>";
+				});
+				$("#" + obj).append(cardUseType);
+				$("#" + obj).comboSelect();
+			}
+		);
+	}
+	//判断是否为手动修改产品状态按钮
+	var flag_btn = true;
+	/*表格加载*/
+	function initmergeDailyManageTable(obj, arr, routeCode, objId) {
+		$("#" + obj).bootstrapTable("destroy");
+		$("#" + obj).bootstrapTable({
+			data: arr,
+			locale: "zh-CN", //中文支持
+			clickToSelect: true,
+			columns: [
+				{
+					title: "全选",
+					checkbox: true,
+					width: 30,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					title: "序号",
+					width: 30,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						return index + 1;
+					}
+				},
+				{
+					title: "操作",
+					field: "operation",
+					align: "center",
+					valign: "middle",
+					width: 60,
+					formatter: function(value, row, index) {
+						return (
+							'<a class="fa fa-trash-o a_size"  onclick="mergeDailyManageDel(\'' +
+							row.id +
+							"')\"></a> " +
+							'<a class="fa fa-edit operation a_size" title="修改" onclick="mergeDailyManageEdit(\'' +
+							row.id +
+							"','" +
+							routeCode +
+							"','" +
+							objId +
+							"')\"></a> "
+						);
+					}
+				},
+				{
+					field: "aliasName",
+					title: "账号别名",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "acctNo",
+					title: "银行账号",
+					width: 180,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "cardUseType",
+					title: "账号用途",
+					width: 80,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						return sys_getTitle_Id(value, DEBIT_CARD);
+					}
+				},
+				{
+					field: "operatorName",
+					title: "财务人员",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "groupName",
+					title: "财务组长",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "status",
+					title: "状态",
+					width: 80,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						var mergeSwitch;
+						if (value == 100) {
+							mergeSwitch =
+								'<div class="mergeSwitch ' +
+								obj +
+								'" data-on="success" data-off="warning"><input type="checkbox" value="' +
+								row.id +
+								'" checked /></div>';
+						} else {
+							mergeSwitch =
+								'<div class="mergeSwitch ' +
+								obj +
+								'" data-on="success" data-off="warning"><input type="checkbox" value="' +
+								row.id +
+								'"/></div>';
+						}
+						return mergeSwitch;
+					}
+				},
+				{
+					field: 'acctLevel',
+					title: '开放量级',
+					width: 80,
+					align: "cenetr",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						return xjReplace(value);
+					}
+				},
+				{
+					field: "updateTime",
+					title: "更新时间",
+					width: 130,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						return sys_formatDate(value, "yyyy-MM-dd HH:mm:ss");
+					}
+				}
+			]
+		});
+		if (arr) {
+			//加载成功时执行
+			$("." + obj).bootstrapSwitch();
+			//开关
+			$("." + obj).on("switch-change", function(e, data) {
+				if (!flag_btn) {
+					flag_btn = true;
+					return;
+				} else {
+					var el = $(data.el),
+						value = data.value;
+					var id = el[0].value;
+					var values;
+					if (value) {
+						//on
+						values = 100;
+					} else {
+						//off
+						values = -100;
+					}
+
+					var params = { id: id, status: values };
+					sendAjax(
+						"POST",
+						host_url + "/cloud-web/cardRoutePoolMerch/updateStatus",
+						params,
+						function(res) {
+							alertTips({
+								message: "恭喜你，操作成功！",
+								id: "alert-success"
+							});
+							mergeDailyManageLists();
+						}
+					);
+				}
+			});
+			$(".cusList")
+				.popover({
+					container: "body",
+					trigger: "hover"
+				})
+				.on("show.bs.popover", function() {
+					$(this).addClass("popover_open");
+				})
+				.on("hide.bs.popover", function() {
+					$(this).removeClass("popover_open");
+				});
+			$(".cusList").click(function() {
+				if ($(this).hasClass("popover_open")) {
+					$(this).popover("hide");
+				} else {
+					$(".popover_open").popover("hide");
+					$(this).popover("show");
+				}
+				var e = arguments.callee.caller.arguments[0] || event;
+				e.stopPropagation();
+			});
+		}
+		$("#" + obj).bootstrapTable("hideLoading");
+	}
+	// 删除
+	function mergeDailyManageDel(id) {
+		Ewin.confirm({ message: "确定要删除该配置吗？" }).on(function(e) {
+			if (e) {
+				sendAjax(
+					"post",
+					host_url + "/cloud-web/cardRoutePoolMerch/delete",
+					{ id: id },
+					function(res) {
+						Ewin.alert({ message: "恭喜你，操作成功！" }).on(
+							function(e) {
+								mergeDailyManageLists();
+							}
+						);
+					}
+				);
+			}
+		});
+	}
+	// 创建班次时间
+	function mergeTime() {
+		Ewin.dialog({
+			url: "../../../html/recharge/mergeDailyManage/shiftsTime.html",
+			title: "配置班次"
+		});
+	}
+	//新增班次人员
+	function mergeAdd(id, routeCode) {
+		Ewin.dialog({
+			url:
+				"../../../html/recharge/mergeDailyManage/shiftsAdd.html?id=" +
+				id +
+				"&routeCode=" +
+				routeCode,
+			title: "班次配置"
+		});
+	}
+	//详情
+	function mergeView(id) {
+		Ewin.dialog({
+			url: "../../../html/recharge/mergeDailyManage/view.html?id=" + id,
+			title: "详情"
+		});
+	}
+	// 批量编辑
+	function mergeDailyManageAllEdit(obj) {
+		let table_authMenu = $("#mergeDailyManage_" + obj).bootstrapTable(
+			"getSelections"
+		);
+		//将选中行数据转成jsonStr
+		let jsonStr = JSON.stringify(table_authMenu);
+		//将jsonStr转成jsonObject对象
+		let jsonObject = jQuery.parseJSON(jsonStr).sort();
+		if (jsonObject.length == 0) {
+			Ewin.alert({ message: "请选中一行进行变更" });
+		} else {
+			var menuIds = [];
+			let cardUseTypeList = [];
+			for (var i = 0; i < jsonObject.length; i++) {
+				menuIds += jsonObject[i].id + ",";
+				if (jsonObject[i + 1]) {
+					if (
+						jsonObject[i].cardUseType !=
+						jsonObject[i + 1].cardUseType
+					) {
+						Ewin.alert({
+							message: "仅能选择同账号用途的账号进行批量修改"
+						});
+						return;
+					}
+				}
+			}
+			var cardUseType = jsonObject[0].cardUseType;
+			Ewin.dialog({
+				url:
+					"../../../html/recharge/mergeDailyManage/editMul.html?ids=" +
+					menuIds +
+					"&objId=" +
+					obj +
+					"&cardUseType=" +
+					cardUseType,
+				title: "批量变更"
+			});
+		}
+	}
+	// 编辑
+	function mergeDailyManageEdit(id, routeCode, objId) {
+		Ewin.dialog({
+			url:
+				"../../../html/recharge/mergeDailyManage/edit.html?id=" +
+				id +
+				"&routeCode=" +
+				routeCode +
+				"&objId=" +
+				objId,
+			title: "变更"
+		});
+	}
+</script>

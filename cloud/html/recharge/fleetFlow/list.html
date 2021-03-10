@@ -1,0 +1,138 @@
+<link rel="stylesheet" href="../../../css/lib/daterangepicker-bs3.css">
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="fleetFlowTotalForm" name="fleetFlowTotalForm" role="form" class="form-inline">
+			    <div class="form-group">
+			        <label class="control-label">班次名称：</label>
+			        <input id="query_agent_name" name="cardName" class="form-control" type="text"  autocomplete="off"
+			               placeholder="班次名称">
+			    </div>
+				<div class="form-group">
+				    <label class="control-label">财务人员：</label>
+				    <input id="query_agent_name" name="cardName" class="form-control" type="text"  autocomplete="off"
+				           placeholder="财务人员">
+				</div>
+				<div class="form-group">
+				    <label class="control-label">财务组长：</label>
+				    <input id="query_agent_name" name="cardName" class="form-control" type="text"  autocomplete="off"
+				           placeholder="财务组长">
+				</div>
+				<div class="form-group">
+					<label class="control-label">统计时间：</label>
+					<input type="text" name="createTime" id="member_acctFlow_time" class="form-control" readonly="readonly"
+						placeholder="统计时间" autocomplete="off" />
+				</div>
+				<div class="form-group pull-right">
+					<button id="fleetFlowTotalButton" type="button" class="btn btn-primary refreshBtn">查询</button>
+					<button type="reset" class="btn btn-default">重置</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<table cellpadding="0" cellspacing="0" border="0" id="fleetFlowTotalTable"
+				   class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        fleetFlowTotalTable();
+		listOptionInit($('#fleetFlowTotalStatus'), CORE_STATUS);
+		$('#fleetFlowTotalStatus').comboSelect();
+		// 初始化双日历日期控件
+		var today = sys_formatDate(new Date().getTime(), 'yyyy-MM-dd');
+		var startDate = today + ' 00:00:00';
+		var endDate = today + ' 23:59:59';
+		$('#member_acctFlow_time').attr('placeholder', startDate + ' - ' + endDate);
+		$('#member_acctFlow_time').daterangepicker({
+			timePicker: true,
+			timePickerIncrement: 1,
+			format: 'YYYY-MM-DD HH:mm:ss',
+			startDate: startDate,
+			endDate: endDate,
+			opens: 'center',
+		
+		}, function (start, end, label) {
+		
+		});
+    });
+	// 搜索
+	$("#fleetFlowTotalButton").click(function () {
+		var payAcceptTime = $('#member_acctFlow_time').val();
+		if (payAcceptTime != '') {
+			payAcceptTimestart = payAcceptTime.split(' - ')[0];
+			payAcceptTimeEnd = payAcceptTime.split(' - ')[1];
+			var start = parserDate(payAcceptTimestart).getTime(),
+				end = parserDate(payAcceptTimeEnd).getTime();
+			if (start > end) {
+				Ewin.alert({
+					message: "统计时间的开始时间不能大于结束时间"
+				});
+				return;
+			} else {
+				// 259200000 = 1000*60*60*24*3
+				if ((end - start) > 259200000) {
+					Ewin.alert({
+						message: "统计时间的时间间隔不能超过3天"
+					});
+					return;
+				}
+			}
+		}
+		$("#fleetFlowTotalTable").bootstrapTable('refresh');
+	});
+    /*表格加载*/
+    function fleetFlowTotalTable() {
+        $('#fleetFlowTotalTable').bootstrapTable({
+            url: host_url + '/own-web/ownRecBankCard/pageList',
+            method: 'GET',
+            dataType: "json",
+            contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+            pagination: true, //在表格底部显示分页工具栏
+            pageNumber: 1,
+			pageList: [20, 50, 100],
+            clickToSelect: true,
+            sidePagination: "server",//表格分页的位置
+            cache: false,//是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            locale: 'zh-CN',//中文支持
+            queryParamsType: 'limit',
+            queryParams: function (params) {
+                params.pageSize = params.limit;                        //页面大小
+                params.page = (params.offset / params.limit) + 1;   	 //页码
+                params._sys_login_token = _get_sys_login_token();
+                var paramForm = $("#fleetFlowTotalForm").serializeArray();
+                $.each(paramForm, function (i, param) {
+                    params[param.name] = $.trim(param.value);
+                });
+				
+                return params;
+            }, //参数
+            columns: [
+                {
+                    title: '序号', width: 30, align: "center", valign: "middle",
+                    formatter: function (value, row, index) {
+                        var options = $('#fleetFlowTotalTable').bootstrapTable('getOptions');
+                        return (options.pageNumber - 1) * options.pageSize + index + 1;
+                    }
+                },
+				{field: 'cardName', title: '班次名称', width: 100, align: "center", valign: "middle"},
+				{field: 'cardName', title: '财务人员', width: 100, align: "center", valign: "middle"},
+                {field: 'cardNo', title: '财务组长', width: 100, align: "center", valign: "middle"},
+                
+				{field:'payAmt',title:'累计收入(元)',width:80,align:"right",valign:"middle",
+				formatter:function(value,row,index){return formatterMoney(value);}},
+				{field:'surplusAmt',title:'累计支出(元)',width:80,align:"right",valign:"middle",
+				formatter:function(value,row,index){return formatterMoney(value);}},
+                {field: 'createTime', title: '统计时间', width: 100, align: "center", valign: "middle",
+                    formatter: function (value, row, index) {
+                        return sys_formatDate(value,"yyyy-MM-dd HH:mm:ss");
+                    }
+                },
+            ],
+            onLoadSuccess: function (res) {},
+        });
+    }
+</script>

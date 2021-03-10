@@ -1,0 +1,352 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<h5 class="text-right">
+			创建时间：<span id="workBench_trade_edit_createTime"></span>
+		</h5>
+		<table cellpadding="0" cellspacing="0" border="0" id="workBench_trade_edit_table" style="margin-top: 3px;"
+			class="table table-bordered">
+			<tbody class="basic">
+				<tr>
+					<td class="title col-sm-2">客户单号：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_cusOrderNo"></td>
+					<td class="title col-sm-2">平台流水号：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_orderNo"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">存款方式：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_payType"></td>
+					<td class="title col-sm-2">收款银行：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_recBankName"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">收款户名：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_recAcctName"></td>
+					<td class="title col-sm-2">收款卡号：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_recAcctNo"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">银行附言：</td>
+					<td class="col-sm-4" colspan="3" id="workBench_trade_edit_recRemark"></td>
+				</tr>
+			</tbody>
+		</table>
+		<h5>用户存款信息</h5>
+		<table style="margin-top: 3px;" cellpadding="0" cellspacing="0" border="0" id="workBench_trade_edit_table"
+			class="table table-bordered">
+			<tbody class="basic">
+				<tr>
+					<td class="title col-sm-2">用户名：</td>
+					<td class="col-sm-4 workBench_trade_edit_userAcct"></td>
+					<td class="title col-sm-2">用户星级：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_userLevel"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">存款金额(元)：</td>
+					<td class="col-sm-4 workBench_trade_edit_orderAmt"></td>
+					<td class="title col-sm-2">真实姓名：</td>
+					<td class="col-sm-4 workBench_trade_edit_userName"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">存款人：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_payAcctName"></td>
+					<td class="title col-sm-2">存款人卡号：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_payAcctNo"></td>
+				</tr>
+			</tbody>
+		</table>
+		<form class="form-horizontal" id="workBench_trade_form">
+			<!-- <div class="form-group">
+				<label class="control-label col-xs-4 col-sm-2"><span class="red">*</span>到账状态:</label>
+				<div class="radio col-xs-4 col-sm-2">
+					<label>
+						<input style="margin: 2px 0 0 -20px;" type="radio" name="status" value="-100">
+						未到账
+					</label>
+				</div>
+				<div class="radio col-xs-4 col-sm-2">
+					<label>
+						<input style="margin: 2px 0 0 -20px;" type="radio" name="status" value="100">
+						已到账
+					</label>
+				</div>
+			</div> -->
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-2">备注:</label>
+				<div class="col-xs-8 col-sm-9">
+					<input type="text" class="form-control" id="workBench_trade_remark" name="remark"
+						placeholder="请输入备注" autocomplete="off" />
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-2">
+					<button type="button" class="btn btn-primary fr copyBtn"
+						data-clipboard-target="#corePayTradeFlow_btn">
+						复制
+					</button>
+				</label>
+				<div class="col-xs-8 col-sm-9">
+					<table cellpadding="0" cellspacing="0" border="0" id="corePayTradeFlow_btn"
+						class="table table-bordered" style="width: 100%; font-size: 18px;font-weight: 600;">
+						<tbody class="basic">
+							<tr>
+								<td class="col-sm-1 workBench_trade_edit_userName"></td>
+								<td class="col-sm-1 workBench_trade_edit_userAcct"></td>
+								<td class="col-sm-1"></td>
+								<td class="col-sm-1 workBench_trade_edit_orderAmt"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</form>
+		<div id="loadBankBox" style="text-align: center;margin-top: 30px;display:none;">
+			<form name="loadBankForm" role="form" class="form-horizontal" id="loadBankForm">
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-2"><span class="red">*</span>收款卡号：</label>
+					<div class="col-xs-8 col-sm-9">
+						<select id="loadBank" name="loadBank"></select>
+					</div>
+				</div>
+			</form>
+		</div>
+		<div style="text-align: center;margin-top:30px;">
+			<button type="button" class="btn btn-primary btn-lg" onclick="Arrived(100)">
+				已到账
+			</button>
+			<button type="button" class="btn btn-default btn-lg" style="margin-left:80px;" onclick="Arrived(-100)">
+				未到账
+			</button>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<!-- <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		<button type="button" class="btn btn-primary" onclick="workBench_trade_changeStatus()">保存</button> -->
+	</div>
+</div>
+<script type="text/javascript">
+	var edit_id = "";
+	var workBench_trade_money_obj = "";
+	var userLevel = "";
+	$(function () {
+		edit_id = getQueryString("id");
+		var url = host_url + "/cloud-web/corePayTradeFlow/view";
+		initValidate(); //验证
+		initValidate_1();
+
+		// $(".workBench_trade_edit_userName").text(getQueryString("userName"));
+		// $(".workBench_trade_edit_userAcct").text(getQueryString("userAcct"));
+		// $(".workBench_trade_edit_orderAmt").text(formatterMoney_edit(getQueryString("payAmt")));
+
+		var clipboard = new ClipboardJS(".copyBtn");
+		clipboard.on("success", function (e) {
+			Ewin.alertTipsBottom({
+				message: '"' + e.text + '" 已复制到剪贴板'
+			});
+		});
+		sendAjax("POST", url, { id: edit_id }, function (res) {
+			var data = res.rows;
+			workBench_trade_money_obj = data;
+			$("#workBench_trade_edit_createTime").text(
+				formatterDateTime(data.createTime)
+			);
+			$("#workBench_trade_edit_cusOrderNo").text(data.cusOrderNo);
+			$("#workBench_trade_edit_orderNo").text(data.orderNo);
+			sendAjax(
+				"POST",
+				host_url + "/cloud-web/pubTypeGroup/findPubTypeGroupList",
+				{ sysCode: "Core", groupName: "pay_type" },
+				function (res) {
+					$.each(res.rows, function (i, item) {
+						if (item.keyValue == data.payType) {
+							$("#workBench_trade_edit_payType").text(
+								item.keyName
+							);
+						}
+					});
+				}
+			);
+
+			$("#workBench_trade_edit_recBankName").text(data.recBankName);
+			$("#workBench_trade_edit_recAcctName").text(data.recAcctName);
+			$("#workBench_trade_edit_recAcctNo").text(data.recAcctNo);
+			$("#workBench_trade_edit_recRemark").text(data.recRemark);
+			$(".workBench_trade_edit_userAcct").text(data.userAcct + " ");
+			$("#workBench_trade_edit_userLevel").text(data.userLevel + "星");
+			userLevel = data.userLevel;
+			$(".workBench_trade_edit_userName").text(data.userName + " ");
+			$(".workBench_trade_edit_orderAmt").text(
+				formatterMoney_edit(data.payAmt) + " "
+			);
+			$("#workBench_trade_edit_payAcctName").text(data.payAcctName);
+			$("#workBench_trade_edit_payAcctNo").text(data.payAcctNo);
+		});
+		$("#workBench_trade_form input[name='status']").on(
+			"change",
+			function () {
+				var flag = $(this).prop("checked");
+				var remark = $.trim($("#workBench_trade_remark").val());
+				if (flag && !remark) {
+					var val = $(this).val();
+					if (val == "100") {
+						$("#workBench_trade_remark").val(
+							workBench_trade_money_obj.operatorName +
+							" 已到账"
+						);
+					} else {
+						if ($("#workBench_trade_remark").val() == "") {
+							$("#workBench_trade_remark").val(
+								workBench_trade_money_obj.operatorName +
+								" 对应金额未到账"
+							);
+						}
+					}
+					$("#workBench_trade_form").bootstrapValidator(
+						"revalidateField",
+						"remark"
+					);
+				}
+			}
+		);
+		sendAjax(
+			"get",
+			host_url + "/cloud-web/cardBankCardInfo/loadBankList",
+			{ cardUseType: 10, status: 100 },
+			function (res) {
+				if (res.retCode == "000000") {
+					var lists = '<option value="">请选择</option>';
+					$.each(res.rows, function (i, item) {
+						lists +=
+							'<option value="' +
+							item.acctNo +
+							'">' +
+							item.aliasName +
+							"/" +
+							item.acctNo +
+							"</option>";
+					});
+					$("#loadBank").html(lists);
+					$("#loadBank").comboSelect();
+					$("#loadBankBox").show();
+				}
+			}
+		);
+	});
+
+	// 未到账 已到账
+	function Arrived(status) {
+		var bv = $("#workBench_trade_form")
+			.data("bootstrapValidator")
+			.validate();
+		if (!bv.isValid()) {
+			//验证不通过
+			return;
+		}
+		var accountRemark;
+		var recAcctNo = $("#loadBank")
+			.val()
+			.trim();
+		if (status == 100) {
+			accountRemark =
+				workBench_trade_money_obj.operatorName +
+				" 已到账 " +
+				$("#workBench_trade_remark").val();
+			var bv1 = $("#loadBankForm")
+				.data("bootstrapValidator")
+				.validate();
+			if (!bv1.isValid()) {
+				//验证不通过
+				return;
+			}
+			sendAjax(
+				"post",
+				host_url + "/cloud-web/corePayTradeFlow/financeHandler",
+				{
+					status: 100,
+					orderNo: workBench_trade_money_obj.orderNo,
+					remark: accountRemark,
+					recAcctNo: recAcctNo
+				},
+				function (res) {
+					$("#corePayTradeRepFlowFormTable").bootstrapTable(
+						"refresh"
+					);
+					$("#workBench_trade_edit_createTime")
+						.closest(".modal")
+						.modal("hide");
+				}
+			);
+		} else if (status == -100) {
+			$("#loadBankBox").hide();
+			accountRemark =
+				workBench_trade_money_obj.operatorName +
+				" 对应金额未到账 " +
+				$("#workBench_trade_remark").val();
+			sendAjax(
+				"post",
+				host_url + "/cloud-web/corePayTradeFlow/financeHandler",
+				{
+					status: status,
+					orderNo: workBench_trade_money_obj.orderNo,
+					remark: accountRemark,
+					recAcctNo: recAcctNo
+				},
+				function (res) {
+					$("#corePayTradeRepFlowFormTable").bootstrapTable(
+						"refresh"
+					);
+					$("#workBench_trade_edit_createTime")
+						.closest(".modal")
+						.modal("hide");
+				}
+			);
+		}
+	}
+	//初始化验证框架
+	function initValidate() {
+		//进行表单验证
+		$("#workBench_trade_form").bootstrapValidator({
+			message: "输入值不合法",
+			feedbackIcons: {
+				valid: "glyphicon glyphicon-ok",
+				invalid: "glyphicon glyphicon-remove",
+				validating: "glyphicon glyphicon-refresh"
+			},
+			excluded: [":disabled"],
+			fields: {
+				remark: {
+					message: "备注验证失败",
+					validators: {
+						// notEmpty: {
+						// 	message: '备注不能为空'
+						// },
+						stringLength: {
+							max: 12,
+							message: "备注超过12位限定长度"
+						}
+					}
+				}
+			}
+		});
+	}
+
+	function initValidate_1() {
+		//进行表单验证
+		$("#loadBankForm").bootstrapValidator({
+			message: "输入值不合法",
+			feedbackIcons: {
+				valid: "glyphicon glyphicon-ok",
+				invalid: "glyphicon glyphicon-remove",
+				validating: "glyphicon glyphicon-refresh"
+			},
+			excluded: [":disabled"],
+			fields: {
+				loadBank: {
+					message: "收款账号验证失败",
+					validators: {
+						notEmpty: { message: "收款账号不能为空" }
+					}
+				}
+			}
+		});
+	}
+</script>

@@ -1,0 +1,201 @@
+<link rel="stylesheet" href="../../../css/lib/daterangepicker-bs3.css">
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="channelMerchantInfo_Form" name="channelMerchantInfo_Form" role="form" class="form-inline">
+				<div class="form-group">
+					<label class="control-label">渠道名称：</label>
+					<select id="channelMerchantInfo_channelName" name="channelCode"></select>
+				</div>
+				<div class="form-group customerName">
+					<label class="control-label">商户号：</label>
+					<input name="merchantNo" class="form-control" type="text" placeholder="商户号" autocomplete="off">
+				</div>
+				<div class="form-group customerName">
+					<label class="control-label">平台号：</label>
+					<input name="customerNo" class="form-control" type="text" placeholder="平台号" autocomplete="off">
+				</div>
+				<div class="form-group customerName">
+					<label class="control-label">平台名称：</label>
+					<input name="customerName" class="form-control" type="text" placeholder="平台名称" autocomplete="off">
+				</div>
+				<div class="form-group pull-right">
+					<button id="channelMerchantInfo_button" type="button" class="btn btn-primary"><i
+							class="fa fa-search"></i>查询</button>
+					<button type="reset" class="btn btn-default"><i class="fa fa-refresh"></i> 重置</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<div class="marginBottom">
+				<button type="button" class="btn btn-primary marginBottom" onclick="channelMerchantInfo_add()"><i
+						class="fa fa-plus"></i> 新增</button>
+			</div>
+			<table cellpadding="0" cellspacing="0" border="0" id="channelMerchantInfo_Table"
+				class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<script>
+	$(function () {
+		channelMerchantInfo_Table();
+		//获取渠道
+		var getAllChannel = '';
+		sendAjax("POST", host_url + "/cloud-web/chnChannelInfo/getAll", {}, function (data) {
+			getAllChannel += '<option value="">全部</option>';
+			$.each(data.rows, function (i, item) {
+				getAllChannel += '<option value="' + item.channelCode + '">' + item.channelName + '</option>';
+			});
+			$('#channelMerchantInfo_channelName').append(getAllChannel);
+			$("#channelMerchantInfo_channelName").comboSelect();
+		})
+	});
+	// 搜索
+	$("#channelMerchantInfo_button").click(function () {
+		$("#channelMerchantInfo_Table").bootstrapTable('refresh');
+	});
+	//判断是否为手动修改产品状态按钮
+	var flag_btn = true;
+	/*表格加载*/
+	function channelMerchantInfo_Table() {
+		$('#channelMerchantInfo_Table').bootstrapTable({
+			url: host_url + '/cloud-web/chnChannelMerchant/pageList',
+			method: 'GET',
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏  
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: 'zh-CN', //中文支持
+			queryParamsType: 'limit',
+			queryParams: function (params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = (params.offset / params.limit) + 1; //页码
+				params._sys_login_token = _get_sys_login_token();
+
+				var paramForm = $("#channelMerchantInfo_Form").serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				return params;
+			}, //参数  
+			columns: [{
+				title: '序号',
+				width: 30,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					var options = $('#channelMerchantInfo_Table').bootstrapTable("getOptions");
+					return (options.pageNumber - 1) * (options.pageSize) + index + 1;
+				}
+			},
+			{
+				title: '操作',
+				field: 'id',
+				align: "center",
+				valign: "middle",
+				width: 60,
+				formatter: function (value, row, index) {
+					var str = '';
+					str += '<a class="fa fa-edit operation a_size" onclick="channelMerchantInfo_edit(\'' + row.id + '\')" title="修改"></a> ';
+					str += '<a class="fa fa-trash-o operation a_size" onclick="channelMerchantInfo_del(\'' + row.id + '\')" title="删除"></a> ';
+					str += '<a class="operation a_size iconfont1 iconfont-aq" onclick="channelMerchantInfo_config(\'' + row.channelCode + '\',\'' + row.payAcctNo + '\',\'' + row.merchantNo + '\',\'' + row.merchantName + '\')" title="配置"></a>';
+					return str;
+				}
+			},
+			{ field: 'channelCode', title: '渠道编码', width: 100, align: "center", valign: "middle" },
+			{ field: 'channelName', title: '渠道名称', width: 100, align: "center", valign: "middle" },
+			{ field: 'payAcctNo', title: '付款账号', width: 120, align: "center", valign: "middle" },
+			{ field: 'merchantNo', title: '商户号', width: 120, align: "center", valign: "middle" },
+			{ field: 'merchantName', title: '商户名称', width: 120, align: "center", valign: "middle" },
+			{
+				field: 'status', title: '状态', width: 40, align: "center", valign: "middle",
+				formatter: function (value, row, index) {
+					var channelMerchant_Switch;
+					if (value == 100) {
+						channelMerchant_Switch = '<div class="channelMerchant_Switch" data-on="success" data-off="warning"><input type="checkbox" value="' + row.id + '" checked /></div>';
+					} else {
+						channelMerchant_Switch = '<div class="channelMerchant_Switch" data-on="success" data-off="warning"><input type="checkbox" value="' + row.id + '"/></div>';
+					}
+					return channelMerchant_Switch;
+				}
+			},
+			{
+				field: 'updateTime',
+				title: '更新时间',
+				width: 100,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					return formatterDateTime(value);
+				},
+			}
+			],
+			onClickRow: function (row, $element) {
+				$($element).addClass('table_info').siblings().removeClass('table_info');
+			},
+			onLoadSuccess: function (res) {
+				$('.channelMerchant_Switch').bootstrapSwitch();
+				//开关
+				$('.channelMerchant_Switch').on('switch-change', function (e, data) {
+					if (!flag_btn) {
+						flag_btn = true;
+						return;
+					} else {
+						var el = $(data.el),
+							value = data.value;
+						var id = el[0].value;
+						var values;
+						if (value) {//on
+							values = 100;
+						} else {//offS
+							values = -100;
+						}
+
+						var params = { "id": id, "status": values };
+						sendAjax('POST', host_url + "/cloud-web/chnChannelMerchant/updateStatus", params, function (res) {
+							alertTips({ message: '恭喜你，操作成功！', id: 'alert-success' });
+							$("#channelMerchantInfo_Table").bootstrapTable('refresh');
+						});
+					}
+				});
+			},
+		});
+	}
+	// 设置
+	function channelMerchantInfo_config(channelCode, payAcctNo, merchantNo, merchantName) {
+		Ewin.dialog({ url: '../../../html/channel/channelMerchantInfo/set.html?channelCode=' + channelCode + '&payAcctNo=' + payAcctNo + '&merchantNo=' + merchantNo + '&merchantName=' + merchantName, title: '设置' });
+	}
+	// 删除
+	function channelMerchantInfo_del(id) {
+		Ewin.confirm({ message: '是否删除该行？' }).on(function (e) {
+			if (e) {//成功
+				sendAjax('POST', host_url + '/cloud-web/chnChannelMerchant/delete', { 'id': id }, function (res) {
+					alertTips({ message: '恭喜你，操作成功！' });
+					$("#channelMerchantInfo_Table").bootstrapTable('refresh');
+				});
+			}
+		});
+	}
+
+
+	//修改
+	function channelMerchantInfo_edit(id, cusCode, areaCode, cusGroupCode, tagCode, tagName) {
+		Ewin.dialog({
+			url: '../../../html/channel/channelMerchantInfo/edit.html?id=' + id,
+			title: '修改'
+		});
+	}
+	//新增
+	function channelMerchantInfo_add() {
+		Ewin.dialog({
+			url: '../../../html/channel/channelMerchantInfo/add.html',
+			title: '新增'
+		});
+	}
+</script>

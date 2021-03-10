@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="renderer" content="webkit">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <title>极点</title>
+    <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../../css/lib/bootstrap-datetimepicker.min.css" />
+    <link href="../../css/lib/fileinput.css" media="all" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../css/style.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <header class="header">
+            <div class="w">
+                <div class="headerLogo"><img src="../../img/logo.png"></div>
+                <div class="headerCenter">
+                    <ul>
+                        <!--<li><a href="/cms/page/group/index"><span>组管理</span></a></li>-->
+                        <!--<li><a href="/cms/page/wxinfo/index"><span>二维码管理</span></a></li>-->
+                        <!--<li class="active"><a href="/cms/page/file/index"><span>文件管理</span></a></li>-->
+                        <li><a href="../groupMange/list.html"><span>组管理</span></a></li>
+                        <li><a href="../watchcode/list.html"><span>二维码管理</span></a></li>
+                        <li><a href="../uploadfile/list.html"><span>文件管理</span></a></li>
+                        <li class="active"><a href="../cusInfoMange/list.html"><span>客户信息管理</span></a></li>
+                    </ul>
+                </div>
+                <div class="header_right" onclick="logout()"><img src="../../img/quit.png"><span>退出</span></div>
+            </div>
+        </header>
+        <div class="content">
+            <div class="main-content main-contentBox">
+                <div id="myTabContent" class="tab-content">
+                    <div class="tab-pane fade in active" id="home">
+                        <div class="Account_box_info">
+                            <form id="cardForm" name="queryForm" role="form" class="form-inline">
+                                <div class="form-group">
+                                    <label class="control-label">姓名：</label>
+                                    <input id="cusName" name="cusName" class="form-control" type="text" placeholder="姓名" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">电话：</label>
+                                    <input id="mobile" name="mobile" class="form-control" type="text" placeholder="电话" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">创建时间：</label>
+                                    <input id="createtime" name="createtime" class="form-control form_datetime" type="text" placeholder="创建时间" autocomplete="off">
+                                </div>
+                                <div class="form-group" style="margin-left: 30px;">
+                                    <button id="button" type="button" class="btn btn-primary">查询</button>
+                                    <button type="reset" class="btn btn-danger">重置</button>
+                                </div>
+                            </form>
+                        </div>
+                        <!--<button type="button" class="btn btn-primary glyphicon glyphicon-plus"
+                            onclick="add()">新增
+                    </button>-->
+                        <table cellpadding="0" cellspacing="0" border="0" id="cusInfoTable" class="table table-bordered table-hover"></table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="edit_IDStr" />
+    <input type="hidden" id="edit_fileUrlStr" />
+</body>
+<script type="text/javascript" src="../../js/commonJS.js"></script>
+<script type="text/javascript" src="../../js/common.js"></script>
+<script>
+    $(function() {
+        initDate();
+        initTable();
+        //查询
+        $("#button").click(function() {
+            $("#cusInfoTable").bootstrapTable('refresh');
+        });
+    });
+
+    function initTable() {
+        $('#cusInfoTable').bootstrapTable({
+            url: host_url + '/cusInfo/pageList',
+            method: 'GET',
+            dataType: "json",
+            contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+            pagination: true, //在表格底部显示分页工具栏  
+            pageNumber: 1,
+            pageList: [20, 50, 100],
+            sidePagination: "server", //表格分页的位置  
+            cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            locale: 'zh-CN', //中文支持
+            queryParamsType: 'limit',
+            responseHandler: function(res) {
+                if (res.retCode == '401') {
+                    Ewin.alert({
+                        message: "会话超时，请重新登录"
+                    }).on(function(e) {
+                        if (e) {
+                            window.location.href = "../login.html";
+                            return;
+                        }
+                    });
+                };
+                return {
+                    "rows": res.rows,
+                    "total": res.total
+                };
+            },
+            queryParams: function(params) {
+                params.pageSize = params.limit; //页面大小
+                params.page = (params.offset / params.limit) + 1; //页码
+                var paramForm = $("#cardForm").serializeArray();
+                $.each(paramForm, function(i, param) {
+                    params[param.name] = param.value.trim();
+                });
+                params._sys_login_token = login_token();
+                return params;
+            }, //参数  
+            columns: [{
+                title: "序号",
+                align: 'center',
+                valign: "middle",
+                formatter: function(value, row, index) {
+                    var options = $('#cusInfoTable').bootstrapTable("getOptions");
+                    return (options.pageNumber - 1) * options.pageSize + index + 1;
+                }
+            }, {
+                field: 'cusName',
+                title: '姓名',
+                align: "center",
+                valign: "middle"
+            }, {
+                field: 'mobile',
+                title: '电话',
+                align: "center",
+                valign: "middle"
+            }, {
+                field: 'createtime',
+                title: '创建时间',
+                align: "center",
+                valign: "middle",
+                formatter: function(value, row, index) {
+                    return sys_formatDate(value, "yyyy-MM-dd HH:mm:ss");
+                }
+            }, {
+                title: '操作',
+                field: 'operation',
+                align: "center",
+                valign: "middle",
+                formatter: function(value, row, index) {
+                    return '<a onclick="_view(' + row.id + ')">详情 </a>' +
+                        '<a onclick="_del(' + row.id + ')">删除</a>';
+                }
+            }],
+            onLoadSuccess: function(res) {},
+        });
+    }
+
+    // 详情
+    function _view(id) {
+        Ewin.dialog({
+            url: 'view.html?id=' + id,
+            title: '详情',
+            width: 800,
+            height: 600,
+        });
+    }
+
+    // 删除
+    function _del(id) {
+        var data = {
+            'id': id
+        };
+        Ewin.confirm({
+            message: '是否确认删除这条记录？'
+        }).on(function(e) {
+            if (e) {
+                sendAjax('GET', host_url + "/cusInfo/delete", data, function(res) {
+                    if (res.retCode == "000000") {
+                        Ewin.alert({
+                            message: "删除成功!"
+                        });
+                        window.location.href = "list.html";
+                    } else {
+                        Ewin.alert({
+                            message: res.retMsg
+                        });
+                        return false;
+                    }
+                    $(".table").bootstrapTable('refresh');
+                });
+            }
+        });
+    }
+</script>
+
+</html>

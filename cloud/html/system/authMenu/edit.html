@@ -1,0 +1,253 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal" name="edit_form_auth_menu" role="form" id="edit_form_auth_menu">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>菜单名称</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="edit_menuName" name="menuName" placeholder="菜单名称"
+						autocomplete="off">
+				</div>
+			</div>
+			<!-- <div class="form-group">
+                    <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>所属系统</label>
+                    <div class="col-xs-8 col-sm-7">
+                         <select id="edit_platform" name="platform" class="form-control" style="display: none;">
+                         	<option value="">请选择</option>
+                         </select> 
+                    </div>
+                </div> -->
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>上级菜单</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="edit_parentId_text" placeholder="上级菜单"
+						autocomplete="off">
+					<input type="text" class="form-control" id="edit_parentId" name="parentId" placeholder="上级菜单"
+						autocomplete="off" style="display: none;">
+				</div>
+				<div id='edit_parentId_tree' class="col-xs-8 col-sm-7"></div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>菜单级别</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="edit_level" name="level" placeholder="菜单级别"
+						autocomplete="off" readonly="readonly">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>排序</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="edit_sort" name="sort" placeholder="排序"
+						autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>菜单链接</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="edit_menuUrl" name="menuUrl" placeholder="菜单链接"
+						autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red"></span>菜单图标编码</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="edit_iconCode" name="iconCode" placeholder="菜单图标编码"
+						autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">菜单描述</label>
+				<div class="col-xs-8 col-sm-7">
+					<textarea class="form-control" id="edit_menuDesc" name="menuDesc" placeholder="菜单描述"
+						autocomplete="off" cols="39" rows="4" style="resize:none;"></textarea>
+				</div>
+			</div>
+			<!-- 隐藏域 -->
+			<input id="edit_id" name="id" class="form-control" type="hidden">
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		<button type="button" class="btn btn-primary" onclick="_doSubmit();">确定</button>
+	</div>
+</div>
+<style type="text/css">
+	#edit_parentId_tree {
+		position: absolute;
+		top: 33px;
+		left: 25%;
+		z-index: 100;
+		background: #fff;
+		display: none;
+		overflow: scroll;
+		max-height: 300px;
+	}
+
+	#edit_parentId_tree::-webkit-scrollbar {
+		display: none;
+	}
+</style>
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="../../../js/lib/bootstrap-treeview.min.js" />
+<script type="text/javascript">
+	$(function () {
+		_validateForm();
+		var edit_id = getQueryString('id');
+		sendAjax('POST', host_url + "/cloud-web/authMenu/view", { 'id': edit_id }, function (res) {
+			var data = res.rows;
+			$('#edit_id').val(data.id);
+			$('#edit_menuName').val(data.menuName);
+			$('#edit_menuDesc').val(data.menuDesc);
+
+			/* listOption($("#edit_platform"),AUTH_PLATFORM);
+			$('#edit_platform option[value="'+data.platform+'"]').attr('selected','selected');
+			$('#edit_platform').comboSelect({extendStyle: false}); */
+
+			$('#edit_level').val(data.level);
+			var parentName = data.parentName ? data.parentName : '无';
+			$('#edit_parentId_text').val(parentName);
+			$('#edit_parentId').val(data.parentId);
+			$('#edit_sort').val(data.sort);
+			$('#edit_menuUrl').val(data.menuUrl);
+			$('#edit_iconCode').val(data.iconCode);
+		});
+	});
+	$("#edit_platform").change(function () {
+		platform();
+	});
+	$("#edit_parentId_text").on('click', function () {
+		platform();
+	});
+	//获取上级菜单
+	function platform() {
+		var platform = $('#edit_platform').find(":selected").val();
+		platform = 20;
+		getSelects_edit(platform);
+	}
+	//获取上级菜单下拉列表
+	function getSelects_edit(platform) {
+		$('#edit_parentId_text').val('');
+		if (platform == "") {
+			Ewin.alert({ message: '请先选择所属系统！' });
+		} else {
+			sendAjax('POST', host_url + "/cloud-web/authMenu/selectAllMenuByPlatform", { "platform": platform }, function (res) {
+				$('#edit_parentId_tree').treeview({
+					data: res.rows,
+					onNodeSelected: function (event, data) {
+						$("#edit_parentId_text").val(data.menuName);
+						$("#edit_parentId").val(data.id);
+						$("#edit_form_auth_menu").data('bootstrapValidator').updateStatus('parentId', data.id).validateField('parentId');
+						$("#edit_level").val(data.level + 1);
+						$("#edit_form_auth_menu").data('bootstrapValidator').updateStatus('level', data.level + 1).validateField('level');
+						$('#edit_parentId_tree').hide();
+					}
+				}).show();
+			});
+			$('#edit_parentId_tree').toggle();
+		}
+	}
+
+	//初始化验证框架
+	function _validateForm() {
+		//进行表单验证
+		$('#edit_form_auth_menu').bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: { valid: 'glyphicon glyphicon-ok', invalid: 'glyphicon glyphicon-remove', validating: 'glyphicon glyphicon-refresh' },
+			excluded: [':disabled'],
+			fields: {
+				menuName: {
+					message: '菜单名称验证失败',
+					validators: {
+						notEmpty: { message: '菜单名称不能为空' },
+						stringLength: {
+							min: 1,
+							max: 32,
+							message: '长度必须在1-32之间'
+						}
+					}
+				},
+				/* platform:{
+					message: '所属系统验证失败',
+					validators: {
+						notEmpty: {message: '所属系统不能为空'}
+					}
+				}, */
+				level: {
+					message: '菜单级别验证失败',
+					validators: {
+						notEmpty: { message: '菜单级别不能为空' }
+					}
+				},
+				parentId: {
+					message: '上级菜单验证失败',
+					validators: {
+						notEmpty: { message: '上级菜单不能为空' }
+					}
+				},
+				sort: {
+					message: '菜单排序验证失败',
+					validators: {
+						notEmpty: { message: '菜单排序不能为空' },
+						digits: { message: '请输入数字' },
+						stringLength: {
+							min: 1,
+							max: 4,
+							message: '长度必须在1-4之间'
+						}
+					}
+				},
+				menuUrl: {
+					message: '菜单链接验证失败',
+					validators: {
+						notEmpty: { message: '菜单链接不能为空' },
+						stringLength: {
+							min: 1,
+							max: 128,
+							message: '长度必须在1-128之间'
+						}
+					}
+				},
+				iconCode: {
+					message: '菜单图标验证失败',
+					validators: {
+						stringLength: {
+							min: 0,
+							max: 50,
+							message: '长度必须在0-50之间'
+						}
+					}
+				},
+			}
+		});
+	}
+
+	//提交表单
+	function _doSubmit() {
+		var bv = $('#edit_form_auth_menu').data('bootstrapValidator').validate();
+		if (!bv.isValid()) {//验证不通过
+			return;
+		}
+		var paramForm = $("#edit_form_auth_menu").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		if ($('#edit_menuName').val() == $('#edit_parentId_text').val()) {
+			Ewin.alert({ message: '不能选择自身！' });
+		}
+		params.platform = 20;
+		if (params.parentId != params.id) {
+			if (params.menuDesc.length <= 128) {
+				sendAjax('POST', host_url + "/cloud-web/authMenu/editSubmit", params, function (res) {
+					Ewin.alert({ message: '恭喜你，操作成功！' }).on(function (e) {
+						if (e) {
+							$('#edit_form_auth_menu').parents('.modal').modal('hide');
+							$("#table_authMenu").bootstrapTable('refresh');
+						}
+					});
+				});
+			} else {
+				Ewin.alert({ message: '菜单描述长度必须在1-128之间' });
+			}
+		}
+	}
+</script>

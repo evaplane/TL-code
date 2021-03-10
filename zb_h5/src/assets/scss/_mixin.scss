@@ -1,0 +1,49 @@
+
+@mixin light () {
+  .light & {
+		@content;
+	}
+}
+
+@mixin dark () {
+  .dark & {
+		@content;
+	}
+}
+
+@mixin ios () {
+  .ios & {
+    @content;
+  }
+}
+
+@mixin android () {
+  .android & {
+    @content;
+  }
+}
+
+@mixin pwaMode {
+  .pwa-mode & {
+    @content;
+  }
+}
+
+@mixin bold {
+  font-weight: 500;
+  @include android {
+    font-weight: bold;
+  }
+}
+
+@mixin sc-320 {
+  @media screen and (max-width: 320px) {
+    @content;
+  }
+}
+
+@mixin sc-h-740 {
+  @media screen and (max-height: 740px) {
+    @content;
+  }
+}

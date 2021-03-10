@@ -1,0 +1,228 @@
+<div class="content_center">
+	<div class="content_center_content" id="corePayTradeCollectFlowEditBox">
+		<h5>转出信息</h5>
+		<table cellpadding="0" cellspacing="0" border="0" id="workBench_trade_collect_pay_edit_table"
+			style="margin-top: 3px;" class="table table-bordered">
+			<tbody class="basic">
+				<tr>
+					<td class="title col-sm-2">平台流水号：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_orderNo"></td>
+					<td class="title col-sm-2">归集金额(元)：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_payAmt"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">转出户名：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_payAcctName"></td>
+					<td class="title col-sm-2">转出卡号：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_payAcctNo"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">转出银行：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_payBankName"></td>
+					<td class="title col-sm-2">转出账户别名：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_payAliasName"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">创建时间：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_createTime"></td>
+					<td class="title col-sm-2">申请操作员：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_operatorName"></td>
+				</tr>
+			</tbody>
+		</table>
+		<h5>转入信息</h5>
+		<table style="margin-top: 3px;" cellpadding="0" cellspacing="0" border="0"
+			id="workBench_trade_collect_pay_edit_table_1" class="table table-bordered">
+			<tbody class="basic">
+				<tr>
+					<td class="title col-sm-2">转入户名：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_recAcctName"></td>
+					<td class="title col-sm-2">转入账户别名：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_recAliasName"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">转入卡号：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_recAcctNo"></td>
+					<td class="title col-sm-2">抢单操作员：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_recOperatorName"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">归集金额(元)：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_payAmt_1"></td>
+					<td class="title col-sm-2">办理时间：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_handlerTime"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">转入银行：</td>
+					<td class="col-sm-4" id="workBench_trade_edit_recBankName"></td>
+				</tr>
+			</tbody>
+		</table>
+		<form class="form-horizontal" id="workBench_trade_collect_edit_form">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-2"><span class="red">*</span>转出状态:</label>
+				<div class="radio col-xs-4 col-sm-2">
+					<label>
+						<input style="margin: 2px 0 0 -20px;" type="radio" name="status" value="-100" />
+						转出失败
+					</label>
+				</div>
+				<div class="radio col-xs-4 col-sm-2">
+					<label>
+						<input style="margin: 2px 0 0 -20px;" type="radio" name="status" value="100" />
+						转出成功
+					</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-2">财务备注:</label>
+				<div class="col-xs-8 col-sm-9">
+					<input type="text" class="form-control" id="workBench_trade_collect_edit_remark" name="remark"
+						placeholder="请输入财务备注" autocomplete="off" />
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">
+			取消
+		</button>
+		<button type="button" class="btn btn-primary" onclick="workBench_trade_collect_submit()">
+			确定
+		</button>
+	</div>
+</div>
+<style>
+	#workBench_trade_edit_recAcctName,
+	#workBench_trade_edit_recAcctNo,
+	#workBench_trade_edit_payAmt_1 {
+		line-height: 29px;
+	}
+</style>
+<script type="text/javascript">
+	var trade_collect_edit_id = "";
+	var workBench_trade_collect_edit_obj = "";
+	var userLevel = "";
+	$(function () {
+		workBench_trade_collect_initValidate();
+		trade_collect_edit_id = getQueryString("id");
+		sendAjax(
+			"GET",
+			host_url + "/cloud-web/corePayMergeFlow/view",
+			{ id: trade_collect_edit_id },
+			function (res) {
+				var data = res.rows;
+				workBench_trade_collect_edit_obj = data;
+				$("#workBench_trade_edit_createTime").text(
+					formatterDateTime(data.createTime)
+				);
+				$("#workBench_trade_edit_payAmt").text(
+					(data.payAmt / 100).toFixed(2)
+				);
+				$("#workBench_trade_edit_orderNo").text(data.orderNo);
+				$("#workBench_trade_edit_payAcctName").text(data.payAcctName);
+				$("#workBench_trade_edit_payAcctNo").text(data.payAcctNo);
+				$("#workBench_trade_edit_operatorName").text(data.operatorName);
+				$("#workBench_trade_edit_payBankName").text(data.payBankName);
+				$("#workBench_trade_edit_payAliasName").text(data.payAliasName);
+				$("#workBench_trade_edit_recAcctName").text(data.recAcctName);
+				$("#workBench_trade_edit_recAliasName").text(data.recAliasName);
+				$("#workBench_trade_edit_recAcctNo").text(data.recAcctNo);
+				$("#workBench_trade_edit_recBankName").text(data.recBankName);
+				$("#workBench_trade_edit_recAcctName").html(
+					'<span id="workBench_trade_edit_recAcctName_btn">' +
+					data.recAcctName +
+					'</span><button type="button" class="btn btn-primary fr copyBtn" data-clipboard-target="#workBench_trade_edit_recAcctName_btn">复制</button>'
+				);
+				$("#workBench_trade_edit_recAcctNo").html(
+					'<span id="workBench_trade_edit_recAcctNo_btn">' +
+					data.recAcctNo +
+					'</span><button type="button" class="btn btn-primary fr copyBtn" data-clipboard-target="#workBench_trade_edit_recAcctNo_btn">复制</button>'
+				);
+				$("#workBench_trade_edit_payAmt_1").html(
+					'<span id="workBench_trade_edit_payAmt_btn">' +
+					(data.payAmt / 100).toFixed(2) +
+					'</span><button type="button" class="btn btn-primary fr copyBtn" data-clipboard-target="#workBench_trade_edit_payAmt_btn">复制</button>'
+				);
+				var clipboard = new ClipboardJS(".copyBtn");
+				clipboard.on("success", function (e) {
+					Ewin.alertTipsBottom({
+						message: '"' + e.text + '" 已复制到剪贴板'
+					});
+				});
+				$("#workBench_trade_edit_recOperatorName").text(
+					data.recOperatorName
+				);
+				$("#workBench_trade_edit_handlerTime").text(
+					formatterDateTime(data.handlerTime)
+				);
+				if (data.payAliasName == "") {
+					$("#workBench_trade_edit_payAliasName").text("-");
+				}
+				if (data.recAliasName == "") {
+					$("#workBench_trade_edit_recAliasName").text("-");
+				}
+			}
+		);
+	});
+	//初始化验证框架
+	function workBench_trade_collect_initValidate() {
+		//进行表单验证
+		$("#workBench_trade_collect_edit_form").bootstrapValidator({
+			message: "输入值不合法",
+			feedbackIcons: {
+				valid: "glyphicon glyphicon-ok",
+				invalid: "glyphicon glyphicon-remove",
+				validating: "glyphicon glyphicon-refresh"
+			},
+			excluded: [":disabled"],
+			fields: {
+				remark: {
+					validators: {
+						// notEmpty: {
+						// 	message: "请填写财务备注"
+						// },
+						stringLength: {
+							max: 64,
+							message: "财务备注不能超过64位"
+						}
+					}
+				}
+			}
+		});
+	}
+	// 提交
+	function workBench_trade_collect_submit() {
+		var bv = $("#workBench_trade_collect_edit_form")
+			.data("bootstrapValidator")
+			.validate();
+		if (!bv.isValid()) {
+			//验证不通过
+			return;
+		}
+		if (typeof $("input[name=status]:checked").val() == "undefined") {
+			Ewin.alert({ message: "请选择转出状态" });
+			return;
+		}
+		var params = {
+			orderNo: workBench_trade_collect_edit_obj.orderNo,
+			status: $("input[name=status]:checked").val(),
+			remark: $("#workBench_trade_collect_edit_remark").val()
+		};
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/corePayMergeFlow/mergePayHandler",
+			params,
+			function (res) {
+				$("#corePayTradeCollectFlowEditBox")
+					.parents(".modal")
+					.modal("hide");
+				$("#corePayTradeCollectFlowFormTable").bootstrapTable(
+					"refresh"
+				);
+				showTransactNewsTable();
+				Ewin.alert({ message: "恭喜你，操作成功！" });
+			}
+		);
+	}
+</script>

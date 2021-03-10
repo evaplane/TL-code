@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="leo-a" x1="50%" x2="50%" y1="0%" y2="87.993%">
+      <stop offset="0%" stop-color="#FDDF01"/>
+      <stop offset="100%" stop-color="#F7610A"/>
+    </linearGradient>
+    <linearGradient id="leo-b" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#FDE400"/>
+      <stop offset="100%" stop-color="#F7620A"/>
+    </linearGradient>
+    <linearGradient id="leo-c" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#FEE400"/>
+      <stop offset="100%" stop-color="#F75F0A"/>
+    </linearGradient>
+    <linearGradient id="leo-d" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#FEE500"/>
+      <stop offset="100%" stop-color="#F75D0A"/>
+    </linearGradient>
+    <linearGradient id="leo-e" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#FEE400"/>
+      <stop offset="100%" stop-color="#F75F0A"/>
+    </linearGradient>
+    <linearGradient id="leo-f" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#FEE500"/>
+      <stop offset="100%" stop-color="#F8680A"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <circle cx="24" cy="24" r="24" fill="#0C0115"/>
+    <polygon fill="url(#leo-a)" fill-rule="nonzero" points="18.173 14.015 22.657 17.01 23.618 15.77 18.173 12.065 11 16.464 11 20.514 12.674 20.514 12.674 17.348"/>
+    <path fill="url(#leo-b)" fill-rule="nonzero" d="M30.4931501,20.8820736 L30.5,20.8858446 L30.4931501,20.8899636 L30.4931501,20.9170992 L30.2221339,21.0529325 L25.7846309,23.7213138 L25.7846309,20.368 L28.6051815,19.9214184 L28.8097259,19.8189008 L28.8097259,14.3044057 L23.9682957,10.9948565 L22.434377,11.9626931 L21.4760793,10.7036704 L24.0411985,9 L30.4931501,13.3146891 L30.4931501,20.8820736 Z"/>
+    <polygon fill="url(#leo-c)" fill-rule="nonzero" points="35.329 23.848 30.5 27.693 31.519 29.066 37 24.701 37 17.601 34.14 15.375 32.993 16.635 35.329 18.348"/>
+    <path fill="url(#leo-d)" fill-rule="nonzero" d="M23.2006256,28.6482549 L19.6666667,24.7902793 L28.2699248,24.7902793 L24.9308162,28.6693623 L24.886027,28.6693623 L24.886027,32.2736806 L29.4099069,34.0713413 L34.2039662,30.5554564 L34.2039662,27.9984613 L35.9166667,27.9984613 L35.9166667,31.409424 L29.4349162,36.0899051 L23.1733266,33.1529576 L23.1733266,28.6482549 L23.2006256,28.6482549 Z"/>
+    <polygon fill="url(#leo-e)" fill-rule="nonzero" points="18.139 34.125 18.139 27.997 16.417 27.997 16.417 35.259 24 39.055 26.366 37.608 25.657 36.182 24.104 37.166"/>
+    <path fill="url(#leo-f)" fill-rule="nonzero" d="M16.9155783,20.9498135 L21.7805335,20.5144172 L21.8333333,23.6764705 L17.6502689,22.439633 L12.7972431,24.8383674 L12.7972431,30.4406933 L14.9887556,32.0655609 L13.8567983,33.3420034 L11,31.2238687 L11,23.85862 L16.9086599,20.9381109 L16.9155783,20.9498135 Z"/>
+  </g>
+</svg>

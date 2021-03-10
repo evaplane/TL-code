@@ -1,0 +1,151 @@
+<link rel="stylesheet" href="../../../css/lib/bootstrap-datetimepicker.min.css" />
+<link rel="stylesheet" href="../../../css/lib/bootstrap-table.min.css">
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+	        <form id="corePayTransFlowRushForm" name="queryForm" role="form" class="form-inline">
+                <div class="form-group">
+                	<label class="control-label">原平台流水号：</label>
+                	<input name="tradeOrderNo" class="form-control" type="text" placeholder="原平台流水号" autocomplete="off">
+                </div>
+                <div class="form-group">
+                	<label class="control-label">冲账流水号：</label>
+                	<input type="text" name="orderNo" class="form-control" type="text" placeholder="冲账流水号" autocomplete="off">
+                </div>
+                <div class="form-group">
+                	<label class="control-label">创建日期：</label>
+                	<input id="corePayTransFlowRush_CreateTime" type="text" name="tradeDate" class="form-control form_datetime" readonly="readonly" placeholder="创建日期">
+                </div>
+                <div class="form-group">
+					<button id="corePayTransFlowRushForm_button" type="button" class="btn btn-primary refreshBtn"><i class="fa fa-search"></i> 查询</button>
+	            	<button type="reset" class="btn btn-default"><i class="fa fa-refresh"></i> 重置</button>
+				</div>
+                <div class="clearfix"></div>
+            </form>
+		</div>
+		<div class="content_center_table">
+			<table cellpadding="0" cellspacing="0" border="0" id="corePayTransFlowRushFormTable" class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<style type="text/css">
+	#corePayTransFlowRushFormTable.table {width: 1800px;}
+</style>
+<script>
+var tradeTypeList;
+$(function(){
+	$('#corePayTransFlowRush_CreateTime').datetimepicker({
+		format: 'yyyy-mm-dd',
+		autoclose: true,
+		language: 'zh-CN',
+		minView: 'month',
+		pickerPosition: "bottom-right",
+	});
+	corePayTransFlowRushFormTable();
+});
+// 搜索
+$("#corePayTransFlowRushForm_button").click(function (){
+	$("#corePayTransFlowRushFormTable").bootstrapTable('refresh');
+});
+
+/*表格加载*/
+function corePayTransFlowRushFormTable(){
+	$('#corePayTransFlowRushFormTable').bootstrapTable({
+		url: host_url +  '/cloud-web/coreRushAcctFlow/workList',
+	    method: 'GET',  
+		dataType: "json",  
+		contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+		pagination: true, //在表格底部显示分页工具栏  
+		pageNumber: 1,  
+		pageList: [20, 50, 100],
+		clickToSelect: true,
+		sidePagination: "server",//表格分页的位置  
+		cache: false,//是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+		locale:'zh-CN',//中文支持
+		queryParamsType: 'limit',
+		queryParams: function (params) {
+	  		params.pageSize=params.limit;                        //页面大小
+            params.page= (params.offset / params.limit) + 1;   	 //页码
+            params._sys_login_token = _get_sys_login_token();
+            var paramForm = $("#corePayTransFlowRushForm").serializeArray();
+			$.each(paramForm, function(i, param){
+				params[param.name]=$.trim(param.value);
+			});
+			params.rushType = 20;
+			params.authStatus = 10;
+            return params;
+        }, //参数  
+        columns: [
+			{
+				title: '序号',
+				field: 'index',
+				width: 40,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					var pageSize = $('#corePayTransFlowRushFormTable').bootstrapTable('getOptions').pageSize;     
+			        var pageNumber = $('#corePayTransFlowRushFormTable').bootstrapTable('getOptions').pageNumber; 
+			        return pageSize * (pageNumber - 1) + index + 1; 
+				}
+			},
+			{title: '操作',field: 'operation',align:"center",valign:"middle",width:50,
+			    formatter:function(value,row,index){
+			  		if(row.authStatus == 10){
+			  			return '<a class="fa fa-check-square operation a_size" onclick="corePayTransFlowRushCheck(\''+row.id+'\',\'' + row.orderNo+'\')" title="审核"></a> '; 
+			  		}else{
+			  			return '-'
+			  		}
+			    } 
+			},
+			{field:'cusOrderNo',title:'客户单号',width:200,align:"center",valign:"middle"},
+			{field:'tradeOrderNo',title:'原平台流水号',width:200,align:"center",valign:"middle"},
+			{field:'orderNo',title:'冲账流水号',width:200,align:"center",valign:"middle"},
+			{field:'orderAmt',title:'订单金额(元)',width:100,align:"right",valign:"middle",
+				formatter: function (value, row, index) {
+					return formatterMoney(value, 2)
+				}
+			},
+			{field:'payAmt',title:'提款金额(元)',width:100,align:"right",valign:"middle",
+				formatter: function (value, row, index) {
+					return formatterMoney(value, 2)
+				}
+			},
+			{field:'rushAmt',title:'冲账金额(元)',width:100,align:"right",valign:"middle",
+				formatter: function (value, row, index) {
+					return formatterMoney(value, 2)
+				}
+			},
+			{field:'operatorName',title:'操作员',width:100,align:"center",valign:"middle"},
+			{field:'returnMsg',title:'冲账原因',width:100,align:"center",valign:"middle"},
+			{
+				field: 'authStatus',
+				title: '审核状态',
+				width: 80,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					return visualParams(MEMBER_AUDIT_STATUS, value);
+				}
+			},
+			{field:'authName',title:'审核操作员',width:120,align:"center",valign:"middle"},
+			{field:'createTime',title:'创建时间',width:140,align:"center",valign:"middle",
+			    formatter:function (value, row, index) {
+			        return getDateStr(value);
+			    }
+			}
+		],
+		onClickRow:function (row,$element) {                  
+			$($element).addClass('table_info').siblings().removeClass('table_info');
+		},
+		onLoadSuccess: function(res){  
+			//加载成功时执行  
+        },  
+	});
+}
+
+//冲账审核
+function corePayTransFlowRushCheck(id,orderNo){
+	Ewin.dialog({ url: '../../../html/workBench/corePayTransFlowRushCheck/check.html?id='+id +'&orderNo='+orderNo,title:'冲账审核' });
+}
+</script>

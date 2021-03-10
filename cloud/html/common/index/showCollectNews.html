@@ -1,0 +1,204 @@
+<link rel="stylesheet" href="../../../css/fonts/rob/iconfont.css" />
+<div class="content_center" id="showCollectNews">
+	<div class="content_center_content" id="showCollectNewsContent">
+		<!-- <button
+			id="batchrobBillCollect"
+			type="button"
+			class="btn btn-primary"
+			style="margin-bottom: 10px;"
+			onclick="newsBatchrobBillCollect()"
+		>
+			批量抢单
+		</button> -->
+		<button type="button" class="btn btn-primary" style="margin-bottom: 10px;float: right;"
+			onclick="collectNewsTableRefresh()">
+			查询
+		</button>
+		<table id="showCollectNewsTable" cellpadding="0" cellspacing="0" border="0"
+			class="table table-bordered table-hover">
+			<thead>
+				<tr>
+					<!-- <th><input type="checkbox" id="news_select_all" /></th> -->
+					<th>序号</th>
+					<th>转出银行</th>
+					<th style="text-align: right;">归集金额(元)</th>
+					<th>平台流水号</th>
+					<th>内容</th>
+					<th>创建时间</th>
+					<th>剩余抢单时间(s)</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody id="showCollectNewsBody"></tbody>
+		</table>
+		<div class="modal-footer" id="showCollectNewsFooter">
+			<button type="button" class="btn btn-default" data-dismiss="modal">
+				关闭
+			</button>
+		</div>
+	</div>
+</div>
+<style>
+	#showCollectNews {
+		width: 100%;
+		position: relative;
+		height: 793px;
+	}
+
+	#showCollectNewsFooter {
+		position: absolute;
+		bottom: 0px;
+	}
+
+	#showCollectNews>li {
+		width: 100%;
+		height: 50px;
+		line-height: 50px;
+		border-bottom: 1px solid #e5e5e5;
+		cursor: pointer;
+	}
+
+	.blue {
+		color: blue;
+	}
+</style>
+<script>
+	var end = "";
+	$(function () {
+		showCollectNewsTable();
+	});
+
+	// 查询
+	function collectNewsTableRefresh() {
+		showCollectNewsTable();
+	}
+	// 显示表格
+	function showCollectNewsTable() {
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/coreMessageNotify/getMergeMessageList",
+			{ notifyType: 60 },
+			function (res) {
+				var data = res.rows;
+				for (var key in timer) {
+					if (timer.hasOwnProperty(key)) {
+						clearInterval(timer[key]);
+						delete timer[key];
+					}
+				}
+				$("#collect_header_tip").html(data.length);
+				if (data.length > 0) {
+					var newsContent = "";
+					$.each(data, function (i, item) {
+						if (item.surplusTime < 0) {
+							return;
+						}
+						var notify = "提款";
+						newsContent +=
+							"<tr>" +
+							// "<td><input type='checkbox' name='news_select' data-routecode=" +
+							// item.routeCode +
+							// " data-orderno=" +
+							// item.orderNo +
+							// "></td>" +
+							"<td>" +
+							(i + 1) +
+							"</td>" +
+							"<td>" +
+							item.payBankName +
+							"</td>" +
+							"<td style='text-align:right;'>" +
+							formatterMoney(item.payAmt) +
+							"</td>" +
+							"<td>" +
+							item.orderNo +
+							"</td>" +
+							"<td>一笔新的归集订单 金额：" +
+							formatterMoney(item.payAmt) +
+							"待领取进入工作台快速处理</td>" +
+							"<td>" +
+							formatterDateTime(item.createTime) +
+							"</td>" +
+							"<td id='collect_news_surplusTime" +
+							i +
+							"'>" +
+							item.surplusTime +
+							"</td>" +
+							"<td><i class='iconfont icon-qiangdan' title='抢单' style='color:#3e7fff;font-size:20px;cursor:pointer;' onclick='robBillCollect(\"" +
+							item.orderNo +
+							'","' +
+							item.id +
+							"\")'></i></td>" +
+							"</tr>";
+						countDown(
+							item.surplusTime,
+							"collect_news_surplusTime" + i
+						);
+					});
+					$("#showCollectNewsBody").html(newsContent);
+				} else {
+					$("#showCollectNewsBody").html("<tr><td colspan='8'>没有找到匹配的记录</td></tr>")
+				}
+			}
+		);
+	}
+	// 抢单
+	function robBillCollect(orderNo, id) {
+		var params = {
+			orderNo: orderNo,
+			operatorCode: _loginJsonObj.loginName,
+			operatorName: _loginJsonObj.userName
+		};
+		sendAjax_special(
+			"POST",
+			host_url + "/cloud-web/corePayMergeFlow/mergeGrad",
+			params,
+			function (res) {
+				if (res.retCode == "000000") {
+					// $(".account_children li").each(function(i, item) {
+					// 	if ($(item).text() == "出金归集作业") {
+					// 		dataTab = $(item).attr("data-tab");
+					// 		$("#tabContainer")
+					// 			.data("tabs")
+					// 			.$element.find(
+					// 				".nav-tabs li a[href='#" + dataTab + "']"
+					// 			)
+					// 			.click();
+					// 		$(
+					// 			".account_children li[data-tab='" +
+					// 				dataTab +
+					// 				"']"
+					// 		).click();
+					// 		$("#showCollectNewsBody td :checkbox").prop(
+					// 			"checked",
+					// 			false
+					// 		);
+
+					// 	}
+					// });
+					Ewin.dialog({
+						url:
+							"../../../html/workBench/corePayTransCollectFlow/edit.html?id=" +
+							id,
+						title: "归集办理"
+					});
+					showCollectNewsTable();
+					
+					$('#nav-accordion .account_children li').each(function(i,item){
+						if($(item).text()=='出金归集作业'){
+							var dataTabCj = $(item).attr('data-tab');
+							$("#tabContainer").data("tabs").$element.find(".nav-tabs li a[href='#"+dataTabCj+"']").click();
+							$(".account_children li[data-tab='"+dataTabCj+"']").click();
+							$("#corePayTransCollectFlowTable").bootstrapTable("refresh");
+						}
+					})
+					
+					alertTips({ message: res.retMsg });
+				} else {
+					showCollectNewsTable();
+					alertTips({ message: res.retMsg, id: "alert-danger" });
+				}
+			}
+		);
+	}
+</script>

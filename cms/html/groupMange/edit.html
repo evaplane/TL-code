@@ -1,0 +1,62 @@
+<form class="form-horizontal" name="add_form" role="form"  id="add_form">
+<div class="form-horizontal">
+    <div class="form-group" style="overflow: visible">
+        <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>组名：</label>
+        <div class="col-xs-8 col-sm-8">
+            <input type="text" class="form-control" id="edit_groupName" name="groupName" placeholder="请输入组名" autocomplete="off">
+        </div>
+    </div>
+
+</div>
+<div class="modal-footer" style="padding-bottom: 0;">
+    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+    <button type="button" class="btn btn-primary" id="submit" onclick="_edit_doSubmit()">提交</button>
+</div>
+</form>
+<script type="text/javascript">
+    var init_id = getQueryString('id');
+    $(function(){
+        //加载参数
+        var params = {
+            id: init_id,
+            _sys_login_token:login_token()
+        };
+        sendAjax( 'POST', host_url+"/group/selectById", params, function(res){
+            var data=res.rows;
+            // 组名
+            $("#edit_groupName").val(data.groupName);
+        });
+    })
+
+
+
+
+    function _edit_doSubmit() {
+        var groupName = $("#edit_groupName").val();
+        if (groupName == "") {
+            Ewin.alert({
+                message: "组名不能为空!"
+            });
+            return false;
+        }else {
+            var groupNameStr = $("#edit_groupName").val();
+            var groupName = groupNameStr.replace(/\s/g,"");
+            var params = {
+                groupName: groupName,
+                id :init_id,
+                _sys_login_token:login_token()
+            }
+            sendAjax( 'POST', host_url+"/group/addAndEditGroup", params, function(res){
+                Ewin.alert({ message: '恭喜你，操作成功！' }).on(function(e){
+                    if(e){
+                        $('#add_form').parents('.modal').modal('hide');
+                        $(".table").bootstrapTable('refresh');
+                        $('#submit').attr('disabled',false);
+                    }
+                });
+            });
+
+        }
+    }
+
+</script>

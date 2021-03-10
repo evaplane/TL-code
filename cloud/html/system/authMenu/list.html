@@ -1,0 +1,260 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="queryFormAuthMenu" name="queryFormAuthMenu" role="form" class="form-inline">
+				<div class="form-group">
+					<label class="control-label">菜单名称：</label>
+					<input id="query_menu_name" name="menuName" class="form-control" type="text" placeholder="菜单名称"
+						autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">菜单等级：</label>
+					<select class="form-control" id="query_level" name="level" style="display: none"
+						onchange="loadMenu()"></select>
+				</div>
+				<div class="form-group">
+					<label class="control-label">上级菜单：</label>
+					<select class="form-control" id="query_parent_id" name="parentId" style="display: none"></select>
+				</div>
+				<div class="form-group pull-right">
+					<button id="queryButton_authMenu" type="button" class="btn btn-primary refreshBtn"><i
+							class="fa fa-search"></i> 查询</button>
+					<button type="reset" class="btn btn-default"><i class="fa fa-refresh"></i> 重置</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<div class="marginBottom">
+				<button type="button" class="btn btn-primary" onclick="_addAuthMenu()"><i class="fa fa-plus"></i>
+					新增</button>
+				<button type="button" class="btn btn-default" onclick="_del()"><i class="fa fa-trash-o"></i> 删除</button>
+			</div>
+			<!-- <button type="button" class="btn btn-default" onclick="_batchUpdateAuthMenuStatus()"><i class="fa fa-list-alt"></i> 禁用</button> -->
+			<table cellpadding="0" cellspacing="0" border="0" id="table_authMenu"
+				class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<script>
+	$(function () {
+		listOptionInit($('#query_level'), MEANU_LEVEL);
+		$('#query_level').comboSelect({ extendStyle: false });
+		$('#query_parent_id').html("<option value=''>全部</option>");
+		$('#query_parent_id').comboSelect({ extendStyle: false });
+		authMenuTable();
+		/* listOptionInit("select[name=platform]", AUTH_PLATFORM);
+		$('#query_menu_platform').comboSelect({extendStyle: false}); */
+	});
+
+	function loadMenu() {
+		var level = $('#query_level option:selected').val();
+		if (level == null || level == '') {
+			$('#query_parent_id').html("<option value=''>全部</option>");
+			$('#query_parent_id').comboSelect({ extendStyle: false });
+			return;
+		}
+		sendAjax('POST', host_url + "/cloud-web/authMenu/selectAllMenu", { 'platform': 20, 'level': level }, function (res) {
+			$('#query_parent_id').html("<option value=''>全部</option>");
+			var html = '';
+			$.each(res.rows, function (i, item) {
+				html += "<option value='" + item.id + "'>" + item.menuName + "</option>";
+			});
+			$('#query_parent_id').append(html);
+			$('#query_parent_id').comboSelect({ extendStyle: false });
+		});
+	}
+	// 搜索
+	$("#queryButton_authMenu").click(function () {
+		$("#table_authMenu").bootstrapTable('refresh');
+		authMenuTable();
+	});
+	//判断是否为手动修改产品状态按钮
+	var flag_btn = true;
+	/*表格加载*/
+	function authMenuTable() {
+		$('#table_authMenu').bootstrapTable({
+			url: host_url + '/cloud-web/authMenu/pageList',
+			method: 'GET',
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏  
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server",//表格分页的位置  
+			cache: false,//是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: 'zh-CN',//中文支持
+			queryParamsType: 'limit',
+			queryParams: function (params) {
+				params.pageSize = params.limit;                        //页面大小
+				params.page = (params.offset / params.limit) + 1;     //页码
+				params._sys_login_token = _get_token();
+
+				var paramForm = $("#queryFormAuthMenu").serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				var parentId = $('#query_parent_id option:selected').val();
+				if (parentId != null && parentId !== '') {
+					delete params.level;
+				}
+				params.platform = 20;
+				return params;
+			}, //参数  
+			columns: [
+				{ title: '全选', checkbox: true, width: 30, align: "center", valign: "middle" },
+				{
+					title: '序号',
+					field: 'index',
+					width: 40,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						var pageSize = $('#table_authMenu').bootstrapTable('getOptions').pageSize;
+						var pageNumber = $('#table_authMenu').bootstrapTable('getOptions').pageNumber;
+						return pageSize * (pageNumber - 1) + index + 1;
+					}
+				},
+				{
+					title: '操作', field: 'operation', valign: "middle", width: 30,
+					formatter: function (value, row, index) {
+						return '<a class="fa fa-edit operation a_size" onclick="_editAuthMenu(' + row.id + ')" title="编辑"></a> ';
+						//'<a onclick="_del('+row.id+')">删除</a>';
+					}
+				},
+				{ field: 'menuCode', title: '菜单编码', width: 120, align: "center", valign: "middle" },
+				{ field: 'menuName', title: '菜单名称', width: 100, align: "center", valign: "middle" },
+				{ field: 'menuDesc', title: '菜单描述', width: 110, align: "center", valign: "middle" },
+				/* {field:'platform',title:'所属系统',width:70,align:"center",valign:"middle",
+					formatter:function (value, row, index) {
+						return sys_getTitle_Id(value,AUTH_PLATFORM);
+					}
+				}, */
+				{
+					field: 'level', title: '菜单等级', width: 70, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						return sys_getTitle_Id(value, MEANU_LEVEL);
+					}
+				},
+				//{field:'parentId',title:'上级菜单',width:50,align:"center",valign:"middle"},
+				{ field: 'sort', title: '排序', width: 50, align: "center", valign: "middle" },
+				{
+					field: 'status', title: '状态', width: 60, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						var authMenuSwitch;
+						if (value == 100) {
+							authMenuSwitch = '<div class="authMenuSwitch" data-on="success" data-off="warning"><input type="checkbox" value="' + row.id + '" checked /></div>';
+						} else {
+							authMenuSwitch = '<div class="authMenuSwitch" data-on="success" data-off="warning"><input type="checkbox" value="' + row.id + '"/></div>';
+						}
+						return authMenuSwitch;
+					}
+				},
+				{ field: 'menuUrl', title: '菜单链接', width: 200, align: "center", valign: "middle" },
+				{
+					field: 'iconCode', title: '菜单图标编码', width: 60, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						if (value == '') {
+							return '-';
+						} else {
+							return value;
+						}
+					}
+				},
+				{
+					field: 'createTime', title: '创建时间', width: 110, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						return getDateStr(value);
+					}
+				},
+				{
+					field: 'updateTime', title: '更新时间', width: 110, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						return getDateStr(value);
+					}
+				}
+			],
+			onDblClickRow: function (row) {
+				Ewin.dialog({ url: '../../../html/system/authMenu/view.html?id=' + row.id, title: '详情', width: 950 });
+			},
+			onClickRow: function (row, $element) {
+				$($element).addClass('table_info').siblings().removeClass('table_info');
+			},
+			onLoadSuccess: function (res) {
+				//加载成功时执行  
+				$('.authMenuSwitch').bootstrapSwitch();
+				//开关
+				$('.authMenuSwitch').on('switch-change', function (e, data) {
+					if (!flag_btn) {
+						flag_btn = true;
+						return;
+					} else {
+						var el = $(data.el),
+							value = data.value;
+						var id = el[0].value;
+						var values;
+						if (value) {//on
+							values = 100;
+						} else {//offS
+							values = -100;
+						}
+
+						var params = { "id": id, "status": values };
+						_updateAuthMenuStatus(params);
+					}
+				});
+			},
+		});
+	}
+
+	//添加
+	function _addAuthMenu() {
+		Ewin.dialog({ url: '../../../html/system/authMenu/add.html', title: '添加', height: 700 });
+	}
+
+	//编辑
+	function _editAuthMenu(id) {
+		Ewin.dialog({ url: '../../../html/system/authMenu/edit.html?id=' + id, title: '编辑', height: 700 });
+	}
+
+	//删除
+	function _del() {
+		var table_authMenu = $("#table_authMenu").bootstrapTable('getSelections');
+		//将选中行数据转成jsonStr
+		var jsonStr = JSON.stringify(table_authMenu);
+		//将jsonStr转成jsonObject对象
+		var jsonObject = jQuery.parseJSON(jsonStr);
+		if (jsonObject.length == 0) {
+			Ewin.alert({ message: '请选中一行进行删除？' });
+		} else {
+			var menuIds = [];
+			$.each(jsonObject, function (i, item) {
+				menuIds += item.id + ',';
+			});
+			menuIds = menuIds.slice(0, menuIds.length - 1);
+
+			Ewin.confirm({ message: '是否删除该行？' }).on(function (e) {
+				if (e) {//成功
+					sendAjax('POST', host_url + "/cloud-web/authMenu/delete", { 'ids': menuIds }, function (res) {
+						Ewin.alert({ message: '恭喜你，操作成功！' }).on(function (e) {
+							if (e) {
+								//重新加载
+								$("#table_authMenu").bootstrapTable('refresh');
+							}
+						});
+					});
+				}
+			});
+		}
+	}
+	//修改菜单状态
+	function _updateAuthMenuStatus(params) {
+		sendAjax('POST', host_url + "/cloud-web/authMenu/updateMenuStatus", params, function (res) {
+			alertTips({ message: '恭喜你，操作成功！', id: 'alert-success' });
+			$("#table_authMenu").bootstrapTable('refresh');
+		});
+	}
+
+</script>

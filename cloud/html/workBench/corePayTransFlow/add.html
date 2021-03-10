@@ -1,0 +1,508 @@
+<div class="content_center" id="workBench_trans_add_first">
+	<div class="content_center_content">
+		<h5 class="text-right marginTop">创建时间：<span id="workBench_trans_add_createTime"></span></h5>
+		<table cellpadding="0" cellspacing="0" border="0" class="table table-bordered marginTop">
+			<tbody class="basic">
+				<tr>
+					<td class='title col-sm-2'>客户单号：</td>
+					<td class="col-sm-4" id="workBench_trans_add_cusOrderNo"></td>
+					<td class='title col-sm-2'>平台流水号：</td>
+					<td class="col-sm-4" id="workBench_trans_add_orderNo"></td>
+				</tr>
+				<tr>
+					<td class='title col-sm-2'>出金限额：</td>
+					<td class="col-sm-4" id="workBench_trans_add_cardUseCode"></td>
+				</tr>
+			</tbody>
+		</table>
+		<h5 class="marginTop">用户提款信息</h5>
+		<table cellpadding="0" cellspacing="0" border="0" class="table table-bordered marginTop">
+			<tbody class="basic">
+				<tr>
+					<td class='title col-sm-2'>用户名：</td>
+					<td class="col-sm-4 workBench_trans_add_userAcct"></td>
+					<td class='title col-sm-2'>提款金额(元)：</td>
+					<td class="col-sm-4 workBench_trans_add_payAmt"></td>
+				</tr>
+				<tr>
+					<td class='title col-sm-2'>提款银行：</td>
+					<td class="col-sm-4" id="workBench_trans_add_recBankName"></td>
+					<td class='title col-sm-2'>真实姓名：</td>
+					<td class="col-sm-4 workBench_trans_add_userName"></td>
+				</tr>
+				<tr>
+					<td class='title col-sm-2'>开户地址：</td>
+					<td class="col-sm-4" id="workBench_trans_add_recProvinceName"></td>
+					<td class='title col-sm-2'>提款银行卡号：</td>
+					<td class="col-sm-4" id="workBench_trans_add_recAcctNo"></td>
+				</tr>
+				<tr>
+					<td class='title col-sm-2'>开户支行：</td>
+					<td class="col-sm-4" id="workBench_trans_add_recSubBankName"></td>
+					<td class='title col-sm-2'>返回描述：</td>
+					<td class="col-sm-4" colspan="3" id="workBench_trans_add_returnMsg"></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div class="workBench_channelOrder">
+			<h5 class="marginTop">API提款信息</h5>
+			<table cellpadding="0" cellspacing="0" border="0" class="table table-bordered marginTop">
+				<tbody class="basic">
+					<tr>
+						<td class='title col-sm-2'>发起时间：</td>
+						<td class="col-sm-4 workBench_channel_createTime"></td>
+						<td class='title col-sm-2'>处理状态：</td>
+						<td class="col-sm-4 workBench_channel_status"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>返回描述：</td>
+						<td class="col-sm-4 workBench_channel_returnMsg"></td>
+						<td class='title col-sm-2'>返回码：</td>
+						<td class="col-sm-4" id="workBench_channel_returnCode"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="form-group marginTop" style="overflow: hidden;">
+			<label class="control-label col-xs-4 col-sm-2">
+				<button type="button" class="btn btn-primary fr copyBtn" style="margin-top: 5px;"
+					data-clipboard-target="#workBench_trans">复制</button>
+			</label>
+			<div class="col-xs-8 col-sm-9">
+				<table cellpadding="0" cellspacing="0" border="0" id="workBench_trans" class="table table-bordered"
+					style="width: 100%; font-size: 18px;font-weight: 600;">
+					<tbody class="basic">
+						<tr>
+							<td class="col-sm-1 workBench_trans_add_userName"></td>
+							<td class='col-sm-1 workBench_trans_add_userAcct'></td>
+							<td class='col-sm-1'></td>
+							<td class="col-sm-1 workBench_trans_add_payAmt"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- 出款金额区间 -->
+		<div class="form-group marginTop" style='margin-left: 20px;'>
+			<label class="control-label col-xs-4 col-sm-2" style="line-height: 32px;margin-top: 20px;">
+				出款金额区间(元)：
+			</label>
+			<div class="col-xs-8 col-sm-9" style="margin-top: 20px;">
+				<input name="amtAreaLow" class="form-control" type="text" readonly autocomplete="off"
+					id="workBench_trans_add_amtAreaLow">
+				<span>-</span>
+				<input name="amtAreaHight" class="form-control" type="text" readonly autocomplete="off"
+					id="workBench_trans_add_amtAreaHight">
+			</div>
+		</div>
+
+	</div>
+	<div class="modal-footer" style="padding-bottom: 0;">
+		<button type="button" class="btn btn-primary" onclick="workBench_trans_add_next()">手工出款</button>
+		<button type="button" class="btn btn-default apiCk" onclick="api_doSubmit()">API出款</button>
+	</div>
+</div>
+
+<div class="content_center" id="workBench_trans_add_second">
+	<div class="content_center_content">
+		<table cellpadding="0" cellspacing="0" border="0" class="table table-bordered marginTop">
+			<tbody class="basic">
+				<tr>
+					<td class='title col-sm-2'>客户单号：</td>
+					<td class="col-sm-4" id="workBench_trans_add_cusOrderNo1"></td>
+					<td class='title col-sm-2'>平台流水号：</td>
+					<td class="col-sm-4" id="workBench_trans_add_orderNo1"></td>
+				</tr>
+				<tr>
+					<td class='title col-sm-2'>出金限额：</td>
+					<td class="col-sm-4" id="workBench_trans_add_cardUseCode1"></td>
+				</tr>
+			</tbody>
+		</table>
+		<h5 class="marginTop">用户提款信息</h5>
+		<table cellpadding="0" cellspacing="0" border="0" class="table table-bordered marginTop">
+			<tbody class="basic">
+				<tr>
+					<td class='title col-sm-2'>提款金额(元)：</td>
+					<td class="col-sm-4 tableBtn" id="workBench_trans_add_payAmt1"></td>
+					<td class='title col-sm-2'>用户名：</td>
+					<td class="col-sm-4" id="workBench_trans_add_userAcct1"></td>
+				</tr>
+				<tr>
+					<td class='title col-sm-2'>真实姓名：</td>
+					<td class="col-sm-4 tableBtn" id="workBench_trans_add_userName1"></td>
+					<td class='title col-sm-2'>提款银行：</td>
+					<td class="col-sm-4" id="workBench_trans_add_recBankName1"></td>
+				</tr>
+				<tr>
+					<td class='title col-sm-2'>提款银行卡号：</td>
+					<td class="col-sm-4 tableBtn" id="workBench_trans_add_recAcctNo1"></td>
+					<td class='title col-sm-2'>开户地址：</td>
+					<td class="col-sm-4" id="workBench_trans_add_recProvinceName1"></td>
+				</tr>
+				<tr>
+					<td class='title col-sm-2'>开户支行：</td>
+					<td class="col-sm-4" colspan="3" id="workBench_trans_add_recSubBankName1"></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<form class="form-horizontal" name="workBench_trans_add_form" role="form" id="workBench_trans_add_form">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-2"><span class="red">*</span>状态:</label>
+				<div class="radio col-xs-4 col-sm-2">
+					<label>
+						<input style="margin: 2px 0 0 -20px;" type="radio" name="status" value="-100">
+						出款失败
+					</label>
+				</div>
+				<div class="radio col-xs-4 col-sm-2">
+					<label>
+						<input style="margin: 2px 0 0 -20px;" type="radio" name="status" value="100">
+						我已出款
+					</label>
+				</div>
+			</div>
+		</form>
+		<form class="form-horizontal" name="workBench_trans_add_form_false" role="form"
+			id="workBench_trans_add_form_false" style="display: none">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-2"><span class="red">*</span>备注:</label>
+				<div class="col-xs-8 col-sm-9">
+					<textarea class="form-control" placeholder="请输入备注" autocomplete="off" name=operatorRemark rows="3"
+						style="resize: none;"></textarea>
+				</div>
+			</div>
+		</form>
+		<form class="form-horizontal" name="workBench_trans_add_form_success" role="form"
+			id="workBench_trans_add_form_success" style="display: none">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-2"><span class="red"></span>渠道流水号:</label>
+				<div class="col-xs-8 col-sm-9">
+					<input name="channelFlowNo" class="form-control" type="text" placeholder="请输入渠道流水号"
+						autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-2"><span class="red">*</span>出款账号:</label>
+				<div class="col-xs-8 col-sm-9">
+					<select class="form-control" name="payAcctNo" id="workBench_trans_add_payAcctNo"></select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-2"><span class="red"></span>财务备注:</label>
+				<div class="col-xs-8 col-sm-9">
+					<input name="operatorRemark" class="form-control" type="text" placeholder="请输入财务备注"
+						autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-2"><span class="red">*</span>出款方式:</label>
+				<div class="radio col-xs-4 col-sm-2">
+					<label>
+						<input style="margin: 2px 0 0 -20px;" type="radio" name="payMethod" value="5" checked>
+						网银转账
+					</label>
+				</div>
+				<div class="radio col-xs-4 col-sm-2">
+					<label>
+						<input style="margin: 2px 0 0 -20px;" type="radio" name="payMethod" value="10">
+						手机银行转账
+					</label>
+				</div>
+			</div>
+		</form>
+
+	</div>
+
+	<div class="modal-footer" style="padding-bottom: 0;">
+		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		<button type="button" class="btn btn-primary" onclick="workBench_trans_add_submit()">确定</button>
+	</div>
+</div>
+
+<style>
+	#workBench_trans_add_second {
+		display: none;
+	}
+
+	#workBench_trans_add_amtAreaLow,
+	#workBench_trans_add_amtAreaHight {
+		width: 40%;
+		display: inline-block;
+	}
+</style>
+
+<script type="text/javascript">
+	var workBench_trans_add_orderNo = "",workBench_trans_add_id='';
+	var isSplit, splitOrderNo, workBench_trans_cardUseCode;
+	$(function () {
+		_validateForm_false();//验证初始化
+		_validateForm_success();//验证初始化
+		workBench_trans_add_id=getQueryString("id");
+
+		// $(".workBench_trans_add_userName").text(getQueryString("userName"));
+		// $(".workBench_trans_add_userAcct").text(getQueryString("userAcct"));
+		// $(".workBench_trans_add_payAmt").text(formatterMoney_edit(getQueryString("payAmt")));
+
+		sendAjax("get", host_url + "/cloud-web/corePayTransFlow/view", { id: workBench_trans_add_id }, function (res) {
+			var data = res.rows;
+			
+			if(data){
+				isSplit = data.isSplit;
+				splitOrderNo = data.splitOrderNo;
+				workBench_trans_add_orderNo = data.orderNo;
+				$("#workBench_trans_add_createTime").text(formatterDateTime(data.createTime));
+				$("#workBench_trans_add_cusOrderNo").text(data.cusOrderNo);
+				$("#workBench_trans_add_cardUseCode").text(visualParams(PAY_QUOTA, data.cardUseCode));
+				$("#workBench_trans_add_orderNo").text(data.orderNo);
+				$(".workBench_trans_add_userAcct").text(data.userAcct);
+				$(".workBench_trans_add_payAmt").text(formatterMoney_edit(data.payAmt));
+				$("#workBench_trans_add_recBankName").text(data.recBankName);
+				$(".workBench_trans_add_userName").text(data.userName);
+				$("#workBench_trans_add_recProvinceName").text(data.recProvinceName + data.recCityName);
+				$("#workBench_trans_add_recAcctNo").text(data.recAcctNo);
+				$("#workBench_trans_add_recSubBankName").text(data.recSubBankName);
+				if (data.settleModel == 20) {
+					$("#workBench_trans_add_returnMsg").text(data.returnMsg);
+					$('.apiCk').hide();
+				} else {
+					$(".workBench_channelOrder").hide();
+				}
+				
+				$("#workBench_trans_add_cusOrderNo1").text(data.cusOrderNo);
+				$("#workBench_trans_add_orderNo1").text(data.orderNo);
+				$("#workBench_trans_add_cardUseCode1").text(visualParams(PAY_QUOTA, data.cardUseCode));
+				workBench_trans_cardUseCode = data.cardUseCode;
+				$("#workBench_trans_add_userAcct1").text(data.userAcct);
+				$("#workBench_trans_add_payAmt1").html('<span id="workBench_trans_add_payAmt1_btn">' + formatterMoney_edit(data.payAmt) + '</span><button type="button" class="btn btn-primary fr copyBtn" data-clipboard-target="#workBench_trans_add_payAmt1_btn">复制</button>');
+				$("#workBench_trans_add_recBankName1").text(data.recBankName);
+				$("#workBench_trans_add_userName1").html('<span id="workBench_trans_add_userName1_btn">' + data.userName + '</span><button type="button" class="btn btn-primary fr copyBtn" data-clipboard-target="#workBench_trans_add_userName1_btn">复制</button>');
+				$("#workBench_trans_add_recProvinceName1").text(data.recProvinceName + data.recCityName);
+				$("#workBench_trans_add_recAcctNo1").html('<span id="workBench_trans_add_recAcctNo1_btn">' + data.recAcctNo + '</span><button type="button" class="btn btn-primary fr copyBtn" data-clipboard-target="#workBench_trans_add_recAcctNo1_btn">复制</button>');
+				$("#workBench_trans_add_recSubBankName1").text(data.recSubBankName);
+				
+				workBench_channel_findByOrderNo(data.orderNo);
+				workBench_user_getUserTradeConfig(data.operatorCode);
+			}
+		});
+		var clipboard = new ClipboardJS(".copyBtn");
+		clipboard.on('success', function (e) {
+			Ewin.alertTipsBottom({
+				message: '"' + e.text + '" 已复制到剪贴板'
+			})
+		});
+
+		$("#workBench_trans_add_form input[name='status']").on('change', function () {
+			var val = $(this).val();
+			if (val == -100) {
+				$("#workBench_trans_add_form_false").show();
+				$("#workBench_trans_add_form_success").hide();
+			} else {
+				$("#workBench_trans_add_form_false").hide();
+				$("#workBench_trans_add_form_success").show();
+			}
+		})
+	});
+
+	function workBench_trans_add_next() {
+		$("#workBench_trans_add_first").hide();
+		$("#workBench_trans_add_second").show();
+		workBench_trans_add_getBank();
+	}
+
+	/**
+	 * 查询操作员交易权限
+	 */
+	function workBench_user_getUserTradeConfig(operatorCode) {
+		sendAjax("post", host_url + "/cloud-web/ownUserTradeConfig/view", { 'loginName': operatorCode }, function (res) {
+			var data = res.rows;
+			$("#workBench_trans_add_amtAreaLow").val(formatterMoney_edit(data.amtAreaLow))
+			$("#workBench_trans_add_amtAreaHight").val(formatterMoney_edit(data.amtAreaHight))
+			if (data == null || data.apiTransStatus != 100) {
+				$('.apiCk').hide();
+			}
+		})
+	}
+
+	/**
+	 * 查询渠道交易信息
+	 */
+	function workBench_channel_findByOrderNo(orderNo) {
+		sendAjax("post", host_url + "/cloud-web/gatewayTransOrderFlow/findByOrderNo", { 'orderNo': orderNo }, function (res) {
+			var data = res.rows;
+			if (data != null) {
+				$(".workBench_channel_createTime").text(getDateStr(data.createTime));
+				$(".workBench_channel_status").text(visualParams(OUT_STATUS, data.status));
+				$(".workBench_channel_returnCode").text(data.returnCode);
+				$(".workBench_channel_returnMsg").text(data.returnMsg);
+			} else {
+				$(".workBench_channelOrder").hide();
+			}
+		})
+	}
+
+	// 获取出款账号 下拉框
+	function workBench_trans_add_getBank() {
+		sendAjax("post", host_url + "/cloud-web/cardRoutePoolMerch/workLoadBankByRouteCode", {
+			'routeCode': workBench_trans_add_routeCode,
+			'operatorCode': workBench_trans_add_operatorCode,
+			'cardUseType': 20,
+			'status': 100,
+			'amtCode': workBench_trans_cardUseCode
+		}, function (res) {
+			var data = res.rows;
+			var str = '';
+			if (data == null || data == "") {
+				str = '<option value="">请选择</option>';
+			}
+			$.each(data, function (k, v) {
+				str += '<option value="' + v.acctNo + '">' + v.aliasName + '/' + v.acctNo + '</option>'
+			})
+			$("#workBench_trans_add_payAcctNo").html(str).comboSelect();
+		})
+	}
+
+	//初始化验证框架
+	function _validateForm_false() {
+		//进行表单验证
+		$("#workBench_trans_add_form_false").bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: {
+				valid: 'glyphicon glyphicon-ok',
+				invalid: 'glyphicon glyphicon-remove',
+				validating: 'glyphicon glyphicon-refresh'
+			},
+			excluded: [':disabled'],
+			fields: {
+				operatorRemark: {
+					message: '备注验证失败',
+					validators: {
+						notEmpty: {
+							message: '备注不能为空'
+						},
+						stringLength: {
+							max: 32,
+							message: '备注超过32位限定长度'
+						}
+					}
+				}
+			}
+		})
+	}
+
+	//初始化验证框架
+	function _validateForm_success() {
+		//进行表单验证
+		$("#workBench_trans_add_form_success").bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: {
+				valid: 'glyphicon glyphicon-ok',
+				invalid: 'glyphicon glyphicon-remove',
+				validating: 'glyphicon glyphicon-refresh'
+			},
+			excluded: [':disabled'],
+			fields: {
+				channelFlowNo: {
+					message: '渠道流水号验证失败',
+					verbose: false,
+					validators: {
+						regexp: {
+							regexp: /^[0-9a-zA-Z]+$/,
+							message: '渠道流水号只能输入数字、字母'
+						},
+						stringLength: {
+							max: 32,
+							message: '渠道流水号不能超过32位'
+						}
+					}
+				},
+				operatorRemark: {
+					message: '财务备注验证失败',
+					verbose: false,
+					validators: {
+						stringLength: {
+							max: 32,
+							message: '财务备注不能超过32位'
+						}
+					}
+				},
+				payAcctNo: {
+					message: '出款账号验证失败',
+					verbose: false,
+					validators: {
+						notEmpty: {
+							message: '出款账号不能为空'
+						}
+					}
+				}
+			}
+		})
+	}
+
+	//提交
+	function workBench_trans_add_submit() {
+		var status = $("#workBench_trans_add_form input[name='status']:checked").val();
+		if (status == 100) {
+			var bv = $('#workBench_trans_add_form_success').data('bootstrapValidator').validate();
+			if (!bv.isValid()) {//验证不通过
+				return;
+			}
+			var paramForm = $("#workBench_trans_add_form_success").serializeArray();
+			var params = {};
+			$.each(paramForm, function (i, param) {
+				params[param.name] = $.trim(param.value);
+			});
+		} else {
+			var bv = $('#workBench_trans_add_form_false').data('bootstrapValidator').validate();
+			if (!bv.isValid()) {//验证不通过
+				return;
+			}
+			var paramForm = $("#workBench_trans_add_form_false").serializeArray();
+			var params = {};
+			$.each(paramForm, function (i, param) {
+				params[param.name] = $.trim(param.value);
+			});
+		}
+		params.status = status;
+		params.orderNo = workBench_trans_add_orderNo;
+		params.operatorCode = workBench_trans_add_operatorCode;
+		params.settleModel = 10;
+
+		if (isSplit == 100) {
+			sendAjax('POST', host_url + "/cloud-web/corePayTransFlow/checkSplitOrderSubmit", { 'splitOrderNo': splitOrderNo, 'status': status }, function (res) {
+				sendAjax('POST', host_url + "/cloud-web/corePayTransFlow/financePayHandler", params, function (res) {
+					$('#workBench_trans_add_first').parents('.modal').modal('hide');
+					Ewin.alert({ message: '恭喜你，操作成功！' }).on(function (e) {
+						if (e) {
+							$("#corePayTransFlowTable").bootstrapTable('refresh');
+						}
+					});
+				});
+			});
+		} else {
+			sendAjax('POST', host_url + "/cloud-web/corePayTransFlow/financePayHandler", params, function (res) {
+				$('#workBench_trans_add_first').parents('.modal').modal('hide');
+				Ewin.alert({ message: '恭喜你，操作成功！' }).on(function (e) {
+					if (e) {
+						$("#corePayTransFlowTable").bootstrapTable('refresh');
+					}
+				});
+			});
+		}
+	}
+	// api出款
+	function api_doSubmit() {
+		sendAjax('POST', host_url + "/cloud-web/corePayTransFlow/financeApiHandler", { 'orderNo': workBench_trans_add_orderNo, 'operatorCode': _loginJsonObj.loginName }, function (res) {
+			$('.modal').modal('hide');
+			Ewin.alert({ message: '恭喜你，操作成功！' }).on(function (e) {
+				if (e) {
+					$("#corePayTransFlowTable").bootstrapTable('refresh');
+				}
+			});
+		});
+	}
+</script>

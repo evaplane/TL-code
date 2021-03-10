@@ -1,0 +1,189 @@
+<link rel="stylesheet" href="../../../css/lib/daterangepicker-bs3.css">
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="channelInfo_Form" name="channelInfo_Form" role="form" class="form-inline">
+				<div class="form-group">
+					<label class="control-label">渠道名称：</label>
+					<select id="channelInfo_channelName" name="channelCode"></select>
+				</div>
+				<div class="form-group">
+					<label class="control-label">渠道接口地址：</label>
+					<input name="requestUrl" class="form-control" type="text" placeholder="渠道接口地址" autocomplete="off">
+				</div>
+				<div class="form-group pull-right">
+					<button id="channelInfo_button" type="button" class="btn btn-primary"><i
+							class="fa fa-search"></i>查询</button>
+					<button type="reset" class="btn btn-default"><i class="fa fa-refresh"></i> 重置</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<!-- <div class="marginBottom">
+                <button type="button" class="btn btn-primary marginBottom" onclick="channelInfo_add()"><i class="fa fa-plus"></i> 新增</button>
+            </div> -->
+			<table cellpadding="0" cellspacing="0" border="0" id="channelInfo_Table"
+				class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<script>
+	var channelInfo_flag_btn = true;
+	$(function () {
+		channelInfo_Table();
+		//获取渠道
+		sendAjax("POST", host_url + "/cloud-web/chnChannelInfo/getAll", {}, function (data) {
+			var channelInfo_getAllChannel = '<option value="">全部</option>';
+			$.each(data.rows, function (i, item) {
+				channelInfo_getAllChannel += '<option value="' + item.channelCode + '">' + item.channelName + '</option>';
+			});
+			$('#channelInfo_channelName').append(channelInfo_getAllChannel);
+			$("#channelInfo_channelName").comboSelect();
+		})
+	});
+	// 搜索
+	$("#channelInfo_button").click(function () {
+		$("#channelInfo_Table").bootstrapTable('refresh');
+	});
+	/*表格加载*/
+	function channelInfo_Table() {
+		$('#channelInfo_Table').bootstrapTable({
+			url: host_url + '/cloud-web/chnChannelInfo/pageList',
+			method: 'GET',
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏  
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: 'zh-CN', //中文支持
+			queryParamsType: 'limit',
+			queryParams: function (params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = (params.offset / params.limit) + 1; //页码
+				params._sys_login_token = _get_sys_login_token();
+
+				var paramForm = $("#channelInfo_Form").serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				return params;
+			}, //参数  
+			columns: [{
+				title: '序号',
+				width: 30,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					var options = $('#channelInfo_Table').bootstrapTable("getOptions");
+					return (options.pageNumber - 1) * (options.pageSize) + index + 1;
+				}
+			},
+			{
+				title: '操作',
+				field: 'id',
+				align: "center",
+				valign: "middle",
+				width: 40,
+				formatter: function (value, row, index) {
+					var str = '';
+					str += '<a class="fa fa-edit operation a_size" onclick="channelInfo_edit(\'' + row.id + '\')" title="修改"></a>';
+					// str += '<a class="fa fa-trash-o operation a_size" onclick="channelInfo_delete(\''+row.id+'\')" title="删除"></a>';
+					return str;
+				}
+			},
+			{ field: 'channelCode', title: '渠道编码', width: 100, align: "center", valign: "middle" },
+			{ field: 'channelName', title: '渠道名称', width: 100, align: "center", valign: "middle" },
+			{ field: 'requestUrl', title: '渠道接口地址', width: 220, align: "center", valign: "middle" },
+			{
+				field: 'status', title: '状态', width: 40, align: "center", valign: "middle",
+				formatter: function (value, row, index) {
+					var channelSwitch;
+					if (value == 100) {
+						channelSwitch = '<div class="channelInfoSwitch" data-on="success" data-off="warning"><input type="checkbox" value="' + row.id + '" checked /></div>';
+					} else {
+						channelSwitch = '<div class="channelInfoSwitch" data-on="success" data-off="warning"><input type="checkbox" value="' + row.id + '"/></div>';
+					}
+					return channelSwitch;
+				}
+			},
+			// {field:'createTime',title:'创建时间',width:100,align:"center",valign:"middle",
+			//     formatter:function (value, row, index) {
+			//         return getDateStr(value);
+			//     }
+			// },
+			{
+				field: 'updateTime', title: '更新时间', width: 100, align: "center", valign: "middle",
+				formatter: function (value, row, index) {
+					return getDateStr(value);
+				}
+			},
+			{ field: 'updateUser', title: '操作员', width: 100, align: "center", valign: "middle" },
+			],
+			onClickRow: function (row, $element) {
+				$($element).addClass('table_info').siblings().removeClass('table_info');
+			},
+			onLoadSuccess: function (res) {
+				//加载成功时执行
+				$('.channelInfoSwitch').bootstrapSwitch();
+				//开关
+				$('.channelInfoSwitch').on('switch-change', function (e, data) {
+					if (!channelInfo_flag_btn) {
+						channelInfo_flag_btn = true;
+						return;
+					} else {
+						var el = $(data.el),
+							value = data.value;
+						var id = el[0].value;
+						var values;
+						if (value) {//on
+							values = 100;
+						} else {//offS
+							values = -100;
+						}
+						var params = { "id": id, "status": values };
+						_updateChannelInfoStatus(params);
+					}
+				});
+			},
+		});
+	}
+
+	//修改
+	function channelInfo_edit(id) {
+		Ewin.dialog({
+			url: '../../../html/channel/channelInfo/edit.html?id=' + id,
+			title: '修改'
+		});
+	}
+	//新增
+	function channelInfo_add() {
+		Ewin.dialog({
+			url: '../../../html/channel/channelInfo/add.html',
+			title: '新增'
+		});
+	}
+	// 修改状态
+	function _updateChannelInfoStatus(params) {
+		sendAjax('POST', host_url + "/cloud-web/chnChannelInfo/updateStatus", params, function (res) {
+			alertTips({ message: '恭喜你，操作成功！', id: 'alert-success' });
+			$("#channelInfo_Table").bootstrapTable('refresh');
+		});
+	}
+
+	// 删除
+	function channelInfo_delete(id) {
+		Ewin.confirm({ message: '是否删除该行？' }).on(function (e) {
+			if (e) {//成功
+				sendAjax('POST', host_url + "/cloud-web/chnChannelInfo/delete", { id: id }, function (res) {
+					alertTips({ message: '恭喜你，操作成功！', id: 'alert-success' });
+					$("#channelInfo_Table").bootstrapTable('refresh');
+				});
+			}
+		});
+	}
+</script>

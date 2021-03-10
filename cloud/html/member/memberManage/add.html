@@ -1,0 +1,218 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal bv-form" name="add_form" role="form" id="memberNet_add_form"
+			novalidate="novalidate">
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>平台名称：</label>
+				<div class="col-xs-6 col-sm-7">
+					<input name="cusName" class="form-control" type="text" placeholder="平台名称" autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>手机号：</label>
+				<div class="col-xs-6 col-sm-7 phoneNum">
+					<div class="input-group">
+						<span class="input-group-addon"><select id="memberNet_add_areaCode"
+								name="mobileArea"></select></span>
+						<input type="text" class="form-control" name="mobileNum" placeholder="手机号" autocomplete="off">
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>密码：</label>
+				<div class="col-xs-6 col-sm-7 phoneNum">
+					<div class="input-group">
+						<input type="password" class="form-control" name="loginPassword" placeholder="密码"
+							autocomplete="new-password">
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2">邮箱：</label>
+				<div class="col-xs-6 col-sm-7">
+					<input name="email" class="form-control" type="text" placeholder="邮箱" autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>IP白名单：</label>
+				<div class="col-xs-6 col-sm-7">
+					<textarea class="form-control" style="line-height: 1.5;height: 70px;width: 100%" id="add_sercityKey"
+						name="ip" placeholder="IP白名单"></textarea>
+				</div>
+			</div>
+			<div class="form-group">
+				<p class="red col-sm-offset-2">当有多个IP白名单地址时，请以“;”（英文输入法的;）分隔各IP地址，如：127.0.0.1;192.168.0.1
+					IP地址为“0.0.0.0”时表示不限IP地址访问</p>
+			</div>
+		</form>
+	</div>
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	<button type="button" class="btn btn-primary" onclick="memberNet_add_doSubmit(this)">保存</button>
+</div>
+<script type="text/javascript" src="../../../js/lib/jquery.md5.js"></script>
+<script>
+	$(function () {
+		memberNet_add_initValidate();
+		//手机区号
+		sendAjax("POST", host_url + "/cloud-web/pubTypeGroup/findPubTypeGroupList", { sysCode: 'Pub', groupName: 'sys_mobile_type_group' }, function (data) {
+			$.each(data.rows, function (i, item) {
+				$('#memberNet_add_areaCode').append('<option value="' + item.keyValue + '">' + item.keyName + ' ' + item.keyValue + '</option>');
+			});
+			$("#memberNet_add_areaCode").comboSelect();
+		})
+	})
+	//初始化验证框架
+	function memberNet_add_initValidate() {
+		//进行表单验证
+		$('#memberNet_add_form').bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: {
+				valid: 'glyphicon glyphicon-ok',
+				invalid: 'glyphicon glyphicon-remove',
+				validating: 'glyphicon glyphicon-refresh'
+			},
+			excluded: [':disabled'],
+			fields: {
+				cusName: {
+					message: '平台名称验证失败',
+					validators: {
+						notEmpty: {
+							message: '平台名称不能为空'
+						},
+						regexp: {
+							regexp: /^[\u4e00-\u9fa5A-Za-z0-9]+$/,
+							message: '平台名称只能输入中文、英文和数字'
+						},
+						stringLength: {
+							max: 32,
+							message: '平台名称不能超过32位'
+						}
+					}
+				},
+				email: {
+					verbose: false,
+					validators: {
+						regexp: {
+							regexp: /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
+							message: '邮箱格式有误'
+						},
+						stringLength: {
+							max: 32,
+							message: '邮箱不能超过32位'
+						}
+					}
+				},
+				mobileNum: {
+					verbose: false,
+					validators: {
+						notEmpty: {
+							message: '手机号码不能为空'
+						},
+						stringLength: {
+							min: 6,
+							max: 11,
+							message: '请输入6~11位手机号码'
+						},
+						regexp: {
+							regexp: /^[0-9]*$/,
+							message: '请输入正确的手机号码'
+						}
+					}
+				},
+				loginPassword: {
+					message: '密码验证失败',
+					validators: {
+						notEmpty: { message: '密码不能为空' },
+						stringLength: {
+							min: 6,
+							max: 32,
+							message: '长度必须在6-32之间'
+						},
+						regexp: {
+							regexp: /^[0-9a-zA-Z]+$/,
+							message: '密码只支持字母和数字'
+						}
+					}
+				},
+				ip: {
+					verbose: false,
+					validators: {
+						notEmpty: {
+							message: 'IP白名单不能为空'
+						},
+						stringLength: {
+							max: 256,
+							message: 'IP白名单不能超过256位'
+						},
+						callback: {
+							message: 'IP白名单格式不正确',
+							callback: function (value, validator) {
+								var length = value.length;
+								if (value.substring(length - 1) === ';') {
+									value = value.substring(0, length - 1)
+								}
+								value = value.split(';')
+								var flag = true;
+								var reg = /^(((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))\.){3}((\d{1,2})|(1\d{2})|(2[0-4]\d)|(25[0-5]))$/;
+								for (var i = 0; i < value.length; i++) {
+									if (!reg.test(value[i])) {
+										flag = false
+										break;
+									}
+								}
+								return flag;
+							}
+						}
+					}
+				}
+			}
+		})
+	}
+
+	function memberNet_add_doSubmit() {
+		var bv = $('#memberNet_add_form').data('bootstrapValidator').validate();
+		if (!bv.isValid()) { //验证不通过
+			return;
+		}
+		var paramForm = $("#memberNet_add_form").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = param.value.trim();
+		});
+		params.cusType = 10;
+		params.loginPassword = $.md5(params.loginPassword);
+
+		var flag = true;
+		var ip = params.ip;
+		var length = ip.length;
+		if (ip.substring(length - 1) === ';') {
+			ip = ip.substring(0, length - 1)
+		}
+		ip = ip.split(';')
+		var obj = {};
+		for (var i in ip) {
+			if (obj[ip[i]]) {
+				flag = false;
+			} else {
+				obj[ip[i]] = true;
+			}
+		}
+
+		if (!flag) {
+			Ewin.alert({ message: 'ip白名单有重复ip' })
+			return false;
+		}
+		sendAjax('POST', host_url + "/cloud-web/cusMemberInfo/addSubmit", params, function (res) {
+			Ewin.alert({
+				message: '恭喜你，操作成功！'
+			}).on(function (e) {
+				if (e) {
+					$('#memberNet_add_form').parents('.modal').modal('hide');
+					$("#member_tableAcct").bootstrapTable('refresh');
+				}
+			});
+		});
+	}
+</script>

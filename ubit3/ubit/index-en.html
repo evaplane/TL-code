@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<!-- 设置视口 响应式也要在手机显示 -->
+	<meta name="viewport"
+		content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>U币网</title>
+	<!-- 1. 如果只使用样式只要引入bootstrap.css -->
+	<link rel="stylesheet" href="./lib/bootstrap/css/bootstrap.css">
+	<link rel="stylesheet" href="./css/font.css">
+	<!-- 2. 引入自己主页index.css -->
+	<link rel="stylesheet" href="./less/index.css">
+	<link rel="stylesheet" href="./less/base.css">
+</head>
+
+<body>
+	<!-- 导航条区域 -->
+	<!-- data-spy="affix" 让元素固定定位吸顶 -->
+	<!-- data-offset-top="60" 滚动条滚到什么时候就开始吸顶 -->
+	<!-- data-offset-bottom="200" 滚动的容器距离网页底部多少以内就取消吸顶 来回切换有bug 不推荐使用 -->
+	<header>
+		<nav id="nav" class="navbar navbar-default" data-spy="affix" data-offset-top="81">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+						data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#"></a>
+					<div class="logoTitle">
+						<img src='img/Rocket.png' class="logo" alt="">
+						<span class="title">UBIT</span>
+					</div>
+				</div>
+
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+
+						<li><a href="#">Trade <span class="sr-only">(current)</span></a></li>
+						<li><a href="#">Fees</a></li>
+						<li><a href="#">Security</a></li>
+						<li><a href="#">Premier</a></li>
+						<li><a href="#">Refer</a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li><a href="#">Login</a></li>
+						<li><a href="#">Sign Up</a></li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+								aria-haspopup="true" aria-expanded="false">Language<span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="./index.html">中文</a></li>
+								<li><a href="./index-en.html">English</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<!-- 主图区域 -->
+	<section id="hero">
+		<div class="row">
+			<div class="col-sm-12 col-md-12">
+				<div class="hero-copy hero-copy--notransform">
+					<h1 style="font-weight: 700;margin-bottom: 30px;">A global digital currency exchange</h1>
+
+					<p>A global digital currency</p>
+					<p>A global digital currency exchange</p>
+					<div class="trade-info">
+						<a href="#" class="title" data-lang-key="view.home.verify.title">Get Started</a>
+						<!-- <div class='trade-show'>
+							<img class="little-arrow" src="img/arrow1.png" alt="">
+						</div> -->
+					</div>
+				</div>
+				<div id="search" class="hidden-xs">
+					<p class="note">
+						<span class="circle-note"></span>
+						<span class="note-refer" data-lang-key="view.home.note">Refer a friend and unlock free
+							Bitcoin</span>
+					</p>
+				</div>
+			</div>
+		</div>
+
+	</section>
+
+
+	<!-- 表格区域 -->
+	<section id="iconTable">
+		<div class="ticker-container">
+			<div class="ticker-table">
+				<ul class="okg-sm-hide ticker-table-head">
+					<li class="tab-item token hidden-xs" data-lang-key="view.ticker.token">Token</li>
+					<li class="tab-item price hidden-xs" data-lang-key="view.ticker.price">Price</li>
+					<li class="tab-item change hidden-xs" data-lang-key="view.ticker.change">Change</li>
+					<li class="tab-item trade hidden-xs" data-lang-key="view.ticker.trade">Trade</li>
+				</ul>
+				<ul class="ticker-table-content ticker-table-usd J_tickerContent">
+					<li class="content-item" data-symbol="BTC-USD">
+						<div class="item td-token">
+							<img class="icon_btc" src="./img/bitebi.png">
+							<div class="coin-name">
+								<span class="intro">Bitcoin</span>
+								<span class="all">BTC</span>
+							</div>
+						</div>
+						<div class="item td-price">
+							<div class="price-value">$16008.62</div>
+							<div class="color td-percent market-red">-0.52%</div>
+						</div>
+						<div class="item td-trade okg-sm-hide hidden-xs">
+							<a target="_self" href="#" class="td-buy" src="/account/register">Buy</a>
+						</div>
+					</li>
+					<li class="content-item" data-symbol="ETH-USD">
+						<div class="item td-token">
+							<img class="icon_btc" src="./img/ETC.png">
+							<div class="coin-name">
+								<span class="intro">Ethereum</span>
+								<span class="all">ETH</span>
+							</div>
+						</div>
+						<div class="item td-price">
+							<div class="price-value">$459.92</div>
+							<div class="color td-percent market-red">-1.52%</div>
+						</div>
+						<div class="item td-trade okg-sm-hide hidden-xs">
+							<a target="_self" href="#" class="td-buy" src="/account/register">Buy</a>
+						</div>
+					</li>
+					<li class="content-item" data-symbol="BCH-USD">
+						<div class="item td-token">
+							<img class="icon_btc" src="./img/BCH.png">
+							<div class="coin-name">
+								<span class="intro">Bitcoin Cash</span>
+								<span class="all">BCH</span>
+							</div>
+						</div>
+						<div class="item td-price">
+							<div class="price-value">$252.94</div>
+							<div class="color td-percent market-red">-2.78%</div>
+						</div>
+						<div class="item td-trade okg-sm-hide hidden-xs">
+							<a target="_self" href="#" class="td-buy" src="/account/register">Buy</a>
+						</div>
+					</li>
+					<li class="content-item" data-symbol="BSV-USD">
+						<div class="item td-token">
+							<img class="icon_btc" src="./img/BSV.png">
+							<div class="coin-name">
+								<span class="intro">Ripple</span>
+								<span class="all">XRP</span>
+							</div>
+						</div>
+						<div class="item td-price">
+							<div class="price-value">$0.2736</div>
+							<div class="color td-percent market-green">1.28%</div>
+						</div>
+						<div class="item td-trade okg-sm-hide hidden-xs">
+							<a target="_self" href="#" class="td-buy" src="/account/register">Buy</a>
+						</div>
+					</li>
+					<li class="content-item" data-symbol="LTC-USD">
+						<div class="item td-token">
+							<img class="icon_btc" src="./img/LTC.png">
+							<div class="coin-name">
+								<span class="intro">Litecoin</span>
+								<span class="all">LTC</span>
+							</div>
+						</div>
+						<div class="item td-price">
+							<div class="price-value">$63.21</div>
+							<div class="color td-percent market-red">-1.11%</div>
+						</div>
+						<div class="item td-trade okg-sm-hide hidden-xs">
+							<a target="_self" href="#" class="td-buy" src="/account/register">Buy</a>
+						</div>
+					</li>
+					<li class="content-item" data-symbol="ETC-USD">
+						<div class="item td-token">
+							<img class="icon_btc" src="./img/ETC.png">
+							<div class="coin-name">
+								<span class="intro">Ethereum Classic</span>
+								<span class="all">ETC</span>
+							</div>
+						</div>
+						<div class="item td-price">
+							<div class="price-value">$5.02</div>
+							<div class="color td-percent market-red">-1.04%</div>
+						</div>
+						<div class="item td-trade okg-sm-hide hidden-xs">
+							<a target="_self" href="#" class="td-buy" src="/account/register">Buy</a>
+						</div>
+					</li>
+					<li class="content-item" data-symbol="EOS-USD">
+						<div class="item td-token">
+							<img class="icon_btc" src="./img/EOS.png">
+							<div class="coin-name">
+								<span class="intro">Monero</span>
+								<span class="all">XMR</span>
+							</div>
+						</div>
+						<div class="item td-price">
+							<div class="price-value">$117.45</div>
+							<div class="color td-percent market-green">1.40%</div>
+						</div>
+						<div class="item td-trade okg-sm-hide hidden-xs">
+							<a target="_self" href="#" class="td-buy" src="/account/register">Buy</a>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</section>
+
+	<!-- 三部 -->
+	<section id="step">
+		<div class="trade-step">
+			<ul class="trade-content">
+				<li class="trade-security">
+					<div class="trade-img">
+						<img src="img/step1.png" alt="">
+					</div>
+					<div class="trade-info" style="width: 146px;">
+						<p class="title titleEn" data-lang-key="view.home.verify.title"
+							style="width:117px; font-size: 12px;padding-top: 9px;">Verify your profile</p>
+						<div class='trade-show'>
+							<img class="little-arrow" src="img/arrow1.png" alt="">
+						</div>
+					</div>
+				</li>
+				<li class="trade-execution">
+					<div class="trade-img">
+						<img src="img/step2.png" alt="">
+					</div>
+					<div class="trade-info" style="width: 146px;">
+						<p class="title titleEn" data-lang-key="view.trade.home.title"
+							style="width:117px; font-size: 12px;padding-top: 9px;">Add bank account</p>
+						<div class='trade-show'>
+							<img class="little-arrow" src="img/arrow1.png" alt="">
+						</div>
+					</div>
+				</li>
+				<li class="trade-reliability">
+					<div class="trade-img">
+						<img src="img/step3.png" alt="">
+					</div>
+					<div class="trade-info" style="width: 146px;">
+						<p class="title titleEn" data-lang-key="view.home.start.title"
+							style="width:117px; font-size: 12px;padding-top: 9px;"> Start trading</p>
+						<div class='trade-show'>
+							<img class="little-arrow" src="img/arrow1.png" alt="">
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</section>
+
+	<!-- 随时随地，即可交易 -->
+	<section class="download-outer">
+		<div class="download-content">
+			<div class="download-left">
+				<div class="title" data-lang-key="view.trade.anywhere">Trade Anywhere</div>
+				<div class="desc" data-lang-key="view.trade.download">Covering IOS, Android, Windows, Mac multiple
+					platforms, support full service functions.</div>
+				<div class="download-app">
+					<div class="down-btn google"><img src="img/google.png" alt="google download"></div>
+					<div class="down-btn apple"><img src="img/apple.png" alt="apple-download"></div>
+				</div>
+				<div class="download-desk">
+					<div class="mac">
+						<!-- <img src="img/desk-mac.png" alt="desk-mac"> -->
+						For MacOS
+					</div>
+					<div class="windows">
+						<!-- <img src="img/desk-windows.png" alt="desk-windows"> -->
+						For Windows
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- 安全区域 -->
+	<section class="top-grade-content">
+		<div class="grade-content one">
+			<div class="img-content">
+				<img src="img/xbit.png" alt="">
+			</div>
+			<div class="msg-content">
+				<p class="main-title" data-lang-key="view.home.uptime.title">Best Uptime</p>
+				<p class="main-subtitle" data-lang-key="view.home.uptime.desc">Downtimes are so 2017. With the best
+					uptime in the industry, you’ll be able to trade when the market is hot.</p>
+				<div class="grade-learn-more">
+					<p class="title" data-lang-key="view.home.start.title">Learn
+						More</p>
+					<div class='trade-show'>
+						<img class="little-arrow" src="img/arrow1.png" alt="">
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="grade-content two">
+			<div class="img-content">
+				<img src="img/lowfee.png" alt="">
+			</div>
+			<div class="msg-content">
+				<p class="main-title" data-lang-key="view.home.fees.title">Lowest Fees</p>
+				<p class="main-subtitle" data-lang-key="view.home.fees.subtitle">Trade cryptocurrency without worrying
+					about high fees</p>
+				<div class="grade-learn-more">
+					<p class="title" data-lang-key="view.home.start.title">Learn
+						More</p>
+					<div class='trade-show'>
+						<img class="little-arrow" src="img/arrow1.png" alt="">
+					</div>
+				</div>
+			</div>
+
+		</div>
+		<div class="grade-content three">
+			<div class="img-content">
+				<img src="img/lock.png" alt="">
+			</div>
+			<div class="msg-content">
+				<p class="main-title" data-lang-key="view.home.grade.title">Top Grade Security</p>
+				<p class="main-subtitle" data-lang-key="view.home.grade.desc">We keep your deposits safe through offline
+					storage, 24/7 transaction monitoring, and multi factor encryption.</p>
+				<div class="grade-learn-more">
+					<p class="title" data-lang-key="view.home.start.title">Learn More</p>
+					<div class='trade-show'>
+						<img class="little-arrow" src="img/arrow1.png" alt="">
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</section>
+
+	<!-- 免费注册区域 -->
+	<section class="bottom-cta--blue">
+		<div class="container">
+			<div class="msg-content">
+				<div class="msg-all-content">
+					<div class="list-content">
+						<img src="img/flag.png" alt="">
+						<p class="content-desc" data-lang-key="view.home.exchange.content.one">Founded in 2016</p>
+					</div>
+					<div class="list-content">
+						<img src="img/global.png" alt="">
+						<p class="content-desc" data-lang-key="view.home.exchange.content.three">Available in 190+
+							countries</p>
+					</div>
+				</div>
+				<div class="msg-all-content">
+					<div class="list-content">
+						<img src="img/line.png" alt="">
+						<p class="content-desc" data-lang-key="view.home.exchange.content.two">Billions of crypto
+							securely traded</p>
+					</div>
+					<div class="list-content">
+						<img src="img/hand.png" alt="">
+						<p class="content-desc" data-lang-key="view.home.exchange.content.four">Preference for tens of
+							millions of users</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</section>
+
+	<!-- <section class="freeBox  hidden-xs">
+		<div class="row free">
+			<div class="left">
+				<h3>A Cryptocurrency Exchange You Can Rely On</h3>
+				<div class="btn">
+					Sign Up Now </div>
+			</div>
+			<div class="right">
+				<img src="img/keyboard.png" alt="">
+			</div>
+		</div>
+	</section> -->
+	<section class="freeBox">
+		<div class="row free">
+			<div class="left">
+				<h3 style="letter-spacing:1px">Start trading digital assets</h3>
+				<p class="bottom-cta--bottom">The most complete digital transaction can be opened</p>
+				<div class="btnBox">
+					<div class="btn">
+						<a href="#" class="button register cta" data-t="bottom-cta.default.cta"
+							style="font-size: 10px;width: 120px;">Sign Up Now</a>
+					</div>
+					<div class="btn">
+						<a href="#" class="button register cta deal" style="font-size: 10px;width: 120px;">Start
+							Trade</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- 底部区域 -->
+	<footer id="footer">
+		<div class="container">
+			<div class="row screen hidden-xs">
+				<div class="col-sm-8 col-sm-offset-1 col-xs-offset-1">
+					<div class="row">
+						<!-- 小合作所有屏幕3列 xs-4 -->
+						<div class="col-xs-6 col-sm-3 cates ">
+							<p>ubit</p>
+							<p>About Us</p>
+							<p>Careers</p>
+							<p>Terms of Service</p>
+							<p>Privacy Policy Statement</p>
+							<p>Licenses</p>
+							<p>Law Enforcement Guidance</p>
+							<p>Compliance Disclosure</p>
+							<p>Customer’s Tax Responsibilities</p>
+							<p>Whistleblower Notice</p>
+							<p>Developer Grant Program</p>
+						</div>
+						<div class="col-xs-6 col-sm-3 cates">
+							<p>Product</p>
+							<p>Fees</p>
+							<p>premier</p>
+							<p>API</p>
+							<p>Bug Reports</p>
+						</div>
+						<div class="col-xs-6 col-sm-3 cates">
+							<p>Help</p>
+							<p>Support</p>
+							<p>FAQ</p>
+							<p>Status</p>
+							<p>Contact</p>
+						</div>
+						<div class="col-xs-6 col-sm-3 cates">
+							<p>Social</p>
+							<p>Blog</p>
+							<p>Facebook</p>
+							<p>Twitter</p>
+							<p>Medium</p>
+							<p>Telegram EN</p>
+							<p>Telegram Chinese</p>
+							<p>Telegram_ASEAN</p>
+							<p>Reddit</p>
+							<p>Linkedln</p>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-3 col-xs-11 col-xs-offset-2 col-sm-offset-0 business">
+					<div class="row">
+						<!-- 小合作所有屏幕3列 xs-4 -->
+						<p>Business Consulting</p>
+						<p class="phone">ubit@ubit.com</p>
+						<p class="time">09:00 - 19:00</p>
+						<!--微信客服-->
+						<div class="we">
+							<div class="we-customer">
+								<img src="./img/wechat.png" class="we-customer-service-ico" alt="">
+								<div class="we-customer-service-text">Service</div>
+							</div>
+							<!--公众号-->
+							<div class="we-public">
+								<img class="we-customer-service-ico" src="./img/wechat.png">
+								<div class="we-customer-service-text">
+									Tencent
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div class="row littlescreen visible-xs">
+				<div class="row">
+					<div class="col-xs-2 left">
+						<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+							Ubit
+						</a>
+					</div>
+					<div class="col-xs-10 right en">
+						<span>About Us</span>
+						<span>Careers</span>
+						<span>Terms of Service</span>
+						<span>Privacy Policy Statement</span>
+						<span>Licenses</span>
+						<span>Law Enforcement Guidance</span>
+						<span>Compliance Disclosure</span>
+						<span>Customer’s Tax Responsibilities</span>
+						<span>Whistleblower Notice</span>
+						<span>Developer Grant Program</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-2 left">
+						<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+							Product
+						</a>
+					</div>
+					<div class="col-xs-10 right en">
+						<span>Fees</span>
+						<span>premier</span>
+						<span>API</span>
+						<span>Bug Reports</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-2 left">
+						<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+							Help
+						</a>
+					</div>
+					<div class="col-xs-10 right en">
+						<span>Blog</span>
+						<span>Facebook</span>
+						<span>Twitter</span>
+						<span>Linkedln</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-2 left">
+						<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+							Help
+						</a>
+					</div>
+					<div class="col-xs-10 right en">
+						<span>Support</span>
+						<span>FAQ</span>
+						<span>Status</span>
+						<span>Contact</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-2 left">
+						<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+							Consult
+						</a>
+					</div>
+					<div class="col-xs-10 right">
+						<p class="phone">
+							ubit@ubit.com
+						</p>
+						<p class="time">
+							09:00 - 19:00
+						</p>
+						<!--微信客服-->
+						<div class="we">
+							<!--公众号-->
+							<div class="we-public">
+								<img class="we-customer-service-ico" src="./img/wechat.png">
+								<div class="we-customer-service-text">
+									Tencent
+								</div>
+							</div>
+							<div class="we-customer">
+								<img src="./img/wechat.png" class="we-customer-service-ico" alt="">
+								<div class="we-customer-service-text">Service</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+	<!-- 引入js因为使用js插件 -->
+	<script src="./lib/jquery/jquery.js"></script>
+	<script src="./lib/bootstrap/js/bootstrap.js"></script>
+	<script>
+		$(function () {
+			$(".item-input").on("focus", function () {
+				$(".input-title").addClass("up");
+			})
+			$(".item-input").on("blur", function () {
+				$(".input-title").removeClass("up");
+			})
+			// 手动初始化工具提示插件 手动调用tooltip函数
+			$('[data-toggle="tooltip"]').tooltip();
+		})
+	</script>
+</body>
+
+</html>

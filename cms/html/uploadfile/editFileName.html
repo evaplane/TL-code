@@ -1,0 +1,91 @@
+<form class="form-horizontal" name="add_newFileName_form" role="form" id="add_newFileName_form">
+    <div class="form-group">
+        <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>文件名称：</label>
+        <div class="col-xs-8 col-sm-8">
+            <input type="text" class="form-control" id="newFileName" name="newFileName" placeholder="请输入新的文件名称" autocomplete="off">
+        </div>
+    </div>
+
+</form>
+<div class="modal-footer" style="padding-bottom: 0;overflow: hidden;">
+    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+    <button type="button" class="btn btn-primary" id="submitnewFileName" onclick="_doSubmit_newFileName()">提交</button>
+</div>
+<script type="text/javascript">
+    $(function() {
+        _validateForm();
+        var filePathID_Name = $("#filePathID_Name").val();
+        $("#newFileName").val(filePathID_Name);
+    });
+
+    //初始化验证框架
+    function _validateForm() {
+        //进行表单验证
+        $('#add_newFileName_form').bootstrapValidator({
+            message: '输入值不合法',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            excluded: [':disabled'],
+            fields: {
+                newFileName: {
+                    message: '文件名称验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '文件名称不能为空'
+                        }
+                    }
+                },
+            }
+        });
+    }
+
+
+    var flag = 0;
+    var index = 1;
+
+    // 提交文件
+    function _doSubmit_newFileName() {
+        _validateForm();
+        var bv = $('#add_newFileName_form').data('bootstrapValidator').validate();
+        if (bv.isValid()) {
+            $('#submitnewFileName').attr('disabled', true);
+            var pathName = $("#filePathID_J").val();
+            var newFileNameStr = $("#newFileName").val();
+            var newFileName = newFileNameStr.replace(/\s/g, "");
+            var params = {
+                newFileName: newFileName,
+                pathName: pathName,
+                _sys_login_token: login_token()
+            }
+            sendAjax('POST', host_url + "/file/renameFile", params, function(res) {
+                console.log(res);
+                Ewin.alert({
+                    message: '恭喜你，操作成功！'
+                }).on(function(e) {
+                    console.log(e);
+                    if (e) {
+                        var newFileNameStr = $("#newFileName").val();
+                        var newFileNameStr = newFileNameStr.replace(/\s/g, "");
+                        var newFileNameStr_update = newFileNameStr.substring(newFileNameStr.length - 5);
+                        if (newFileNameStr_update == ".html") {
+                            var filePath_newFileNameStr = $('.uploadFileBox_left_main input[type=radio]:checked').attr("filepath");
+                            var newFileNameUpdate = filePath_newFileNameStr;
+                        } else {
+                            var newFileNameUpdate = folder_Url + newFileNameStr;
+                        }
+                        $("#edit_fileUrlStr").val("");
+                        $("#edit_fileUrlStr").val(newFileNameUpdate);
+                        $("#add_newFileName_form").parents(".modal").modal("hide");
+                        baseFolder();
+                        init();
+                        $(".table").bootstrapTable('refresh');
+                        $('#submit').attr('disabled', false);
+                    }
+                });
+            });
+        }
+    }
+</script>

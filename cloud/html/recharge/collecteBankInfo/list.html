@@ -1,0 +1,239 @@
+<link rel="stylesheet" href="../../../css/lib/daterangepicker-bs3.css">
+<link rel="stylesheet" href="../../../css/lib/bootstrap-table.min.css" />
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="eeCollectBankForm" name="eeCollectBankForm" role="form" class="form-inline">
+			    <div class="form-group">
+			        <label class="control-label">账户别名：</label>
+			        <input name="aliasName" class="form-control" type="text"  autocomplete="off"
+			               placeholder="账户别名">
+			    </div>
+			    <div class="form-group">
+			        <label class="control-label">开户姓名：</label>
+					<input type="text" name="acctName" class="form-control" placeholder="开户姓名" autocomplete="off"/>
+			    </div>
+			    <div class="form-group">
+			        <label class="control-label">银行卡号：</label>
+					<input type="text" name="acctNo" class="form-control" placeholder="银行卡号" autocomplete="off"/>
+			    </div>
+				<div class="form-group">
+					<label class="control-label">审核状态：</label>
+					<select id="member_authStatus_2" name="authStatus"></select>
+				</div>
+				<div class="form-group pull-right">
+					<button id="eeCollectBankButton" type="button" class="btn btn-primary refreshBtn">查询</button>
+					<button type="reset" class="btn btn-default">重置</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<button type="button" class="btn btn-primary marginBottom" onclick="eeCollectBank_add()"><i class="glyphicon glyphicon-plus"></i> 新增</button>
+			<table cellpadding="0" cellspacing="0" border="0" id="eeCollectBankTable"
+				   class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<style type="text/css">
+	#eeCollectBankTable.table {width: 2200px;}
+</style>
+<script type="text/javascript">
+    var cardUseTypeList = [];
+    $(function () {
+    	//账号用途
+    	sendAjax( "POST", host_url+"/cloud-web/pubTypeGroup/findPubTypeGroupList", {sysCode:'Card','groupName':'card_type'}, function(data){
+    		$.each(data.rows,function(i,item){
+    			cardUseTypeList.push({
+    				id:item.keyValue,
+    				text:item.keyName
+    			});
+    		});
+    	})
+    	eeCollectBankTable();
+		listOptionInit($('#member_authStatus_2'), MEMBER_AUDIT_STATUS);
+		$('#member_authStatus_2').comboSelect();
+		$(window).resize(function () {
+			$('#eeCollectBankTable').bootstrapTable('resetView');
+		});
+    });
+	// 搜索
+	$("#eeCollectBankButton").click(function () {
+		$("#eeCollectBankTable").bootstrapTable('refresh');
+	});
+    /*表格加载*/
+    function eeCollectBankTable() {
+        $('#eeCollectBankTable').bootstrapTable({
+            url: host_url + '/cloud-web/cardBankCardInfo/pageList',
+            method: 'GET',
+            dataType: "json",
+            contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+            pagination: true, //在表格底部显示分页工具栏
+            pageNumber: 1,
+			pageList: [20, 50, 100],
+            clickToSelect: true,
+            sidePagination: "server",//表格分页的位置
+            cache: false,//是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            locale: 'zh-CN',//中文支持
+            queryParamsType: 'limit',
+            queryParams: function (params) {
+                params.pageSize = params.limit;                        //页面大小
+                params.page = (params.offset / params.limit) + 1;   	 //页码
+                params._sys_login_token = _get_sys_login_token();
+				
+                var paramForm = $("#eeCollectBankForm").serializeArray();
+                $.each(paramForm, function (i, param) {
+                    params[param.name] = $.trim(param.value);
+                });
+				params.cardUseType=30
+                return params;
+            }, //参数
+            columns: [
+                {
+                    title: '序号', width: 30, align: "center", valign: "middle",
+                    formatter: function (value, row, index) {
+                        var options = $('#eeCollectBankTable').bootstrapTable('getOptions');
+                        return (options.pageNumber - 1) * options.pageSize + index + 1;
+                    }
+                },
+                {
+                    title: '操作', field: 'operation', align: "center", valign: "middle", width: 70,
+                    formatter: function (value, row, index) {
+						if(row.authStatus != 10){
+						return '<a class="fa fa-edit operation a_size"  title="编辑"   onclick="eeBankinfo_edit(\''+ row.id+'\',\''+ row.authStatus+'\')"></a> '+
+							   '<a class="fa fa-trash-o operation a_size" title="删除" onclick="eeBankinfo_del(\''+ row.id+'\')"></a> '; 
+						}
+                    }
+                },
+				{field: 'aliasName', title: '账户别名', width: 140, align: "center", valign: "middle"},
+				{field: 'acctName', title: '开户姓名', width: 100, align: "center", valign: "middle"},
+				// {field: 'acctLevel', title: '开放量级', width: 100, align: "center", valign: "middle",
+					// formatter: function(value, row, index) {
+					// 	return xjReplace(value);
+					// }},
+                {field: 'acctNo', title: '银行卡号', width: 200, align: "center", valign: "middle"},
+                {field: 'bankName', title: '开户银行', width: 120, align: "center", valign: "middle",
+                	formatter: function (value, row, index) {
+					  if(value == ''){
+					  	return '-';
+					  }else{
+					  	return value;
+					  }
+					}
+                },
+				{field: 'provinceName', title: '开户地址', width: 150, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+					    return value + '-' + row.cityName;
+					}
+				},
+				{field: 'subBankName', title: '支行行名', width: 150, align: "center", valign: "middle",
+						formatter: function (value, row, index) {
+							if(value ==''){
+								return '-' ;
+							}else{
+								return value;
+							}
+					    
+					}
+				},
+				{field: 'acctType', title: '账户类型', width: 60, align: "center", valign: "middle",
+					formatter:function(value,row,index){
+						return sys_getTitle_Id(value,ACCT_TYPE);
+					},
+				},
+				// {field: 'cardUseType', title: '账户用途', width: 60, align: "center", valign: "middle",
+				// 	formatter:function(value,row,index){
+				// 		return visualParams(cardUseTypeList, value);
+				// 	},
+				// },
+				// {field: 'cardLimit', title: '账号预警(元)', width: 80, align: "right", valign: "middle",
+				// 	formatter:function(value,row,index){
+				// 		if(value == '0'){
+				// 			return '';
+				// 		}else{
+				// 		return formatterMoney(value);	
+				// 		}
+				// 	}
+				// },
+				{field: 'authStatus', title: '审核状态', width: 100, align: "center", valign: "middle",
+					formatter:function(value,row,index){
+						return sys_getTitle_Id(value,MEMBER_AUDIT_STATUS);
+					},
+				},
+				{field: 'authCode', title: '审核人员', width: 100, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+				    	if(row.authStatus == '10'){
+				    		return '-';
+				    	}else{
+				    	    return value;
+				    	}
+				    }
+				},
+				{field: 'authTime', title: '审核时间', width: 150, align: "center", valign: "middle",
+					    formatter: function (value, row, index) {
+				    	if(row.authStatus == '10'){
+				    		return '-';
+				    	}else{
+				    	    return sys_formatDate(value,"yyyy-MM-dd HH:mm:ss");
+				    	}
+				    }
+				},
+				{field: 'authRemark', title: '审核备注', width: 200, align: "center", valign: "middle",
+							    formatter: function (value, row, index) {
+				    	if(row.authStatus == '10'){
+				    		return '-';
+				    	}else{
+				    	    return value;
+				    	}
+				    }
+				},
+				{field: 'updateUser', title: '更新人员', width: 100, align: "center", valign: "middle"},
+				{field: 'createTime', title: '创建时间', width: 150, align: "center", valign: "middle",
+					    formatter: function (value, row, index) {
+				        return sys_formatDate(value,"yyyy-MM-dd HH:mm:ss");
+				    }
+				},
+				{field: 'updateTime', title: '更新时间', width: 150, align: "center", valign: "middle",
+					    formatter: function (value, row, index) {
+				        return sys_formatDate(value,"yyyy-MM-dd HH:mm:ss");
+				    }
+				},
+				{field: 'remark', title: '备注', width: 150, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						if(value ==''){
+							return '-' ;
+						}else{
+							return value;
+						}
+					}
+				}
+            ],
+            onLoadSuccess: function (res) {},
+        });
+    }
+
+    //添加
+    function eeCollectBank_add() {
+        Ewin.dialog({url: '../../recharge/collecteBankInfo/add.html', title: '添加'});
+    }
+    //编辑
+    function eeBankinfo_edit(id,authStatus) {
+        Ewin.dialog({url: '../../recharge/collecteBankInfo/edit.html?id='+id + '&authStatus='+authStatus, title: '编辑'});
+    }
+    //删除
+    function eeBankinfo_del(id) {
+        Ewin.confirm({message: '是否删除该行？'}).on(function (e) {
+            if (e) {//成功
+                sendAjax('POST', host_url + "/cloud-web/cardBankCardInfo/delete", {'id': id}, function (res) {
+                    Ewin.alert({message: '恭喜你，操作成功！'}).on(function (e) {
+                        if (e) {
+                            //重新加载
+                            $("#eeCollectBankTable").bootstrapTable('refresh');
+                        }
+                    });
+                });
+            }
+        });
+    }
+</script>

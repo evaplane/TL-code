@@ -1,0 +1,267 @@
+
+<link rel="stylesheet" href="../../../css/lib/daterangepicker-bs3.css">
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form
+				id="corePayTransFinanceFlow"
+				name="queryForm"
+				role="form"
+				class="form-inline"
+			>
+				<div class="form-group">
+					<label class="control-label">平台流水号：</label>
+					<input
+						name="orderNo"
+						class="form-control"
+						type="text"
+						placeholder="平台流水号"
+						autocomplete="off"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="control-label">转出账户别名：</label>
+					<input
+						name="payAliasName"
+						class="form-control"
+						type="text"
+						placeholder="转出账户别名"
+						autocomplete="off"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="control-label">转出卡号：</label>
+					<input
+						name="payAcctNo"
+						class="form-control"
+						type="text"
+						placeholder="转出卡号"
+						autocomplete="off"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="control-label">创建时间：</label>
+					<input type="text" name="createTime" id="corePayTransFinanceFlow_CreateTime"
+						class="form-control dateranges" placeholder="创建时间" autocomplete="off" readonly="readonly" />
+				</div>
+				<div class="form-group">
+					<button
+						id="corePayTransFinanceFlow_button"
+						type="button"
+						class="btn btn-primary refreshBtn"
+					>
+						<i class="fa fa-search"></i> 查询
+					</button>
+					<button type="reset" class="btn btn-default">
+						<i class="fa fa-refresh"></i> 重置
+					</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<table
+				cellpadding="0"
+				cellspacing="0"
+				border="0"
+				id="corePayTransFinanceFlowTable"
+				class="table table-bordered table-hover"
+			></table>
+		</div>
+	</div>
+</div>
+<script>
+	var tradeTypeList,level;
+	var firstDay = sys_formatDate(new Date().setDate(1)) + ' 00:00:00';
+	var lastDay = getCurrentMonthLast() + ' 23:59:59';
+	$(function() {
+		$("#corePayTransFinanceFlow_CreateTime").daterangepicker({
+			timePicker: true,
+			timePickerIncrement: 1,
+			format: 'YYYY-MM-DD HH:mm:ss',
+			startDate: firstDay,
+			endDate: lastDay,
+			opens: 'center',
+		
+		}, function (start, end, label) {
+		
+		});
+		corePayTransFinanceFlowTable();
+		window.setInterval(function() {
+			$("#corePayTransFinanceFlowTable").bootstrapTable("refresh");
+		}, 30000);
+	});
+	// 搜索
+	$("#corePayTransFinanceFlow_button").click(function() {
+		var payAcceptTime = $('#corePayTransFinanceFlow_CreateTime').val();
+		if (payAcceptTime != '') {
+			payAcceptTimestart = payAcceptTime.split(' - ')[0];
+			payAcceptTimeEnd = payAcceptTime.split(' - ')[1];
+		
+			var start = parserDate(payAcceptTimestart),
+				end = parserDate(payAcceptTimeEnd);
+			if(start.getFullYear() != end.getFullYear()){
+				Ewin.alert({
+					message: "暂不支持跨年查询"
+				});
+				return;
+			}else if (start.getMonth()+1 != end.getMonth()+1) {
+				Ewin.alert({
+					message: "暂不支持跨月查询"
+				});
+				return;
+			}
+		}
+		$("#corePayTransFinanceFlowTable").bootstrapTable("refresh");
+	});
+	/*表格加载*/
+	function corePayTransFinanceFlowTable() {
+		$("#corePayTransFinanceFlowTable").bootstrapTable({
+			url: host_url + "/cloud-web/corePayMergeFlow/mergeList",
+			method: "GET",
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: "zh-CN", //中文支持
+			queryParamsType: "limit",
+			queryParams: function(params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = params.offset / params.limit + 1; //页码
+				params._sys_login_token = _get_sys_login_token();
+				var paramForm = $("#corePayTransFinanceFlow").serializeArray();
+				$.each(paramForm, function(i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				if (params.createTime) {
+					params.startTime = params.createTime.substring(0, 19);
+					params.endTime = params.createTime.substring(21, 41);
+				}
+				delete params.createTime;
+				params.status = 20;
+				return params;
+			}, //参数
+			columns: [
+				{
+					title: "序号",
+					field: "index",
+					width: 40,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						var pageSize = $(
+							"#corePayTransFinanceFlowTable"
+						).bootstrapTable("getOptions").pageSize;
+						var pageNumber = $(
+							"#corePayTransFinanceFlowTable"
+						).bootstrapTable("getOptions").pageNumber;
+						return pageSize * (pageNumber - 1) + index + 1;
+					}
+				},
+				{
+					title: "操作",
+					field: "operation",
+					align: "center",
+					valign: "middle",
+					width: 60,
+					formatter: function(value, row, index) {
+						return (
+							'<a  class="glyphicon glyphicon-lock" title="办理" onclick="workBench_trade_finance_flow_edit(\'' +
+							row.id +
+							"')\"></a> "
+						);
+					}
+				},
+				{
+					field: "orderNo",
+					title: "平台流水号",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "payAmt",
+					title: "归集金额(元)",
+					width: 100,
+					align: "right",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						return formatterMoney(value, 2);
+					}
+				},
+				{
+					field: "payAliasName",
+					title: "转出账户别名",
+					width: 80,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						if (value == "") {
+							return "-";
+						} else {
+							return value;
+						}
+					}
+				},
+				{
+					field: "payAcctName",
+					title: "转出户名",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "payAcctNo",
+					title: "转出卡号",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "payBankName",
+					title: "转出银行",
+					width: 70,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "createTime",
+					title: "创建时间",
+					width: 150,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						return getDateStr(value);
+					}
+				},
+				{
+					field: "operatorName",
+					title: "申请操作员",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				}
+			],
+			onClickRow: function(row, $element) {
+				$($element)
+					.addClass("table_info")
+					.siblings()
+					.removeClass("table_info");
+			}
+		});
+	}
+	//编辑
+	function workBench_trade_finance_flow_edit(id) {
+		Ewin.dialog({
+			url:
+				"../../../html/workBench/corePayTransFinanceFlow/edit.html?id=" +
+				id,
+			title: "归集办理"
+		});
+	}
+</script>

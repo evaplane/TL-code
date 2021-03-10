@@ -1,0 +1,212 @@
+﻿<div class="content_center">
+	<div class="content_center_content">
+		<table
+			cellpadding="0"
+			cellspacing="0"
+			border="0"
+			id="table"
+			class="table table-bordered"
+		>
+			<tbody class="basic">
+				<tr>
+					<td class="title col-sm-2">主键：</td>
+					<td class="col-sm-4" id="view_id"></td>
+					<td class="title col-sm-2">会员编号：</td>
+					<td class="col-sm-4" id="view_customerNo"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">平台名称：</td>
+					<td class="col-sm-4" id="view_customerName"></td>
+					<td class="title col-sm-2">客户订单号：</td>
+					<td class="col-sm-4" id="view_cusOrderNo"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">订单标题：</td>
+					<td class="col-sm-4" id="view_orderTitle"></td>
+					<td class="title col-sm-2">平台交易流水号：</td>
+					<td class="col-sm-4" id="view_orderNo"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">支付方式(10网银转账)：</td>
+					<td class="col-sm-4" id="view_payType"></td>
+					<td class="title col-sm-2">交易类型(10转账支付)：</td>
+					<td class="col-sm-4" id="view_tradeType"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">订单金额：</td>
+					<td class="col-sm-4" id="view_orderAmt"></td>
+					<td class="title col-sm-2">交易金额：</td>
+					<td class="col-sm-4" id="view_payAmt"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">手续费：</td>
+					<td class="col-sm-4" id="view_feeAmt"></td>
+					<td class="title col-sm-2">用户账号：</td>
+					<td class="col-sm-4" id="view_userAcct"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">用户真实姓名：</td>
+					<td class="col-sm-4" id="view_userName"></td>
+					<td class="title col-sm-2">用户级别：</td>
+					<td class="col-sm-4" id="view_userLevel"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">渠道编码：</td>
+					<td class="col-sm-4" id="view_channelCode"></td>
+					<td class="title col-sm-2">渠道流水号：</td>
+					<td class="col-sm-4" id="view_channelFlowNo"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">交易完成时间：</td>
+					<td class="col-sm-4" id="view_payTime"></td>
+					<td class="title col-sm-2">付款方：账号：</td>
+					<td class="col-sm-4" id="view_payAcctNo"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">付款方：名称：</td>
+					<td class="col-sm-4" id="view_payAcctName"></td>
+					<td class="title col-sm-2">付款方：银行名称：</td>
+					<td class="col-sm-4" id="view_payBankName"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">收款方：账户类型：</td>
+					<td class="col-sm-4" id="view_recAcctType"></td>
+					<td class="title col-sm-2">收款方：账号：</td>
+					<td class="col-sm-4" id="view_recAcctNo"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">收款方：名称：</td>
+					<td class="col-sm-4" id="view_recAcctName"></td>
+					<td class="title col-sm-2">收款方：银行名称：</td>
+					<td class="col-sm-4" id="view_recBankName"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">收款方：支行名称：</td>
+					<td class="col-sm-4" id="view_recSubBankName"></td>
+					<td class="title col-sm-2">收款方：附言：</td>
+					<td class="col-sm-4" id="view_recRemark"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">通知地址：</td>
+					<td class="col-sm-4" id="view_notifyUrl"></td>
+					<td class="title col-sm-2">扩展内容：</td>
+					<td class="col-sm-4" id="view_extrasContent"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">交易状态：</td>
+					<td class="col-sm-4" id="view_status"></td>
+					<td class="title col-sm-2">
+						复合状态（10待复合、100已复合、110不复合）：
+					</td>
+					<td class="col-sm-4" id="view_authStatus"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">复合描述：</td>
+					<td class="col-sm-4" id="view_authRemark"></td>
+					<td class="title col-sm-2">复合人账号：</td>
+					<td class="col-sm-4" id="view_authCode"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">复合人名称：</td>
+					<td class="col-sm-4" id="view_authName"></td>
+					<td class="title col-sm-2">复合时间：</td>
+					<td class="col-sm-4" id="view_authTime"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">操作员账号：</td>
+					<td class="col-sm-4" id="view_operatorCode"></td>
+					<td class="title col-sm-2">返回码：</td>
+					<td class="col-sm-4" id="view_returnCode"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">返回描述：</td>
+					<td class="col-sm-4" id="view_returnMsg"></td>
+					<td class="title col-sm-2">创建时间：</td>
+					<td class="col-sm-4" id="view_createTime"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">操作员名称：</td>
+					<td class="col-sm-4" id="view_operatorName"></td>
+					<td class="title col-sm-2">领单时间：</td>
+					<td class="col-sm-4" id="view_operatorTime"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">班次编码：</td>
+					<td class="col-sm-4" id="view_routeCode"></td>
+					<td class="title col-sm-2">班次名称：</td>
+					<td class="col-sm-4" id="view_routeName"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">更新时间：</td>
+					<td class="col-sm-4" id="view_updateTime"></td>
+				</tr>
+			</tbody>
+		</table>
+		<div class="modal-footer" id="close">
+			<button
+				type="button"
+				class="btn btn-primary cancel"
+				data-dismiss="modal"
+			>
+				关闭
+			</button>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$(function() {
+		var view_id = getQueryString("id");
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/corePayTradeFlow/view",
+			{ id: view_id },
+			function(res) {
+				var data = res.rows;
+
+				$("#view_id").html(data.id);
+				$("#view_customerNo").html(data.customerNo);
+				$("#view_customerName").html(data.customerName);
+				$("#view_cusOrderNo").html(data.cusOrderNo);
+				$("#view_orderTitle").html(data.orderTitle);
+				$("#view_orderNo").html(data.orderNo);
+				$("#view_payType").html(data.payType);
+				$("#view_tradeType").html(data.tradeType);
+				$("#view_orderAmt").html(data.orderAmt);
+				$("#view_payAmt").html(data.payAmt);
+				$("#view_feeAmt").html(data.feeAmt);
+				$("#view_userAcct").html(data.userAcct);
+				$("#view_userName").html(data.userName);
+				$("#view_userLevel").html(data.userLevel);
+				$("#view_channelCode").html(data.channelCode);
+				$("#view_channelFlowNo").html(data.channelFlowNo);
+				$("#view_payTime").html(data.payTime);
+				$("#view_payAcctNo").html(data.payAcctNo);
+				$("#view_payAcctName").html(data.payAcctName);
+				$("#view_payBankName").html(data.payBankName);
+				$("#view_recAcctType").html(data.recAcctType);
+				$("#view_recAcctNo").html(data.recAcctNo);
+				$("#view_recAcctName").html(data.recAcctName);
+				$("#view_recBankName").html(data.recBankName);
+				$("#view_recSubBankName").html(data.recSubBankName);
+				$("#view_recRemark").html(data.recRemark);
+				$("#view_notifyUrl").html(data.notifyUrl);
+				$("#view_extrasContent").html(data.extrasContent);
+				$("#view_status").html(data.status);
+				$("#view_authStatus").html(data.authStatus);
+				$("#view_authRemark").html(data.authRemark);
+				$("#view_authCode").html(data.authCode);
+				$("#view_authName").html(data.authName);
+				$("#view_authTime").html(data.authTime);
+				$("#view_operatorCode").html(data.operatorCode);
+				$("#view_returnCode").html(data.returnCode);
+				$("#view_returnMsg").html(data.returnMsg);
+				$("#view_createTime").html(data.createTime);
+				$("#view_operatorName").html(data.operatorName);
+				$("#view_operatorTime").html(data.operatorTime);
+				$("#view_routeCode").html(data.routeCode);
+				$("#view_routeName").html(data.routeName);
+				$("#view_updateTime").html(data.updateTime);
+			}
+		);
+	});
+</script>

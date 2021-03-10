@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <g fill="none" transform="translate(0 1)">
+    <polygon fill="#000" points="16 28 16 28 16 28"/>
+    <polygon fill="#FFE1CC" points="9.789 8 2 8 8 13.199"/>
+    <polygon fill="#FFCFAE" points="2 8 10 8 8 0"/>
+    <polygon fill="#FFCFAE" points="9.789 8 16 0 12.333 0"/>
+    <polygon fill="#FFCFAE" points="22 8 30 8 24 0"/>
+    <polygon fill="#FFCFAE" points="16 0 22 8 20 0"/>
+    <polygon fill="#FFB266" points="0 8 4.683 16 2 8"/>
+    <polygon fill="#FFB266" points="22 8 16 15.426 16 30 16 30 24 13.842"/>
+    <polygon fill="#FFAF5F" points="30 8 22 8 23.277 14"/>
+    <polygon fill="#FFAF5F" points="30 8 27.631 14.557 32 8"/>
+    <polygon fill="#FFAF5F" points="8.686 13.811 2 8 4.683 16 16 30"/>
+    <polygon fill="#FFBF8A" points="22 8 9.789 8 16 16"/>
+    <polygon fill="#FF9C39" points="16 16 9.789 7.794 8 13.349 16 30"/>
+    <polygon fill="#FF9C39" points="30 8 23.277 13.842 16 30 27.569 14.744"/>
+    <polygon fill="#FFF2E9" points="4.526 0 2 8 8 0"/>
+    <polygon fill="#FFF2E9" points="20 0 22 8 24 .056"/>
+    <polygon fill="#FFF2E9" points="24 0 30 8 27.806 0"/>
+    <polygon fill="#FFEADC" points="8 0 9.846 8 12.333 0"/>
+    <polygon fill="#FFEADC" points="0 8 2 8 4.526 0"/>
+    <polygon fill="#FFEADC" points="27.806 0 30 8 32 8"/>
+  </g>
+</svg>

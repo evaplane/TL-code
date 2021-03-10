@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title></title>
+  </head>
+  <body style="background: #20212A">
+    <script>
+      function getCookie(key) {
+        var reg = new RegExp('(^|;\\s*)' + key + '=([^;]*)(;|$)'),
+          matchedArr = document.cookie.match(reg);
+        if (matchedArr && matchedArr[2]) {
+          var val = matchedArr[2];
+          return matchedArr[2];
+        }
+        return '';
+      }
+      var lang = getCookie('tlan') || getCookie('zlan');
+      if (!lang || lang === 'cn') {
+        window.location.href = '/cn/';
+      } else {
+        window.location.href = '/' + lang + '/';
+      }
+    </script>
+  </body>
+</html>

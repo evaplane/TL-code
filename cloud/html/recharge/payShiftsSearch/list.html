@@ -1,0 +1,285 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<div class="clearfix"></div>
+		<div id="allPayShiftSearchListBox"></div>
+	</div>
+</div>
+<style>
+	.popover-content {
+		width: 250px;
+	}
+
+	.popover {
+		word-break: break-word;
+	}
+
+	input {
+		font-weight: normal;
+	}
+</style>
+<script type="text/javascript">
+	$(function () {
+		getAllPayShiftsSearch();
+	});
+
+	function getAllPayShiftsSearch() {
+		sendAjax("GET", host_url + "/cloud-web/cardRoutePoolInfo/viewLoad", { cardUseType: 20 }, function (res) {
+			var data = res.rows.list;
+
+			var str = "";
+			$.each(data, function (k, v) {
+				str += '<div class="content_center_table">';
+				str += '<div class="content_center_title">' + v.routeName + ' | ' + v.timeLimit;
+
+
+				str += '<form id="payShiftsSearchForm_' + v.id + '" name="accountFlowForm" role="form" class="form-inline">' +
+					'<div class="form-group">' +
+					'<label class="control-label">银行账号：</label>' +
+					'<select id="payShiftsSearch_acctNo' + v.id + '" name="acctNo"></select>' +
+					'</div>' +
+					'<div class="form-group">' +
+					'<label class="control-label">财务人员：</label>' +
+					'<select id="payShiftsSearch_operatorName' + v.id + '" name="operatorCode"></select>' +
+					'</div>' +
+					'<div class="form-group">' +
+					'<label class="control-label">出金限额：</label>' +
+					'<select id="payShiftsSearch_amtCode' +
+					v.id +
+					'" name="amtCode"></select>' +
+					"</div>" +
+					'<div class="form-group">' +
+					'<label class="control-label">状态：</label>' +
+					'<select id="payShiftsSearch_status' + v.id + '" name="status"></select>' +
+					'</div>' +
+					'<div class="form-group pull-right">' +
+					'<button type="button" class="btn btn-primary refreshBtn" onclick="payShiftsSearch(' + v.id + ')">查询</button>' +
+					'<button type="reset" class="btn btn-default marginLeft">重置</button>' +
+					'</div>' +
+					'<div class="clearfix"></div>' +
+					'</form>';
+
+
+				str += '</div>';
+				str += '<table cellpadding="0" cellspacing="0" border="0" id="payShiftsSearch_' + v.id + '" class="table payShiftsSearch table-bordered table-hover"></table>';
+				str += '</div>';
+			})
+			$("#allPayShiftSearchListBox").html(str);
+
+			for (var i = 0; i < data.length; i++) {
+				getPayOperatorName('payShiftsSearch_operatorName' + data[i].id, data[i].routeCode); //财务人员
+				getPayBankByRouteCode('payShiftsSearch_acctNo' + data[i].id, data[i].routeCode); //银行账号
+				listOption($("#payShiftsSearch_status" + data[i].id), SYS_STATUS);
+				$("#payShiftsSearch_status" + data[i].id).comboSelect();
+
+				listOptionInit(
+					$("#payShiftsSearch_amtCode" + data[i].id),
+					PAY_QUOTA
+				);
+				$("#payShiftsSearch_amtCode" + data[i].id).comboSelect();
+				payShiftsSearch_initTable('payShiftsSearch_' + data[i].id, data[i].merchList, data[i].routeCode, data[i].id);
+			}
+		})
+	}
+	// 查询
+	function payShiftsSearch(obj) {
+		var paramForm = $("#payShiftsSearchForm_" + obj).serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		params.cardUseType = 20;
+		sendAjax("Post", host_url + "/cloud-web/cardRoutePoolInfo/viewLoad", params, function (res) {
+			var data = res.rows.list;
+
+			for (var i = 0; i < data.length; i++) {
+				if (obj == data[i].id) {
+					$("#payShiftsSearch_" + data[i].id).bootstrapTable('refresh');
+					payShiftsSearch_initTable('payShiftsSearch_' + data[i].id, data[i].merchList, data[i].routeCode, data[i].id);
+				}
+			}
+		});
+	}
+
+	// 财务人员
+	function getPayOperatorName(obj, code) {
+		sendAjax('POST', host_url + "/cloud-web/cardRoutePoolMerch/queryGroupOperatorCode", { 'routeCode': code, 'cardUseType': 20 }, function (res) {
+			var lists = '<option value="">全部</option>';
+			$.each(res.rows, function (i, item) {
+				lists += '<option value="' + item.operatorCode + '">' + item.operatorName + '</option>';
+			});
+			$("#" + obj).append(lists);
+			$("#" + obj).comboSelect();
+		});
+	}
+	// 银行账号
+	function getPayBankByRouteCode(obj, code) {
+		sendAjax("get", host_url + "/cloud-web/cardRoutePoolMerch/loadBankByRouteCode", { 'routeCode': code, 'cardUseType': 20 }, function (res) {
+			var str = '<option value="">全部</option>'
+			$.each(res.rows, function (i, item) {
+				str += '<option value="' + item.acctNo + '" aliasName="' + item.aliasName + '">' + item.aliasName + '| ' + item.acctNo + '</option>';
+			});
+			$("#" + obj).append(str);
+			$("#" + obj).comboSelect();
+		})
+	}
+	//判断是否为手动修改产品状态按钮
+	var flag_btn = true;
+	/*表格加载*/
+	function payShiftsSearch_initTable(obj, arr, routeCode,routeName, objId) {
+		$("#" + obj).bootstrapTable('destroy');
+		$("#" + obj).bootstrapTable({
+			data: arr,
+			locale: 'zh-CN', //中文支持
+			clickToSelect: true,
+			columns: [
+				// {title:'全选',checkbox:true,width:30,align:"center",valign:"middle"},
+				{
+					title: '序号',
+					width: 30,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return index + 1;
+					}
+				},
+				{
+					title: '操作', field: 'operation', align: "center", valign: "middle", width: 60,
+					formatter: function (value, row, index) {
+						return '<a class="fa fa-trash-o a_size"  onclick="payShiftsSearchDel(\'' + row.id + '\')"></a> '+
+						'<a class="operation a_size" title="账户期初" onclick="payShiftsSearchSet(\'' + row.id+ '\',\'' + row.aliasName + "')\"><img width='18' src='../../../img/cz.svg'></a> ";
+					}
+				},
+				{ field: 'aliasName', title: '账号别名', width: 100, align: "center", valign: "middle" },
+				{
+					field: 'acctNo',
+					title: '银行账号',
+					width: 180,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "amtCode",
+					title: "出金限额",
+					width: 80,
+					align: "cenetr",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return visualParams(PAY_QUOTA, value);
+					}
+				},
+				{
+					field: 'cardUseType', title: '账号用途', width: 80, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						return sys_getTitle_Id(value, DEBIT_CARD);
+					},
+				},
+				{
+					field: 'operatorName',
+					title: '财务人员',
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: 'groupName',
+					title: '财务组长',
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: 'status', title: '状态', width: 80, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						var shiftSwitch;
+						if (value == 100) {
+							shiftSwitch = '<div class="shiftSwitch ' + obj + '" data-on="success" data-off="warning"><input type="checkbox" value="' + row.id + '" checked /></div>';
+						} else {
+							shiftSwitch = '<div class="shiftSwitch ' + obj + '" data-on="success" data-off="warning"><input type="checkbox" value="' + row.id + '"/></div>';
+						}
+						return shiftSwitch;
+					}
+				},
+				{field:'dayStartAmt',title:'账户期初余额(元)',width:60,align:"center",valign:"middle",
+					formatter:function(value,row,index){
+						return formatterMoney(value);
+					},
+				},
+				{
+					field: 'updateTime', title: '更新时间', width: 130, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						return sys_formatDate(value, "yyyy-MM-dd HH:mm:ss");
+					}
+				}
+			],
+			// onDblClickRow: function (res) {
+			// 	shiftsView(res.id);
+			// },
+		});
+		if (arr) {
+			//加载成功时执行  
+			$('.' + obj).bootstrapSwitch();
+			//开关
+			$('.' + obj).on('switch-change', function (e, data) {
+				if (!flag_btn) {
+					flag_btn = true;
+					return;
+				} else {
+					var el = $(data.el),
+						value = data.value;
+					var id = el[0].value;
+					var values;
+					if (value) {//on
+						values = 100;
+					} else {//off
+						values = -100;
+					}
+
+					var params = { "id": id, "status": values };
+					sendAjax('POST', host_url + "/cloud-web/cardRoutePoolMerch/updateStatus", params, function (res) {
+						alertTips({ message: '恭喜你，操作成功！', id: 'alert-success' });
+						getAllPayShiftsSearch();
+					});
+				}
+			});
+			$(".cusList").popover({
+				container: "body",
+				trigger: "hover"
+			}).on('show.bs.popover', function () {
+				$(this).addClass("popover_open");
+			}).on('hide.bs.popover', function () {
+				$(this).removeClass("popover_open");
+			});
+			$(".cusList").click(function () {
+				if ($(this).hasClass("popover_open")) {
+					$(this).popover("hide")
+				} else {
+					$(".popover_open").popover("hide");
+					$(this).popover("show");
+				}
+				var e = arguments.callee.caller.arguments[0] || event;
+				e.stopPropagation();
+			});
+		}
+		$("#" + obj).bootstrapTable('hideLoading');
+	}
+	// 删除
+	function payShiftsSearchDel(id) {
+		Ewin.confirm({ message: "确定要删除该配置吗？" }).on(function (e) {
+			if (e) {
+				sendAjax("post", host_url + "/cloud-web/cardRoutePoolMerch/delete", { 'id': id }, function (res) {
+					Ewin.alert({ message: '恭喜你，操作成功！' }).on(function (e) {
+						getAllPayShiftsSearch();
+					})
+				})
+			}
+		})
+	}
+	// 账户期初
+	function payShiftsSearchSet(id,aliasName){
+		Ewin.dialog({
+			url:
+				"../../../html/recharge/payShiftsSearch/set.html?id=" +id+'&aliasName='+aliasName,
+			title: "账户期初"
+		});
+	}
+</script>

@@ -1,0 +1,57 @@
+﻿<table cellpadding="0" cellspacing="0" border="0" id="table" class="table table-bordered">
+    <tbody class="basic">
+        <tr>
+            <td class='title col-sm-4'>ID：</td>
+            <td class="col-sm-8" id="view_id"></td>
+        </tr>
+        <tr>
+            <td class='title col-sm-4'>创建时间：</td>
+            <td class="col-sm-8" id="view_createTime"></td>
+        </tr>
+        <tr>
+            <td class='title col-sm-4'>账号状态 100启用 -100停用：</td>
+            <td class="col-sm-8" id="view_status"></td>
+        </tr>
+        <tr>
+            <td class='title col-sm-4'>银行卡号：</td>
+            <td class="col-sm-8" id="view_bankNo"></td>
+        </tr>
+        <tr>
+            <td class='title col-sm-4'>银行账户户名：</td>
+            <td class="col-sm-8" id="view_bankUserName"></td>
+        </tr>
+        <tr>
+            <td class='title col-sm-4'>银行名称：</td>
+            <td class="col-sm-8" id="view_bankName"></td>
+        </tr>
+        <tr>
+            <td class='title col-sm-4'>操作员：</td>
+            <td class="col-sm-8" id="view_operator"></td>
+        </tr>
+        <tr>
+            <td class='title col-sm-4'>更新时间：</td>
+            <td class="col-sm-8" id="view_updateTime"></td>
+        </tr>
+    </tbody>
+</table>
+<div class="modal-footer" id="close">
+    <button type="button" class="btn btn-primary cancel" data-dismiss="modal">关闭</button>
+</div>
+
+<script type="text/javascript">
+$(function(){
+	var view_id = getQueryString('id');
+	sendAjax( 'POST', host_url+"/html/payeeBankinfo/view", {'id':view_id}, function(res){
+		var data=res.rows;
+
+		$('#view_id').html(data.id);
+		$('#view_createTime').html(data.createTime);
+		$('#view_status').html(data.status);
+		$('#view_bankNo').html(data.bankNo);
+		$('#view_bankUserName').html(data.bankUserName);
+		$('#view_bankName').html(data.bankName);
+		$('#view_operator').html(data.operator);
+		$('#view_updateTime').html(data.updateTime);
+	});
+});
+</script>

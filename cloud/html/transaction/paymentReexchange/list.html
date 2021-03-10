@@ -1,0 +1,272 @@
+<link rel="stylesheet" href="../../../css/lib/daterangepicker-bs3.css">
+<link rel="stylesheet" href="../../../css/lib/bootstrap-table.min.css" />
+<div class="content_center paymentReexchange">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="paymentReexchange_Form" name="paymentReexchange_Form" role="form" class="form-inline">
+				<div class="form-group customerNo">
+					<label class="control-label">平台号：</label>
+					<input name="customerNo" class="form-control" type="text" placeholder="平台号" autocomplete="off">
+				</div>
+				<div class="form-group customerName">
+					<label class="control-label">平台名称：</label>
+					<input name="customerName" class="form-control" type="text" placeholder="平台名称" autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">客户单号：</label>
+					<input name="cusOrderNo" class="form-control" type="text" placeholder="客户单号" autocomplete="off">
+                </div>
+				<div class="form-group">
+					<label class="control-label">平台流水号：</label>
+					<input name="orderNo" class="form-control" type="text" placeholder="平台流水号" autocomplete="off">
+                </div>
+				<div class="form-group">
+					<label class="control-label">原平台流水号：</label>
+					<input name="oldOrderNo" class="form-control" type="text" placeholder="原平台流水号" autocomplete="off">
+                </div>
+				<div class="form-group">
+					<label class="control-label">渠道编码：</label>
+					<input name="channelCode" class="form-control" type="text" placeholder="渠道编码" autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">商户号：</label>
+					<input name="merchantNo" class="form-control" type="text" placeholder="商户号" autocomplete="off">
+                </div>
+				<div class="form-group">
+					<label class="control-label">商户名称：</label>
+					<input name="merchantName" class="form-control" type="text" placeholder="商户名称" autocomplete="off">
+                </div>
+				<div class="form-group">
+					<label class="control-label">渠道流水号：</label>
+					<input name="channelFlowNo" class="form-control" type="text" placeholder="渠道流水号" autocomplete="off">
+				</div>
+				<!-- <div class="form-group">
+					<label class="control-label">冲账状态：</label>
+					<select class="form-control" id="paymentReexchange_status" name="status"></select>
+				</div> -->
+                <div class="form-group">
+					<label class="control-label">创建时间：</label>
+					<input type="text" name="createTime" id="paymentReexchange_time" class="form-control dateranges" readonly="readonly"
+						placeholder="创建时间" autocomplete="off" />
+				</div>
+				<div class="form-group pull-right">
+					<button id="paymentReexchange_button" type="button" class="btn btn-primary refreshBtn"><i class="fa fa-search"></i>查询</button>
+					<button type="button" class="btn btn-default" onclick="paymentReexchange_reset()"><i class="fa fa-refresh"></i> 重置</button>
+                </div>
+                
+                <div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<table cellpadding="0" cellspacing="0" border="0" id="paymentReexchange_Table" class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<style>
+	#paymentReexchange_Table.table{
+		width: 3000px;
+	}
+</style>
+<script>
+	var firstDay = sys_formatDate(new Date().setDate(1))+' 00:00:00';
+	var lastDay = getCurrentMonthLast() + ' 23:59:59';
+	$(function () {
+		paymentReexchange_Table();
+		listOptionInit($('#paymentReexchange_status'), C_STATUS);
+		$('#paymentReexchange_status').comboSelect();
+        // 初始化双日历日期控件
+		$('#paymentReexchange_time').val(firstDay + ' - ' + lastDay);
+		$('#paymentReexchange_time').daterangepicker({
+			timePicker: true,
+			timePickerIncrement: 1,
+			format: 'YYYY-MM-DD HH:mm:ss',
+			startDate: firstDay,
+			endDate: lastDay,
+			opens: 'center',
+
+		}, function (start, end, label) {
+
+		});
+	});
+	// 重置
+	function paymentReexchange_reset(){
+		$("#paymentReexchange_Form")[0].reset();
+		$('#paymentReexchange_time').val(firstDay + ' - ' + lastDay);
+	}
+	// 搜索
+	$("#paymentReexchange_button").click(function () {
+		var paymentReexchangeTime = $("#paymentReexchange_time").val();
+		if (paymentReexchangeTime != "") {
+			payAcceptTimestart = paymentReexchangeTime.split(" - ")[0];
+			payAcceptTimeEnd = paymentReexchangeTime.split(" - ")[1];
+			
+			var start = parserDate(payAcceptTimestart),
+				end = parserDate(payAcceptTimeEnd);
+			if(start.getFullYear() != end.getFullYear()){
+				Ewin.alert({
+					message: "暂不支持跨年查询"
+				});
+				return;
+			}else if (start.getMonth()+1 != end.getMonth()+1) {
+				Ewin.alert({
+					message: "暂不支持跨月查询"
+				});
+				return;
+			}
+		}
+		$("#paymentReexchange_Table").bootstrapTable('refresh');
+	});
+	/*表格加载*/
+	function paymentReexchange_Table() {
+		$('#paymentReexchange_Table').bootstrapTable({
+			url: host_url + '/cloud-web/gatewayTransOrderFlow/pageList',
+			method: 'GET',
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏  
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: 'zh-CN', //中文支持
+			queryParamsType: 'limit',
+			queryParams: function (params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = (params.offset / params.limit) + 1; //页码
+				params._sys_login_token = _get_sys_login_token();
+				
+				var paramForm = $("#paymentReexchange_Form").serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				params.status=110;
+				var paymentTime = firstDay + ' - ' + lastDay;
+				params.createTime = params.createTime ? params.createTime : paymentTime;
+				if ($('#paymentReexchange_time').val() == '') {
+					params.startTime = firstDay;
+					params.endTime = lastDay;
+					delete params.createTime;
+				} else {
+					params.startTime = params.createTime.substr(0, 10) + params.createTime.substring(10,19);
+					params.endTime = params.createTime.substr(21)
+					delete params.createTime;
+				}
+				return params;
+			}, //参数  
+			columns: [{
+					title: '序号',
+					width: 30,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						var options = $('#paymentReexchange_Table').bootstrapTable("getOptions");
+						return (options.pageNumber - 1) * (options.pageSize) + index + 1;
+					}
+				},
+                {
+					title: '平台号',
+					field: 'customerNo',
+					width: 80,
+					align: "center",
+					valign: "middle",
+				},
+				{field:'customerName',title:'平台名称',width:80,align:"center",valign:"middle"},
+				{field:'cusOrderNo',title:'客户单号',width:120,align:"center",valign:"middle"},
+				{field:'orderNo',title:'平台流水号',width:120,align:"center",valign:"middle"},
+				{field:'oldOrderNo',title:'原平台流水号',width:120,align:"center",valign:"middle"},
+				// {field:'tradeType',title:'交易类型',width:50,align:"center",valign:"middle",},
+				{field:'orderAmt',title:'订单金额(元)',width:50,align:"right",valign:"middle",
+					formatter: function(value, row, index){
+						return formatterMoney_edit(value)
+					}
+				},
+				{field:'payAmt',title:'提款金额(元)',width:50,align:"right",valign:"middle",
+					formatter: function(value, row, index){
+						return formatterMoney_edit(value)
+					}
+				},
+				// {field:'recAcctType',title:'收款人账户类型',width:80,align:"center",valign:"middle",
+				// 	formatter:function (value, row, index) {
+				// 		var recAcctType = ''
+				//     	if(value==1){
+				// 			recAcctType = '对私'
+				// 		}else if(value==2){
+				// 			recAcctType = '对公'
+				// 		}
+				// 		return recAcctType
+				// 	}   
+				// },
+				{field:'recAcctNo',title:'收款账号',width:100,align:"center",valign:"middle",},
+				{field:'recAcctName',title:'收款账号名称',width:100,align:"center",valign:"middle",},
+				{field:'recBankNo',title:'收款银行行号',width:100,align:"center",valign:"middle",},
+				{field:'recBankName',title:'收款银行名称',width:100,align:"center",valign:"middle",},
+				// {field:'recSubBankName',title:'收款银行支行名称',width:100,align:"center",valign:"middle",},
+				// {field:'summary',title:'订单备注',width:100,align:"center",valign:"middle",},
+				{field:'channelCode',title:'渠道编码',width:80,align:"center",valign:"middle"},
+				{field:'merchantNo',title:'商户号',width:80,align:"center",valign:"middle",},
+				{field:'merchantName',title:'商户名称',width:130,align:"center",valign:"middle",},
+				{field:'channelFlowNo',title:'渠道流水号',width:120,align:"center",valign:"middle",},
+				{field:'platformAccount',title:'平台付款账号',width:120,align:"center",valign:"middle",},
+				// {field:'operatorCode',title:'财务人员编码',width:80,align:"center",valign:"middle",},
+				// {field:'operatorName',title:'财务人员名称',width:100,align:"center",valign:"middle",},
+				// {field:'authCode',title:'财务组长编码',width:100,align:"center",valign:"middle",},
+				// {field:'authName',title:'财务组长名称',width:100,align:"center",valign:"middle",},
+				// {field:'status',title:'订单状态',width:50,align:"center",valign:"middle",
+				//     formatter:function (value, row, index) {
+				// 		return visualParams(OUT_STATUS, value);
+				//     }               
+				// },
+				{field:'payTime',title:'完成时间',width:120,align:"center",valign:"middle",
+				    formatter:function (value, row, index) {
+				        return getDateStr(value);
+				    }
+				},
+				{field:'settleAmt',title:'结算金额(元)',width:50,align:"right",valign:"middle",
+					formatter: function(value, row, index){
+						return formatterMoney_edit(value)
+					}
+				},
+				{field:'returnCode',title:'返回编码',width:100,align:"center",valign:"middle",},
+				{field:'returnMsg',title:'返回描述',width:100,align:"center",valign:"middle",},
+				{field:'createTime',title:'创建时间',width:120,align:"center",valign:"middle",
+				    formatter:function (value, row, index) {
+				        return getDateStr(value);
+				    }
+				},
+			],
+			onClickRow: function (row, $element) {
+				$($element).addClass('table_info').siblings().removeClass('table_info');
+			},
+			onLoadSuccess: function(res){ },  
+		});
+	}
+
+    //修改
+	function paymentReexchange_edit(id){
+		Ewin.dialog({
+			url: '../../../html/channel/paymentReexchange/edit.html?id=' + id,
+			title: '修改'
+		});
+	}
+    //新增
+	function paymentReexchange_add(){
+		Ewin.dialog({
+			url: '../../../html/channel/paymentReexchange/add.html',
+			title: '新增'
+		});
+	}
+
+	// 删除
+	function paymentReexchange_delete(id){
+		Ewin.confirm({ message: '是否删除该行？' }).on(function (e) {
+			if (e) {//成功
+	    		sendAjax( 'POST', host_url+"/cloud-web/chnpaymentReexchange/delete", {id:id}, function(res){
+    				alertTips({message:'恭喜你，操作成功！',id:'alert-success'});
+	    			$("#paymentReexchange_Table").bootstrapTable('refresh');
+    			});
+			}
+		});
+	}
+</script>

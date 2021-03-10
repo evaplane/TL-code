@@ -1,0 +1,350 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal bv-form" name="edit_form" role="form" id="channelMerchantInfo_edit_form"
+			novalidate="novalidate">
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2">渠道名称：</label>
+				<div class="col-xs-6 col-sm-7">
+					<input type="text" class="form-control" name="channelName" id="edit_channelName" placeholder="渠道名称"
+						readonly>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2">商户号：</label>
+				<div class="col-xs-6 col-sm-7">
+					<input type="text" name="merchantNo" class="form-control" id="edit_merchantNo" placeholder="商户号"
+						readonly>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2">商户名称：</label>
+				<div class="col-xs-6 col-sm-7">
+					<input type="text" name="merchantName" class="form-control" id="edit_merchantName"
+						placeholder="商户名称" readonly>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>付款账号：</label>
+				<div class="col-xs-6 col-sm-7">
+					<input name="payAcctNo" class="form-control" type="text" id="edit_payAcctNo" placeholder="付款账号"
+						readonly>
+				</div>
+			</div>
+			<!-- <div class="form-group md5">
+                    <label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>签名秘钥：</label>
+                    <div class="col-xs-6 col-sm-7">
+						<textarea type="text" class="form-control" id="edit_apiSignKey" name="apiSignKey" placeholder="签名秘钥" autocomplete="off" cols="39" rows="3" style="resize:none;"></textarea>
+                    </div>
+                </div> -->
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>商户公钥：</label>
+				<div class="col-xs-6 col-sm-7">
+					<textarea type="text" class="form-control" id="edit_publicKey" name="publicKey" placeholder="商户公钥"
+						autocomplete="off" cols="39" rows="3" style="resize:none;"></textarea>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>商户私钥：</label>
+				<div class="col-xs-6 col-sm-7">
+					<textarea type="text" class="form-control" name="privateKey" id="edit_privateKey" placeholder="商户私钥"
+						autocomplete="off" cols="39" rows="3" style="resize:none;"></textarea>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>是否加密：</label>
+				<div class="col-xs-6 col-sm-7">
+					<label class="marginRight"><input type="radio" name="isEncrypt" value="100"
+							disabled="disabled" />是</label>
+					<label class="marginRight"><input type="radio" name="isEncrypt" value="-100"
+							checked="checked" />否</label>
+				</div>
+			</div>
+			<!-- <div class="form-group isEncrypt">
+                    <label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>加密秘钥：</label>
+                    <div class="col-xs-6 col-sm-7">
+						<textarea type="text" class="form-control" id="edit_encryptKey" name="encryptKey" placeholder="加密秘钥" autocomplete="off" cols="39" rows="3" style="resize:none;"></textarea>
+                    </div>
+                </div> -->
+		</form>
+	</div>
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	<button type="button" class="btn btn-primary" onclick="channelMerchantInfo_edit_doSubmit(this)">保存</button>
+</div>
+<style>
+	.form-group input[type=radio] {
+		margin-left: 0;
+		position: static;
+	}
+
+	.ca {
+		display: none;
+	}
+</style>
+<script>
+	var edit_id = getQueryString('id');
+	$(function () {
+		channelMerchantInfo_edit_initValidate();
+		//获取信息
+		sendAjax("POST", host_url + "/cloud-web/chnChannelMerchant/view", { 'id': edit_id }, function (data) {
+			var row = data.rows;
+
+			$('#edit_channelName').val(row.channelName);
+			$('#edit_merchantNo').val(row.merchantNo);
+			$('#edit_merchantName').val(row.merchantName);
+			$('#edit_payAcctNo').val(row.payAcctNo);
+
+			$('#edit_publicKey').val(row.publicKey);
+			$('#edit_privateKey').val(row.privateKey);
+			if (row.isEncrypt == -100) {
+				$('input[name=isEncrypt][value=-100]').prop('checked', true);
+				// $('#channelMerchantInfo_edit_form').data('bootstrapValidator').enableFieldValidators('encryptKey', false);
+				$('.isEncrypt').hide();
+			}
+			// else{
+			// 	$('input[name=isEncrypt][value=100]').prop('checked',true);
+			// 	$('.isEncrypt').show();
+			// 	$('#edit_encryptKey').val(row.encryptKey);
+			// 	$('#channelMerchantInfo_edit_form').data('bootstrapValidator').enableFieldValidators('encryptKey', true);
+			// }
+		})
+		//        $('input[name=signType]').change(function(){
+		//        	if($(this).val() == '20'){
+		//        		$('.ca').show();
+		//        		$('.md5').hide();
+		// $('#channelMerchantInfo_edit_form').data('bootstrapValidator').enableFieldValidators('apiSignKey', false);
+		// $('#channelMerchantInfo_edit_form').data('bootstrapValidator').enableFieldValidators('publicKey', true);
+		// $('#channelMerchantInfo_edit_form').data('bootstrapValidator').enableFieldValidators('privateKey', true);
+		//        	}else{
+		//        		$('.md5').show();
+		//        		$('.ca').hide();
+		// $('#channelMerchantInfo_edit_form').data('bootstrapValidator').enableFieldValidators('publicKey', false);
+		// $('#channelMerchantInfo_edit_form').data('bootstrapValidator').enableFieldValidators('privateKey', false);
+		// $('#channelMerchantInfo_edit_form').data('bootstrapValidator').enableFieldValidators('apiSignKey', true);
+		//        	}
+		//        });
+		$('input[name=isEncrypt]').change(function () {
+			if ($(this).val() == '-100') {
+				$('.isEncrypt').hide();
+				// $('#channelMerchantInfo_edit_form').data('bootstrapValidator').enableFieldValidators('encryptKey', false);
+			} else {
+				$('.isEncrypt').show();
+				// $('#channelMerchantInfo_edit_form').data('bootstrapValidator').enableFieldValidators('encryptKey', true);
+			}
+		});
+	})
+	//初始化验证框架
+	function channelMerchantInfo_edit_initValidate() {
+		//进行表单验证
+		$('#channelMerchantInfo_edit_form').bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: {
+				valid: 'glyphicon glyphicon-ok',
+				invalid: 'glyphicon glyphicon-remove',
+				validating: 'glyphicon glyphicon-refresh'
+			},
+			excluded: [':disabled'],
+			fields: {
+				channelCode: {
+					message: '渠道名称验证失败',
+					validators: {
+						notEmpty: {
+							message: '渠道名称不能为空'
+						},
+						// regexp: {
+						//     regexp: /^[\u4e00-\u9fa5A-Za-z0-9]+$/,
+						//     message: '平台名称只能输入中文、英文和数字'
+						// },
+						stringLength: {
+							max: 32,
+							message: '渠道名称不能超过32位'
+						}
+					}
+				},
+				channelName: {
+					verbose: false,
+					message: '渠道名称验证失败',
+					validators: {
+						notEmpty: {
+							message: '渠道名称不能为空'
+						},
+						regexp: {
+							regexp: /^[\u4e00-\u9fa5A-Za-z0-9]+$/,
+							message: '渠道名称只能输入中文、英文和数字'
+						},
+						stringLength: {
+							max: 64,
+							message: '渠道名称不能超过64位'
+						}
+					}
+				},
+				merchantNo: {
+					message: '商户号验证失败',
+					validators: {
+						notEmpty: {
+							message: '商户号不能为空'
+						},
+						stringLength: {
+							max: 32,
+							message: '商户号不能超过32位'
+						}
+					}
+				},
+				merchantName: {
+					verbose: false,
+					message: '商户名称验证失败',
+					validators: {
+						notEmpty: {
+							message: '商户名称不能为空'
+						},
+						regexp: {
+							regexp: /^[\u4e00-\u9fa5A-Za-z0-9]+$/,
+							message: '商户名称只能输入中文、英文和数字'
+						},
+						stringLength: {
+							max: 64,
+							message: '商户名称不能超过64位'
+						}
+					}
+				},
+				payAcctNo: {
+					message: '付款账号验证失败',
+					validators: {
+						notEmpty: {
+							message: '付款账号不能为空'
+						},
+						stringLength: {
+							max: 32,
+							message: '付款账号不能超过32位'
+						},
+					}
+				},
+				isEncrypt: {
+					verbose: false,
+					validators: {
+						notEmpty: {
+							message: '请选择是否加密'
+						},
+					}
+				},
+				// apiSignKey:{
+				//     verbose: false,
+				//     message: '签名密钥验证失败',
+				//     validators: {
+				// 		notEmpty: {message: '签名密钥不能为空'},
+				// 		stringLength: {
+				// 			min: 1,
+				// 			max: 1000,
+				// 			message: '长度必须在1-1000之间'
+				// 		},
+				//     }
+				// },
+				publicKey: {
+					verbose: false,
+					message: '商户公钥验证失败',
+					validators: {
+						notEmpty: { message: '商户公钥不能为空' },
+						stringLength: {
+							min: 1,
+							max: 1000,
+							message: '长度必须在1-1000之间'
+						},
+						callback: {
+							message: '不能输入中文',
+							callback: function (value, validator) {
+								var reg = /[\u4e00-\u9fa5]/g;
+								if (reg.test(value)) {
+									return false;
+								} else {
+									return true;
+								}
+							}
+						}
+					}
+				},
+				privateKey: {
+					verbose: false,
+					message: '商户私钥验证失败',
+					validators: {
+						notEmpty: { message: '商户私钥不能为空' },
+						stringLength: {
+							min: 1,
+							max: 1000,
+							message: '长度必须在1-1000之间'
+						},
+						callback: {
+							message: '不能输入中文',
+							callback: function (value, validator) {
+								var reg = /[\u4e00-\u9fa5]/g;
+								if (reg.test(value)) {
+									return false;
+								} else {
+									return true;
+								}
+							}
+						}
+					}
+				},
+				// encryptKey:{
+				//     verbose: false,
+				//     message: '加密秘钥验证失败',
+				//     validators: {
+				// 		notEmpty: {message: '加密秘钥不能为空'},
+				// 		stringLength: {
+				// 			min: 1,
+				// 			max: 1000,
+				// 			message: '长度必须在1-1000之间'
+				// 		},
+				//     }
+				// }
+			}
+		})
+	}
+
+	function channelMerchantInfo_edit_doSubmit() {
+		var bv = $('#channelMerchantInfo_edit_form').data('bootstrapValidator').validate();
+		if (!bv.isValid()) { //验证不通过
+			return;
+		}
+		var paramForm = $("#channelMerchantInfo_edit_form").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = param.value.trim();
+		});
+		params.id = edit_id;
+		params.signType = 20;
+		params._sys_login_token = _get_token();
+
+		$.ajax({
+			type: 'POST',
+			url: host_url + "/cloud-web/chnChannelMerchant/validateKey",
+			cache: false, //清楚ie缓存
+			data: params,
+			dataType: 'json',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			success: function (res) {
+				$('.btn').not('.ok').removeAttr('disabled');
+				if (res.retCode == '000000') {
+					sendAjax('POST', host_url + "/cloud-web/chnChannelMerchant/editSubmit", params, function (res) {
+						alertTips({ message: '恭喜你，操作成功！' });
+						$('#channelMerchantInfo_edit_form').parents('.modal').modal('hide');
+						$("#channelMerchantInfo_Table").bootstrapTable('refresh');
+					});
+				} else {
+					Ewin.confirm({ message: res.retMsg }).on(function (e) {
+						if (e) {
+							sendAjax('POST', host_url + "/cloud-web/chnChannelMerchant/editSubmit", params, function (res) {
+								alertTips({ message: '恭喜你，操作成功！' });
+								$('#channelMerchantInfo_edit_form').parents('.modal').modal('hide');
+								$("#channelMerchantInfo_Table").bootstrapTable('refresh');
+							});
+						} else {
+							$('.modal.confirm').modal('hide');
+						}
+					});
+				}
+			}
+		});
+	}
+</script>

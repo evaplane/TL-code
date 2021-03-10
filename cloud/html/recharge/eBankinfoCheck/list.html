@@ -1,0 +1,286 @@
+<link rel="stylesheet" href="../../../css/lib/daterangepicker-bs3.css" />
+<link rel="stylesheet" href="../../../css/lib/bootstrap-table.min.css" />
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form
+				id="eBankinfoCheckForm"
+				name="eBankinfoCheckForm"
+				role="form"
+				class="form-inline"
+			>
+				<div class="form-group">
+					<label class="control-label">账户别名：</label>
+					<input
+						name="aliasName"
+						class="form-control"
+						type="text"
+						autocomplete="off"
+						placeholder="账户别名"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="control-label">开户姓名：</label>
+					<input
+						type="text"
+						name="acctName"
+						class="form-control"
+						placeholder="开户姓名"
+						autocomplete="off"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="control-label">银行卡号：</label>
+					<input
+						type="text"
+						name="acctNo"
+						class="form-control"
+						placeholder="银行卡号"
+						autocomplete="off"
+					/>
+				</div>
+				<div class="form-group pull-right">
+					<button
+						id="eBankinfoCheckButton"
+						type="button"
+						class="btn btn-primary refreshBtn"
+					>
+						查询
+					</button>
+					<button type="reset" class="btn btn-default">重置</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<table
+				cellpadding="0"
+				cellspacing="0"
+				border="0"
+				id="eBankinfoCheckTable"
+				class="table table-bordered table-hover"
+			></table>
+		</div>
+	</div>
+</div>
+<style type="text/css">
+	#eBankinfoCheckTable.table {
+		width: 1800px;
+	}
+</style>
+<script type="text/javascript">
+	var cardUseTypeList = [];
+	$(function() {
+		// listOptionInit($('#eBankinfoCheckAuthStatus'), MEMBER_AUDIT_STATUS_NoSUC);
+		// $('#eBankinfoCheckAuthStatus').comboSelect();
+
+		//账号用途
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/pubTypeGroup/findPubTypeGroupList",
+			{ sysCode: "Card", groupName: "card_type" },
+			function(data) {
+				$.each(data.rows, function(i, item) {
+					cardUseTypeList.push({
+						id: item.keyValue,
+						text: item.keyName
+					});
+				});
+			}
+		);
+		eBankinfoCheckTable();
+	});
+	// 搜索
+	$("#eBankinfoCheckButton").click(function() {
+		$("#eBankinfoCheckTable").bootstrapTable("refresh");
+	});
+	/*表格加载*/
+	function eBankinfoCheckTable() {
+		$("#eBankinfoCheckTable").bootstrapTable({
+			url: host_url + "/cloud-web/cardBankCardInfo/authPageList",
+			method: "GET",
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: "zh-CN", //中文支持
+			queryParamsType: "limit",
+			queryParams: function(params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = params.offset / params.limit + 1; //页码
+				params._sys_login_token = _get_sys_login_token();
+
+				var paramForm = $("#eBankinfoCheckForm").serializeArray();
+				$.each(paramForm, function(i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				params.cardUseType = 20;
+				return params;
+			}, //参数
+			columns: [
+				{
+					title: "序号",
+					width: 30,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						var options = $("#eBankinfoCheckTable").bootstrapTable(
+							"getOptions"
+						);
+						return (
+							(options.pageNumber - 1) * options.pageSize +
+							index +
+							1
+						);
+					}
+				},
+				{
+					title: "操作",
+					field: "operation",
+					align: "center",
+					valign: "middle",
+					width: 50,
+					formatter: function(value, row, index) {
+						if (row.authStatus == 10) {
+							return (
+								'<a class="fa fa-check-square operation a_size" onclick="eBankinfoCheck(\'' +
+								row.id +
+								'\')" title="审核"></a> '
+							);
+						} else {
+							return "-";
+						}
+					}
+				},
+				{
+					field: "aliasName",
+					title: "账户别名",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "bankName",
+					title: "开户银行",
+					width: 100,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						if (value == "") {
+							return "-";
+						} else {
+							return value;
+						}
+					}
+				},
+				{
+					field: "acctName",
+					title: "开户姓名",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "acctNo",
+					title: "银行卡号",
+					width: 150,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "provinceName",
+					title: "开户地址",
+					width: 120,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						return value + "-" + row.cityName;
+					}
+				},
+				{
+					field: "subBankName",
+					title: "支行行名",
+					width: 100,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						if (value == "") {
+							return "-";
+						} else {
+							return value;
+						}
+					}
+				},
+				// {field: 'cardUseType', title: '账户用途', width: 60, align: "center", valign: "middle",
+				// 	formatter:function(value,row,index){
+				// 		return visualParams(cardUseTypeList, value);
+				// 	},
+				// },
+				{
+					field: "cardLimit",
+					title: "账号预警(万元)",
+					width: 100,
+					align: "right",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						if (value != 0) {
+							return value;
+						} else {
+							return "";
+						}
+					}
+				},
+				{
+					field: "remark",
+					title: "备注",
+					width: 200,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						if (value == "") {
+							return "-";
+						} else {
+							return value;
+						}
+					}
+				},
+				{
+					field: "authStatus",
+					title: "审核状态",
+					width: 100,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						return sys_getTitle_Id(value, MEMBER_AUDIT_STATUS);
+					}
+				},
+				{
+					field: "createTime",
+					title: "创建时间",
+					width: 100,
+					align: "center",
+					valign: "middle",
+					formatter: function(value, row, index) {
+						return getDateStr(value);
+					}
+				}
+			],
+			onLoadSuccess: function(res) {
+				//加载成功时执行
+			}
+		});
+	}
+
+	//审核
+	function eBankinfoCheck(id) {
+		Ewin.dialog({
+			url: "../../recharge/eBankinfoCheck/check.html?id=" + id,
+			title: "银行账号审核"
+		});
+	}
+</script>

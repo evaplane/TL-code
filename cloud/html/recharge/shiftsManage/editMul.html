@@ -1,0 +1,267 @@
+<div class="content_center">
+	<div class="content_center_content" style="overflow-x: hidden;">
+		<div class="checkedList"></div>
+		<div class="clearfix"></div>
+		<form class="form-horizontal" name="edit_form" role="form" id="edit_form">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">财务组长</label>
+				<div class="col-xs-8 col-sm-7">
+					<select class="form-control" id="edit_groupCode" name="groupCode"></select>
+				</div>
+			</div>
+			<div class="form-group finance">
+				<label class="control-label col-xs-4 col-sm-3">财务人员</label>
+				<div class="col-xs-8 col-sm-7">
+					<select class="form-control" id="edit_operatorCode" name="operatorCode"></select>
+				</div>
+			</div>
+			<!-- <div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">开放量级</label>
+				<div class="col-xs-8 col-sm-7 edit_acctLevel">
+					<select class="multiselect multiselectLevel form-control" id="edit_acctLevel" name="acctLevel" multiple="multiple"></select>
+				</div>
+			</div> -->
+			<!-- <div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">会员配置</label>
+				<div class="col-xs-8 col-sm-7 edit_Member">
+					<select class="multiselect multiselectMember form-control" id="edit_Member" name="cusCode" multiple="multiple"></select>
+				</div>
+			</div> -->
+			<div class="bankNo"></div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		<button type="button" class="btn btn-primary" onclick="_doSubmit()">保存</button>
+	</div>
+</div>
+<link rel="stylesheet" href="../../../css/lib/bootstrap-multiselect.css" />
+<style>
+	.edit_acctLevel .multiselect-container,
+	.edit_Member .multiselect-container {
+		width: 100%;
+	}
+
+	.viewDetail span {
+		display: inline-block;
+	}
+</style>
+<script type="text/javascript" src="../../../js/lib/bootstrap-multiselect.js"></script>
+<script type="text/javascript">
+	var edit_id = "", routeCode = "", cardUseType, objId;
+	$(function () {
+		edit_id = getQueryString("ids");
+		objId = getQueryString("objId");
+		routeCode = getQueryString("routeCode");
+		cardUseType = getQueryString("cardUseType");
+		getSelectLevelList();
+		initData_shift();
+	});
+	function initData_shift() {
+		shift_validateForm();//验证初始化
+
+		if (cardUseType == 10) {
+			getSelectUserList(40);
+		} else if (cardUseType == 20) {
+			getSelectUserList(60);
+		}
+		getSelectUserList(54);
+		getMember();
+
+		var id = edit_id.split(',');
+		var str = '';
+		$.each(id, function (i, item) {
+			if (item != "") {
+				sendAjax('POST', host_url + "/cloud-web/cardRoutePoolMerch/view", { 'id': item }, function (res) {
+					str += '<div class="viewDetail marginBottom">';
+					str += '<span class="control-label" style="width:20%;"></span>';
+					str += '<span class="marginLeft left" style="width:15%;">账号用途：' + sys_getTitle_Id(res.rows.cardUseType, DEBIT_CARD) + '</span>';
+					str += '<span class="marginLeft left" style="width:18%;">账号别名：' + res.rows.aliasName + '</span>';
+					str += '<span class="marginLeft left" style="width:25%;">银行账号：' + res.rows.acctNo + '</span>';
+					str += '<span class="marginLeft left" style="width:20%;"></span>';
+					str += '</div>';
+					$(".checkedList").html(str);
+				});
+			}
+		});
+
+
+	}
+	// 获取 组长(50) 或 财务(40) 下拉框
+	function getSelectUserList(role) {
+		sendAjax('POST', host_url + "/cloud-web/ownSsoUser/selectUserListByRole", { 'role': role }, function (res) {
+			var data = res.rows;
+			var lists = "<option value=''>请选择</option>";
+			$.each(data, function (i, item) {
+				lists += '<option value="' + item.loginName + '" name="' + item.userName + '" >' + item.loginName + "(" + item.userName + ")" + '</option>';
+			});
+			if (role == 54) {
+				$('#edit_groupCode').html(lists);
+				$('#edit_groupCode').comboSelect();
+			} else {
+				$('#edit_operatorCode').html(lists);
+				$('#edit_operatorCode').comboSelect();
+			}
+		});
+	}
+
+	var selectedValue = "";
+	// 获取 开发量级 下拉框
+	function getSelectLevelList() {
+		new Promise(multiselectLevel).then(function () {
+			$('.multiselectLevel').multiselect({
+				buttonClass: 'btn',
+				buttonWidth: '100%',
+				buttonText: function (options) {
+					if (options.length == 0) {
+						return '请选择';
+					} else {
+						var selected = '';
+						options.each(function () {
+							selected += $(this).text() + ',';
+						});
+						return selected.substr(0, selected.length - 1);
+					}
+				},
+				onChange: function (option, checked) {
+					selectedValue = ""
+					$('select#edit_acctLevel option:selected').each(function (i, item) {
+						selectedValue += $(item).val() + ',';
+					});
+				}
+			});
+		})
+
+	}
+	function multiselectLevel(suc) {
+		sendAjax('POST', host_url + "/cloud-web/cardBankCardInfo/loadLevel", {}, function (res) {
+			var data = res.rows;
+			$.each(data, function (i, item) {
+				var edit_acctLevel = '<option value="' + item.keyValue + '" data-value="' + item.id + '">' + item.keyName + '</option>';
+				$('#edit_acctLevel').append(edit_acctLevel);
+			});
+			if (suc) {
+				suc();
+			}
+		});
+	}
+	var selectedMember = "";
+	// 获取 会员配置 下拉框
+	function getMember() {
+		selectedMember = "";
+		new Promise(multiselectgetMember).then(function () {
+			$('.multiselectMember').multiselect({
+				buttonClass: 'btn',
+				buttonWidth: '100%',
+				buttonText: function (options) {
+					if (options.length == 0) {
+						return '请选择';
+					} else {
+						var select = '';
+						options.each(function () {
+							select += $(this).text() + ',';
+						});
+						return select.substr(0, select.length - 1);
+					}
+				},
+				onChange: function (option, checked) {
+					selectedMember = "";
+					$('select#edit_Member option:selected').each(function (i, item) {
+						selectedMember += $(item).val() + ',';
+					});
+				}
+			});
+		})
+
+	}
+	function multiselectgetMember(suc) {
+		// 会员配置
+		sendAjax("POST", host_url + "/cloud-web/cusMemberInfo/getAllCusMember", {}, function (data) {
+			$('#edit_Member').html('');
+			$.each(data.rows, function (i, item) {
+				var Member = '<option value="' + item.cusCode + '">' + item.cusCode + '(' + item.cusName + ')</option>';
+				$('#edit_Member').append(Member);
+			});
+			if (suc) {
+				suc();
+			}
+		})
+	}
+	//初始化验证框架
+	function shift_validateForm() {
+		//进行表单验证
+		$('#edit_form').bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: { valid: 'glyphicon glyphicon-ok', invalid: 'glyphicon glyphicon-remove', validating: 'glyphicon glyphicon-refresh' },
+			excluded: [':disabled'],
+			fields: {
+				groupCode: {
+					verbose: false,
+					message: '财务组长验证失败',
+					validators: {
+						// notEmpty: {message: '财务组长不能为空'}
+					}
+				},
+				operatorCode: {
+					verbose: false,
+					message: '财务人员验证失败',
+					validators: {
+						// notEmpty: {message: '财务人员不能为空'}
+					}
+				},
+				acctLevel: {
+					verbose: false,
+					message: '开放量级验证失败',
+					validators: {
+						// notEmpty: {message: '开放量级不能为空'}
+					}
+				}
+			}
+		});
+	}
+
+	//提交
+	function _doSubmit() {
+		var bv = $('#edit_form').data('bootstrapValidator').validate();
+		if (!bv.isValid()) {//验证不通过
+			return;
+		}
+		var paramForm = $("#edit_form").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		params.operatorCode = $("#edit_operatorCode option:selected").val();
+		params.groupCode = $("#edit_groupCode option:selected").val();
+
+		params.operatorName = $("#edit_operatorCode option:selected").attr('name');
+		if (params.groupCode) {
+			params.groupName = $("#edit_groupCode option:selected").attr('name');
+		}
+		params.routeCode = routeCode;
+		params.acctLevel = selectedValue.slice(0, selectedValue.length - 1);
+		params.ids = edit_id.slice(0, edit_id.length - 1);
+
+		if (selectedMember) {
+			if (selectedMember.split(',').length > 21) {
+				Ewin.alert({
+					message: '最多可添加20个会员'
+				});
+				return;
+			}
+
+			params.cusList = selectedMember.slice(0, selectedMember.length - 1);
+		}
+
+
+		sendAjax('POST', host_url + "/cloud-web/cardRoutePoolMerch/batchEditSubmit", params, function (res) {
+			Ewin.alert({ message: '恭喜你，操作成功！' }).on(function (e) {
+				if (e) {
+					$('#edit_form').parents('.modal').modal('hide');
+
+					shiftManageSearch(objId);
+				}
+			});
+		});
+	}
+</script>

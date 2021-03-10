@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="92px" height="79px" viewBox="0 0 92 79" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 55.2 (78181) - https://sketchapp.com -->
+    <title>dotted_line</title>
+    <desc>Created with Sketch.</desc>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="FAQ-02_mobile-Copy-6" transform="translate(-242.000000, -51.000000)">
+            <g id="dotted_line" transform="translate(242.676999, 50.771484)">
+                <path d="M0.203860226,78.3496094 C-1.81501998,50.1542969 11.161217,36.7864583 39.1325712,38.2460937 C67.1039253,39.7057292 82.8702014,28.5732422 86.4313993,4.84863281" id="路径-4" stroke="#FFFFFF" stroke-width="1" stroke-dasharray="3"></path>
+                <polygon id="三角形" fill="#FFFFFF" fill-rule="evenodd" transform="translate(86.603274, 4.000000) rotate(10.000000) translate(-86.603274, -4.000000) " points="86.6032743 1 91.1032743 7 82.1032743 7"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="41px" height="42px" viewBox="0 0 41 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 56.3 (81716) - https://sketch.com -->
+    <title>信用卡 7</title>
+    <desc>Created with Sketch.</desc>
+    <g id="资金" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Home" transform="translate(-71.000000, -156.000000)" fill-rule="nonzero">
+            <g id="信用卡-7" transform="translate(71.000000, 156.000000)">
+                <path d="M38,13.806223 L31,1.08879821 C30.4814815,0.0645760841 29.1851852,-0.276831292 28.2345679,0.235279772 L3,13.806223 L24.9506173,22 L38,13.806223 Z" id="Path" fill="#C0C3C9"></path>
+                <path d="M41,17.4387097 L41,39.5612903 C41,40.8677419 39.9531915,42 38.5574468,42 L2.44255319,42 C1.13404255,42 0,40.9548387 0,39.5612903 L0,17.4387097 C0,16.1322581 1.04680851,15 2.44255319,15 L38.6446809,15 C39.9531915,15 41,16.0451613 41,17.4387097 Z" id="Path" fill="#E91C41"></path>
+                <rect id="Rectangle" fill="#EBF0F4" x="4" y="31" width="6" height="3"></rect>
+                <rect id="Rectangle" fill="#EBF0F4" x="13" y="31" width="6" height="3"></rect>
+                <rect id="Rectangle" fill="#EBF0F4" x="21" y="31" width="6" height="3"></rect>
+                <rect id="Rectangle" fill="#EBF0F4" x="30" y="31" width="6" height="3"></rect>
+                <path d="M10,22.09375 C10,22.84375 9.71428571,23.5 9.33333333,23.96875 C8.76190476,24.625 7.9047619,25 7.04761905,25 C5.42857143,25 4,23.6875 4,22 C4,20.40625 5.33333333,19 7.04761905,19 C8,19 8.76190476,19.375 9.33333333,20.03125 C9.80952381,20.6875 10,21.4375 10,22.09375 Z" id="Path" fill="#E66354"></path>
+                <path d="M14,21.9057438 C14,23.5495674 13,25 11.7142857,25 C11,25 10.4285714,24.613218 10,23.9363494 C10.3571429,23.4528719 10.5,22.6793079 10.5,22.0024393 C10.5,21.2288753 10.2857143,20.5520067 10,20.0685292 C10.4285714,19.3916607 11.0714286,19.0048786 11.7142857,19.0048786 C13,18.9081831 14,20.2619202 14,21.9057438 Z" id="Path" fill="#FCD562"></path>
+                <rect id="Rectangle" fill="#F4A60B" x="4" y="35" width="14" height="3"></rect>
+                <polygon id="Path" fill="#3A556A" points="37 10.2931034 29.7559055 14 14 14 33.3779528 4"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>

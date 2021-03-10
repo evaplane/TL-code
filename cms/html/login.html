@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="renderer" content="webkit">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <title>极点</title>
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+</head>
+
+<body class="loginBody">
+<div class="loginWrapper">
+    <h5><img src="../img/logo.png"/></h5>
+    <div class="bg">
+        <div class="be-content pren">
+            <form name="login_form" id="login_form" role="form">
+                <div class="form_box">
+                    <input type="text" id="username" placeholder="用户名" autocomplete="off"/>
+                    <p class="error_str"></p>
+                </div>
+                <div class="form_box">
+                    <input type="password" id="password" placeholder="密码" autocomplete="off"/>
+                    <p class="error_str"></p>
+                </div>
+                <div class="loginForgetPsd">
+                    <label>
+                        <!-- <input type="checkbox" class="remember"/> 记住用户名 -->
+                        <a href="forgetPassword.html" class="login_resetPsd pull-right">忘记密码？</a>
+                    </label>
+                </div>
+                <button type="button" class="loginBtn" onclick="login('login_form')">登录</button>
+            </form>
+        </div>
+    </div>
+</div>
+<!--<script th:src="@{/js/commonJSLogin.js}"></script>-->
+<script src="../js/commonJS.js"></script>
+<script>
+    function login() {
+        var username = $("#username").val();
+        var password = $("#").val();
+        if (username == "") {
+            $("#username").parent().find("p.error_str").html("用户名不能为空").show();
+            return false;
+        } else {
+            $("#username").parent().find("p.error_str").html("").hide();
+        }
+        if (password == "") {
+            $("#password").parent().find("p.error_str").html("密码不能为空").show();
+            return false;
+        } else {
+            $("#password").parent().find("p.error_str").html("").hide();
+        }
+
+        var params = {
+            username: $("#username").val(),
+            password: $("#password").val()
+        }
+        $.ajax({
+            type: 'POST',
+            url: host_url + "/user/login",
+            cache: false, //清楚ie缓存
+            data: params,
+            dataType: 'json',
+            success: function(res) {
+				if (res.retCode == "200") {
+					window.localStorage.setItem('userJsonLocal',JSON.stringify(res.userVo));
+					window.localStorage.setItem('userNameMobile',JSON.stringify(res.userVo.username));
+					if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+						window.location.href = "h5/index.html";
+					} else {
+						window.location.href = "watchcode/list.html";
+					}
+				} else {
+					Ewin.alert({
+						message: res.retMsg
+					});
+				}
+            },
+            error: function() {
+                // window.location.href = host_url + "/wxinfo/index";
+                Ewin.alert({
+                    message: res.retMsg
+                });
+            }
+        });
+    }
+</script>
+</body>
+
+</html>

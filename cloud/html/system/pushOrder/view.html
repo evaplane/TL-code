@@ -1,0 +1,74 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<table cellpadding="0" cellspacing="0" border="0" class=" table table-bordered ">
+		    <tbody class="basic">
+		        <tr>
+				    <td class='title col-sm-2'>平台号：</td>
+				    <td class="col-sm-4" id="view_cusCode"></td>
+				    <td class='title col-sm-2'>平台名称：</td>
+				    <td class="col-sm-4" id="view_cusName"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>平台订单号：</td>
+				    <td class="col-sm-4" id="view_orderNo"></td>
+				    <td class='title col-sm-2'>交易类型：</td>
+				    <td class="col-sm-4" id="view_tradeType"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>推送状态：</td>
+				    <td class="col-sm-4" id="view_status"></td>
+				    <td class='title col-sm-2'>通知地址：</td>
+				    <td class="col-sm-4" id="view_notifyUrl"></td>
+				</tr>
+				<tr>
+					<td class='title col-sm-2'>返回码：</td>
+				    <td class="col-sm-4" id="view_returnCode"></td>
+				    <td class='title col-sm-2'>返回描述：</td>
+				    <td class="col-sm-4" id="view_returnMsg"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>创建时间：</td>
+				    <td class="col-sm-4" id="view_createTime"></td>
+				    <td class='title col-sm-2'>更新时间：</td>
+				    <td class="col-sm-4" id="view_updateTime"></td>
+				</tr>
+				<tr>
+				    <td class='title col-sm-2'>通知内容：</td>
+				    <td class="col-sm-10" id="view_notifyJson" colspan="3"></td>
+				</tr>
+		</table>
+	</div>
+</div>
+<div class="modal-footer" id="close">
+    <button type="button" class="btn btn-default cancel" data-dismiss="modal">关闭</button>
+</div>
+<script type="text/javascript ">
+    $(function() {
+        var view_id = getQueryString('id');
+        sendAjax('POST', host_url + "/cloud-web/coreOrderPushFlow/view", {
+            'id': view_id
+        }, function(res) {
+            var data = res.rows;
+            
+            $('#view_id').html(data.id);
+			$('#view_cusCode').html(data.cusCode);
+			$('#view_cusName').html(data.cusName);
+			$('#view_orderNo').html(data.orderNo);
+			$('#view_tradeType').html(data.tradeType == 10 ? "入款" : "提款");
+			var str = '待推送';
+			if(data.status == 100) {
+				str = '推送成功';
+			} else {
+				str = '推送失败';
+			}
+			$('#view_status').html(str);
+			$('#view_notifyUrl').html(data.notifyUrl);
+			$('#view_notifyJson').html(data.notifyJson);
+			$('#view_returnCode').html(data.returnCode);
+			$('#view_returnMsg').html(data.returnMsg);
+			$('#view_updateUser').html(data.updateUser);
+			$('#view_createTime').html(formatterDateTime(data.createTime));
+			$('#view_updateTime').html(formatterDateTime(data.updateTime));
+        });
+    });
+</script>

@@ -1,0 +1,333 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="pay_group_queryFormAuthUser" name="pay_group_queryFormAuthUser" role="form" class="form-inline">
+				<div class="form-group">
+					<label class="control-label">用户名：</label>
+					<input id="pay_group_query_userName" name="userName" class="form-control" type="text"
+						placeholder="用户名" autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">用户状态：</label>
+					<select name="status" class="form-control" id="pay_group_User_status">
+						<option value="">全部</option>
+					</select>
+				</div>
+				<!-- <div class="form-group">
+                    <label class="control-label">用户角色：</label>
+                    <select name="userRole" class="form-control" id="User_Role" >
+                    	<option value ="">全部</option>
+                    </select>
+                </div> -->
+				<div class="form-group pull-right">
+					<button id="pay_group_queryButtonUser" type="button" class="btn btn-primary refreshBtn">
+						<i class="fa fa-search"></i> 查询
+					</button>
+					<button type="reset" class="btn btn-default">
+						<i class="fa fa-refresh"></i> 重置
+					</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<div class="marginBottom">
+				<button type="button" class="btn btn-primary" onclick="pay_group__addAuthUser()">
+					<i class="fa fa-plus"></i> 新增
+				</button>
+			</div>
+			<table cellpadding="0" cellspacing="0" border="0" id="pay_group_tableUser"
+				class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript" src="../../../js/lib/jquery.md5.js"></script>
+<script>
+	var user_flag_btn = true;
+	var api_flag_btn = true;
+	var group_pay_user_role = "";
+	var group_pay_roleId = "";
+	$(function () {
+		getPayGroupRole();
+		listOptionInit($("#pay_group_User_status"), USER_STATUS);
+		$("#pay_group_User_status").comboSelect();
+		// roleUser();
+		setTimeout(function () {
+			authUserTableGroupPay();
+		}, 200);
+	});
+	function roleUser() {
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/authRole/selectRoleListByUser",
+			{},
+			function (res) {
+				$("#User_Role").html("<option value=''>全部</option>");
+				var html = "";
+				$.each(res.rows, function (i, item) {
+					html +=
+						"<option value='" +
+						item.roleName +
+						"'>" +
+						item.roleName +
+						"</option>";
+				});
+				$("#User_Role").append(html);
+				$("#User_Role").comboSelect({ extendStyle: false });
+			}
+		);
+	}
+
+	// 获取请求参数
+	function getPayGroupRole() {
+		sendAjax(
+			"GET",
+			host_url + "/cloud-web/authRole/selectRoleListByUser",
+			{ platform: 54 },
+			function (res) {
+				group_pay_user_role = res.rows.roleName;
+				group_pay_roleId = res.rows.id;
+			}
+		);
+	}
+
+	// 搜索
+	$("#pay_group_queryButtonUser").click(function () {
+		$("#pay_group_tableUser").bootstrapTable("refresh");
+	});
+	/*表格加载*/
+	function authUserTableGroupPay() {
+		$("#pay_group_tableUser").bootstrapTable({
+			url: host_url + "/cloud-web/ownSsoUser/pageList",
+			method: "GET",
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: "zh-CN", //中文支持
+			queryParamsType: "limit",
+			queryParams: function (params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = params.offset / params.limit + 1; //页码
+				params._sys_login_token = _get_token();
+
+				var paramForm = $(
+					"#pay_group_queryFormAuthUser"
+				).serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				params.userType = 10;
+				params.userRole = group_pay_user_role;
+				return params;
+			}, //参数
+			columns: [
+				{
+					title: "序号",
+					field: "index",
+					width: 30,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						var pageSize = $("#pay_group_tableUser").bootstrapTable(
+							"getOptions"
+						).pageSize;
+						var pageNumber = $(
+							"#pay_group_tableUser"
+						).bootstrapTable("getOptions").pageNumber;
+						return pageSize * (pageNumber - 1) + index + 1;
+					}
+				},
+				{
+					title: "操作",
+					field: "operation",
+					valign: "middle",
+					width: 20,
+					formatter: function (value, row, index) {
+						var str =
+							'<a class="fa fa-trash-o a_size"  onclick="_pay_group_user_system_del(\'' +
+							row.id +
+							"')\"></a> " +
+							'<a class="fa fa-edit operation a_size" onclick="pay_group_system_edit(\'' +
+							row.id +
+							'\')" title="编辑"></a> ';
+						if (row.userRole == "财务人员(出款)") {
+							str +=
+								'<a class="operation a_size iconfont1 iconfont-aq" onclick="pay_group_system_config(\'' +
+								row.userCode +
+								"','" +
+								row.loginName +
+								'\')" title="配置"></a>';
+						}
+						return str;
+					}
+				},
+				{
+					field: "userName",
+					title: "用户名",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "loginName",
+					title: "登录账号",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "userRole",
+					title: "用户角色",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "status",
+					title: "用户状态",
+					width: 40,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						var pay_group_userSwitch;
+						if (value == 100) {
+							pay_group_userSwitch =
+								'<div class="pay_group_userSwitch" data-on="success" data-off="warning"><input type="checkbox" value="' +
+								row.id +
+								'" checked /></div>';
+						} else {
+							pay_group_userSwitch =
+								'<div class="pay_group_userSwitch" data-on="success" data-off="warning"><input type="checkbox" value="' +
+								row.id +
+								'"/></div>';
+						}
+						return pay_group_userSwitch;
+					}
+				},
+				{
+					field: "createTime",
+					title: "创建时间",
+					width: 110,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return getDateStr(value);
+					}
+				}
+			],
+			onClickRow: function (row, $element) {
+				$($element)
+					.addClass("table_info")
+					.siblings()
+					.removeClass("table_info");
+			},
+			onLoadSuccess: function (res) {
+				//加载成功时执行
+				$(".pay_group_userSwitch").bootstrapSwitch();
+				//开关
+				$(".pay_group_userSwitch").on("switch-change", function (
+					e,
+					data
+				) {
+					if (!user_flag_btn) {
+						user_flag_btn = true;
+						return;
+					} else {
+						var el = $(data.el),
+							value = data.value;
+						var id = el[0].value;
+						var values;
+						if (value) {
+							//on
+							values = 100;
+						} else {
+							//offS
+							values = -100;
+						}
+						var params = { id: id, status: values };
+						pay_group__updateUserStatusl(params);
+					}
+				});
+			}
+		});
+	}
+
+	//添加
+	function pay_group__addAuthUser() {
+		Ewin.dialog({
+			url: "../../../html/system/payGroupUser/add.html",
+			title: "添加",
+			width: 950
+		});
+	}
+
+	//编辑
+	function pay_group_system_edit(id) {
+		Ewin.dialog({
+			url: "../../../html/system/payGroupUser/edit.html?id=" + id,
+			title: "编辑",
+			width: 950
+		});
+	}
+
+	//删除
+	function _pay_group_user_system_del(id) {
+		Ewin.confirm({ message: "是否删除该行？" }).on(function (e) {
+			if (e) {
+				//成功
+				sendAjax(
+					"POST",
+					host_url + "/cloud-web/ownSsoUser/delete",
+					{ id: id },
+					function (res) {
+						Ewin.alert({ message: "恭喜你，操作成功！" }).on(
+							function (e) {
+								if (e) {
+									//重新加载
+									$("#pay_group_tableUser").bootstrapTable(
+										"refresh"
+									);
+								}
+							}
+						);
+					}
+				);
+			}
+		});
+	}
+
+	// 修改状态
+	function pay_group__updateUserStatusl(params) {
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/ownSsoUser/updateStatus",
+			params,
+			function (res) {
+				alertTips({
+					message: "恭喜你，操作成功！",
+					id: "alert-success"
+				});
+				$("#pay_group_tableUser").bootstrapTable("refresh");
+			}
+		);
+	}
+	// 配置
+	function pay_group_system_config(userCode, loginName) {
+		Ewin.dialog({
+			url:
+				"../../../html/system/payGroupUser/set.html?userCode=" +
+				userCode +
+				"&loginName=" +
+				loginName,
+			title: "配置",
+			width: 950
+		});
+	}
+</script>

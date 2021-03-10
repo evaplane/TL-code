@@ -1,0 +1,301 @@
+<div class="content_center">
+    <div class="content_center_content">
+        <!--查询条件-->
+        <div class="content_center_condition">
+            <form id="baseTypeGroup_Form" name="baseTypeGroup_Form" role="form" class="form-inline">
+                <div class="form-group">
+                    <label class="control-label">系统名称：</label>
+                    <select name="sysCode" class="form-control" id="sysCode_select" style="display: none;"></select>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">类组别名：</label>
+                    <input name="groupAlias" class="form-control" id="groupAlias_select" type="text" placeholder="类组别名"
+                        autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">键名：</label>
+                    <input name="keyName" class="form-control" type="text" placeholder="键名" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">键值：</label>
+                    <input name="keyValue" class="form-control" type="text" placeholder="键值" autocomplete="off">
+                </div>
+                <div class="form-group pull-right">
+                    <button id="queryButton_baseTypeGroup" type="button" class="btn btn-primary refreshBtn"><i class="fa fa-search"></i>
+                        查询</button>
+                    <button type="reset" class="btn btn-default"><i class="fa fa-refresh"></i> 重置</button>
+                </div>
+                <div class="clearfix"></div>
+            </form>
+        </div>
+        <div class="content_center_table">
+            <div class="marginBottom">
+                <button type="button" class="btn btn-primary" onclick="baseTypeGroup_add()"><i class="fa fa-plus"></i>
+                    新增</button>
+            </div>
+            <table cellpadding="0" style="table-layout: fixed;" cellspacing="0" border="0" id="baseTypeGroupTable"
+                class="table table-bordered table-hover"></table>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        baseTypeGroupTable();
+        sysGet();
+    });
+    //获取系统名称列表和类组别名列表
+    function sysGet(){
+    	sendAjax('GET', host_url + "/cloud-web/pubTypeGroup/getSelectInput", {}, function (res) {
+            var newSysCodeSet = res.rows.sysCodeSet;
+            var sysCodeSet = [];
+            $.each(newSysCodeSet, function (i, param) {
+                if (param != '') {
+                    sysCodeSet.push(param)
+                }
+            })
+            var html = '';
+            $("#sysCode_select").html('<option value="">全部</option>');
+            if (sysCodeSet != undefined) {
+                $.each(sysCodeSet, function (i, param) {
+                    html += "<option value='" + param + "'>" + param + "</option>";
+                });
+                $("#sysCode_select").append(html);
+                $('#sysCode_select').comboSelect({
+                    extendStyle: false
+                });
+                $('.combo-input').attr('onfocus', 'this.blur()')
+            }
+        });
+    }
+    // 搜索
+    $("#queryButton_baseTypeGroup").click(function () {
+        $("#baseTypeGroupTable").bootstrapTable('refresh');
+        baseTypeGroupTable();
+    });
+
+    var flag_btn = true;
+    /*表格加载*/
+    function baseTypeGroupTable() {
+        $('#baseTypeGroupTable').bootstrapTable({
+            url: host_url + '/cloud-web/pubTypeGroup/pageList',
+            method: 'GET',
+            dataType: "json",
+            contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+            pagination: true, //在表格底部显示分页工具栏
+            pageNumber: 1,
+            pageList: [20, 50, 100],
+            clickToSelect: true,
+            sidePagination: "server", //表格分页的位置
+            cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            locale: 'zh-CN', //中文支持
+            queryParamsType: 'limit',
+            queryParams: function (params) {
+                params.pageSize = params.limit; //页面大小
+                params.page = (params.offset / params.limit) + 1; //页码
+                params._sys_login_token = _get_sys_login_token();
+
+                var paramForm = $("#baseTypeGroup_Form").serializeArray();
+                $.each(paramForm, function (i, param) {
+                    params[param.name] = $.trim(param.value);
+                });
+                return params;
+            }, //参数
+            columns: [{
+                    title: "序号",
+                    align: 'center',
+                    width: 40,
+                    valign: "middle",
+                    formatter: function (value, row, index) {
+                        var options = $('#baseTypeGroupTable').bootstrapTable("getOptions");
+                        return (options.pageNumber - 1) * (options.pageSize) + index + 1;
+                    }
+                },
+                {
+                    title: '操作',
+                    field: 'operation',
+                    align: "center",
+                    valign: "middle",
+                    width: 60,
+                    formatter: function (value, row, index) {
+                        return '<a class="fa fa-edit operation a_size" onclick="baseTypeGroup_edit(' +
+                            row.id + ')" title="编辑"></a>' +
+                            '<a class="fa fa-trash-o operation a_size" onclick="baseTypeGroup_del(' +
+                            row.id + ')" title="删除"></a>';
+                    }
+                },
+                {
+                    field: 'sysCode',
+                    title: '系统名称',
+                    width: 120,
+                    align: "center",
+                    valign: "middle"
+                },
+                {
+                    field: 'groupName',
+                    title: '类组解释',
+                    width: 140,
+                    align: "center",
+                    valign: "middle"
+                },
+                {
+                    field: 'groupAlias',
+                    title: '类组别名',
+                    width: 60,
+                    align: "center",
+                    valign: "middle"
+                },
+                {
+                    field: 'keyName',
+                    title: '键名',
+                    width: 60,
+                    align: "center",
+                    valign: "middle"
+                },
+                {
+                    field: 'keyValue',
+                    title: '键值',
+                    width: 40,
+                    align: "center",
+                    valign: "middle"
+                },
+                {
+                    field: 'sortNo',
+                    title: '排序',
+                    width: 40,
+                    align: "center",
+                    valign: "middle"
+                },
+                {
+                    field: 'status',
+                    title: '状态',
+                    width: 60,
+                    align: "center",
+                    valign: "middle",
+                    formatter: function (value, row, index) {
+                        var baseTypeSwitch;
+                        if (value == 100) {
+                            baseTypeSwitch =
+                                '<div class="baseTypeSwitch" data-on="success" data-off="warning"><input type="checkbox" id="' +
+                                row.id + '" value="' + row.id + '" checked /></div>';
+                        } else {
+                            baseTypeSwitch =
+                                '<div class="baseTypeSwitch" data-on="success" data-off="warning"><input type="checkbox" id="' +
+                                row.id + '" value="' + row.id + '"/></div>';
+                        }
+                        return baseTypeSwitch;
+                    }
+                },
+                {
+                    field: 'paramDesc',
+                    title: '描述',
+                    width: 50,
+                    align: "center",
+                    valign: "middle"
+                },
+                {
+                    field: 'createTime',
+                    title: '创建时间',
+                    width: 90,
+                    align: "center",
+                    valign: "middle",
+                    formatter: function (value, row, index) {
+                        return formatterDateTime(value)
+                    }
+                },
+                {
+                    field: 'updateTime',
+                    title: '更新时间',
+                    width: 90,
+                    align: "center",
+                    valign: "middle",
+                    formatter: function (value, row, index) {
+                        return formatterDateTime(value)
+                    }
+                }
+            ],
+            onClickRow: function (row, $element) {
+                $($element).addClass('table_info').siblings().removeClass('table_info');
+            },
+            onLoadSuccess: function (res) {
+                $('td').css({
+                    'wordWrap': 'break-word'
+                })
+                $('.baseTypeSwitch').bootstrapSwitch();
+                //开关
+                $('.baseTypeSwitch').on('switch-change', function (e, data) {
+                    if (!flag_btn) {
+                        flag_btn = true;
+                        return;
+                    } else {
+                        var el = $(data.el),
+                            value = data.value;
+                        var id = el[0].value;
+                        var values;
+                        if (value) { //on
+                            values = 100;
+                        } else { //offS
+                            values = -100;
+                        }
+                        var params = {
+                            "id": id,
+                            "status": values
+                        };
+                        group_updateBaseTypeStatus(params);
+                    }
+                });
+            }
+        });
+    }
+
+    //添加
+    function baseTypeGroup_add() {
+        Ewin.dialog({
+            url: '../../../html/system/baseTypeGroup/add.html',
+            title: '添加'
+        });
+    }
+
+    //编辑
+    function baseTypeGroup_edit(id) {
+        Ewin.dialog({
+            url: '../../../html/system/baseTypeGroup/edit.html?id=' + id,
+            title: '编辑'
+        });
+    }
+    //删除
+    function baseTypeGroup_del(id) {
+        Ewin.confirm({
+            message: '是否删除该行？'
+        }).on(function (e) {
+            if (e) { //成功
+                sendAjax('POST', host_url + "/cloud-web/pubTypeGroup/delete", {
+                    'id': id
+                }, function (res) {
+                    Ewin.alert({
+                        message: '恭喜你，操作成功！'
+                    }).on(function (e) {
+                        if (e) {
+                            $('.modal').modal('hide');
+                            //重新加载
+                            $("#baseTypeGroupTable").bootstrapTable('refresh');
+                            sysGet();
+                        }
+                    });
+                });
+            }
+        });
+    }
+    //修改状态
+    function group_updateBaseTypeStatus(params) {
+        sendAjax('POST', host_url + "/cloud-web/pubTypeGroup/updateStatus", params, function (res) {
+            if (res.retCode == SUCCESS_CODE) {
+                alertTips({message: '恭喜你，操作成功！',id: 'alert-success'});
+                $("#baseTypeGroupTable").bootstrapTable('refresh');
+            } else {
+                Ewin.alert({
+                    message: res.retMsg
+                }).on(function (e) {});
+            }
+        });
+    }
+</script>

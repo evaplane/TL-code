@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=1280, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0"
+		/>
+		<meta name="renderer" content="webkit" />
+		<meta name="renderer" content="webkit|ie-comp|ie-stand" />
+		<link
+			rel="shortcut icon"
+			type="image/x-icon"
+			href="../../img/top.png"
+			media="screen"
+		/>
+		<title>云记账-管理系统</title>
+		<link
+			rel="shortcut icon"
+			type="image/x-icon"
+			href="../../img/top.png"
+			media="screen"
+		/>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="../../css/lib/bootstrap.min.css"
+		/>
+		<link rel="stylesheet" href="../../css/lib/font-awesome.css" />
+		<link rel="stylesheet" href="../../css/lib/combo.select.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/login.css" />
+		<script
+			type="text/javascript"
+			src="../../js/lib/jquery.min.js"
+		></script>
+		<script
+			type="text/javascript"
+			src="../../js/lib/bootstrap.min.js"
+		></script>
+		<script
+			type="text/javascript"
+			src="../../js/lib/bootstrap_confirm.js"
+		></script>
+		<script
+			type="text/javascript"
+			src="../../js/lib/bootstrapValidator.js"
+		></script>
+		<script
+			type="text/javascript"
+			src="../../js/lib/jquery.combo.select.js"
+		></script>
+		<script type="text/javascript" src="../../js/serviceUrl.js"></script>
+		<script type="text/javascript" src="../../js/common.js"></script>
+		<script type="text/javascript" src="../../js/params.js"></script>
+		<script
+			type="text/javascript"
+			src="../../js/lib/jquery.md5.js"
+		></script>
+	</head>
+	<body>
+		<div class="loginWrapper">
+			<div class="bg">
+				<div class="be-content pren">
+					<h5>云记账系统</h5>
+					<form name="login_form" id="login_form" role="form">
+						<div class="br-content">
+							<div class="form-group">
+								<div class="input-group bootint">
+									<span class="input-group-addon"
+										><i class="fa fa-user"></i
+									></span>
+									<input
+										type="text"
+										class="form-control"
+										placeholder="用户名/邮箱"
+										id="userName"
+										name="userName"
+										autocomplete="new-password"
+									/>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="input-group bootint">
+									<span class="input-group-addon"
+										><i class="fa fa-unlock-alt"></i
+									></span>
+									<input
+										type="password"
+										id="password"
+										class="password"
+										name="password"
+										style="display: none;"
+									/>
+									<input
+										type="password"
+										placeholder="请输入密码"
+										name="password"
+										class="form-control"
+										autocomplete="new-password"
+										maxlength="32"
+										oninput="onInput(event)"
+									/>
+								</div>
+							</div>
+							<!--<div class="form-group verification">
+                            <div class="form_inline code_input" id="code_input">
+                                <input id="inner" class="inner" type="text" value="" name="randomCode" placeholder="验证码" autocomplete="off" />
+                            </div>
+                            <div class="codeInput v_container" id="v_container" onclick="getCode()"></div>
+                            <small class="help-block code randomCodeTit">验证码错误</small>
+                        </div>-->
+							<div class="form-group remem">
+								<label>
+									<input type="checkbox" class="remember" />
+									记住用户名
+								</label>
+							</div>
+							<div style="padding-top: 10px;">
+								<button
+									type="button"
+									class="loginBtn"
+									onclick="login()"
+								>
+									登录
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<script>
+			$(function() {
+				_validateForm(); //验证初始化
+				//      getCode(); //初始化验证码
+				document.onkeydown = function(e) {
+					//回车事件
+					var ev = document.all ? window.event : e;
+					if (ev.keyCode == 13) {
+						if ($(".modal").length <= 1) {
+							login();
+						}
+					}
+				};
+				//复选框勾选状态发生改变时，如果未勾选则清除cookie
+				$(".remember").on("click", function() {
+					if (!$(this).checked) {
+						delCookie("sybMember");
+					}
+				});
+				if (getCookie("sybMember")) {
+					$("#userName").val(getCookie("sybMember"));
+					$(".remember").attr("checked", true);
+				}
+			});
+
+			var login_id = "";
+
+			//保存密码bug
+			function onInput(e) {
+				$("#password").val(e.target.value);
+			}
+			//初始化验证框架
+			function _validateForm() {
+				//进行表单验证
+				$("#login_form").bootstrapValidator({
+					message: "输入值不合法",
+					feedbackIcons: {
+						valid: "glyphicon glyphicon-ok",
+						invalid: "glyphicon glyphicon-remove",
+						validating: "glyphicon glyphicon-refresh"
+					},
+					excluded: [":disabled"],
+					fields: {
+						userName: {
+							message: "用户名验证失败",
+							validators: {
+								notEmpty: { message: "用户名不能为空" }
+							}
+						},
+						password: {
+							message: "密码验证失败",
+							validators: {
+								notEmpty: { message: "密码不能为空" },
+								stringLength: {
+									min: 6,
+									max: 32,
+									message: "长度必须在6-32之间"
+								}
+							}
+						}
+					}
+				});
+			}
+			function getCode() {
+				sendAjax(
+					"POST",
+					host_url + "/cloud-web/ownUserLogin/getRandomCode",
+					{ randomType: 10 },
+					function(res) {
+						$("#v_container").html(res.rows.randomCode);
+					}
+				);
+			}
+
+			function login() {
+				var bv = $("#login_form")
+					.data("bootstrapValidator")
+					.validate();
+				if (bv.isValid()) {
+					var params = {
+						loginName: $("#userName").val(),
+						password: $.md5($("#password").val()),
+						userType: 10
+						//          randomCode: $('#inner').val().toUpperCase()
+					};
+					sendAjax(
+						"POST",
+						host_url + "/cloud-web/ownUserLogin/userLogin",
+						params,
+						function(res) {
+							window.localStorage.setItem(
+								"sybJsonLocal",
+								JSON.stringify(res.rows)
+							);
+							localStorage.setItem("id", "index");
+							window.location.href =
+								"../../html/common/index/index.html";
+
+							if ($(".remember").is(":checked")) {
+								setCookie("sybMember", $("#userName").val(), 7); //保存帐号到cookie，有效期7天
+							}
+						}
+					);
+				}
+			}
+		</script>
+	</body>
+</html>

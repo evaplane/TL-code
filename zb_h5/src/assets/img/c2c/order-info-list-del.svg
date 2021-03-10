@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 55.1 (78136) - https://sketchapp.com -->
+    <title>关闭</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="生成订单-详细" transform="translate(-329.000000, -292.000000)" fill="#000000" fill-rule="nonzero">
+            <g id="关闭" transform="translate(329.000000, 292.000000)">
+                <polygon id="Path" points="0.617957066 0 16 15.3820491 15.3820429 16 0 0.617950918"></polygon>
+                <polygon id="Path" points="15.3820429 0 16 0.617950918 0.617957099 16 0 15.3820491"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>

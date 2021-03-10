@@ -1,0 +1,241 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="member_queryFormAcct" name="member_queryFormAcct" role="form" class="form-inline">
+				<div class="form-group">
+					<label class="control-label">平台号：</label>
+					<input name="cusCode" class="form-control" type="text" placeholder="平台号" autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">平台名称：</label>
+					<input name="cusName" class="form-control" type="text" placeholder="平台名称" autocomplete="off">
+				</div>
+				<div class="form-group tel">
+					<label class="control-label">手机号：</label>
+					<div class="input-group">
+						<span class="input-group-addon memberInfo_query_areaCode"><select
+								id="memberInfoPartners_list_areaCode" name="mobileArea">
+								<option value="">全部</option>
+							</select></span>
+						<input type="text" class="form-control" placeholder="手机号" name="mobileNum"
+							autocomplete="new-password">
+					</div>
+				</div>
+				<div class="form-group  pull-right">
+					<button id="member_query_buttonAcct" type="button" class="btn btn-primary refreshBtn"><i
+							class="fa fa-search"></i>
+						查询</button>
+					<button type="reset" class="btn btn-default"><i class="fa fa-refresh"></i> 重置</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<div class="marginBottom">
+				<button type="button" class="btn btn-primary marginBottom" onclick="membeInfo_add()"><i
+						class="fa fa-plus"></i> 新增</button>
+			</div>
+			<table cellpadding="0" cellspacing="0" border="0" id="member_tableAcct"
+				class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<script>
+	$(function () {
+		member_initTableAcct();
+
+		//手机区号
+		sendAjax("POST", host_url + "/cloud-web/pubTypeGroup/findPubTypeGroupList", { sysCode: 'Pub', 'groupName': 'sys_mobile_type_group' }, function (data) {
+			$.each(data.rows, function (i, item) {
+				$('#memberInfoPartners_list_areaCode').append('<option value="' + item.keyValue + '">' + item.keyName + ' ' + item.keyValue + '</option>');
+			});
+			$("#memberInfoPartners_list_areaCode").comboSelect();
+		})
+	});
+	// 搜索
+	$("#member_query_buttonAcct").click(function () {
+		$("#member_tableAcct").bootstrapTable('refresh');
+	});
+
+	/*表格加载*/
+	function member_initTableAcct() {
+		$('#member_tableAcct').bootstrapTable({
+			url: host_url + '/cloud-web/cusMemberInfo/pageList',
+			method: 'GET',
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏  
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置  
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: 'zh-CN', //中文支持
+			queryParamsType: 'limit',
+			queryParams: function (params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = (params.offset / params.limit) + 1; //页码
+				params._sys_login_token = _get_sys_login_token();
+				var paramForm = $("#member_queryFormAcct").serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = trimAll(param.value);
+				});
+				return params;
+			}, //参数  
+			columns: [{
+				title: '序号',
+				field: 'index',
+				width: 30,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					var options = $('#member_tableAcct').bootstrapTable("getOptions");
+					return (options.pageNumber - 1) * (options.pageSize) + index + 1;
+				}
+			},
+			{
+				title: '操作',
+				field: 'id',
+				align: "center",
+				valign: "middle",
+				width: 50,
+				formatter: function (value, row, index) {
+					var str = '';
+					str += '<a class="fa fa-trash-o operation a_size" onclick="memberInfo_del(\'' + row.id + '\')" title="删除"></a>';
+					str += '<a class="fa fa-edit operation a_size" onclick="memberInfo_edit(\'' + row.id + '\')" title="修改"></a>';
+					str += '<a class="operation a_size iconfont1 iconfont-resetPass" onclick="memberInfo_infoList(\'' + row.id + '\')" title="重置密码"></a>';
+					return str;
+				}
+			},
+			{
+				field: 'cusCode',
+				title: '平台号',
+				width: 80,
+				align: "center",
+				valign: "middle"
+			},
+			{
+				field: 'cusName',
+				title: '平台名称',
+				width: 80,
+				align: "center",
+				valign: "middle"
+			},
+			{
+				field: 'loginName',
+				title: '登录账号',
+				width: 80,
+				align: "center",
+				valign: "middle"
+			},
+			{
+				field: 'mobileNum',
+				title: '手机号',
+				width: 90,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					return row.mobileArea + row.mobileNum;
+				}
+			},
+			{
+				field: 'email',
+				title: '邮箱',
+				width: 100,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					if (row.email == "") {
+						return '-'
+					} else {
+						return '' + row.email + '';
+					}
+				}
+			},
+			{
+				field: 'createTime',
+				title: '创建时间',
+				width: 100,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					return formatterDateTime(value);
+				},
+			},
+			{
+				field: 'updateTime',
+				title: '更新时间',
+				width: 100,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					return formatterDateTime(value);
+				},
+			}
+			],
+			onDblClickRow: function (res) {
+				memberManage_view(res.id);
+			},
+			onClickRow: function (row, $element) {
+				$($element).addClass('table_info').siblings().removeClass('table_info');
+			},
+			onLoadSuccess: function (res) {
+
+			}
+		});
+	}
+	// 新增
+	function membeInfo_add() {
+		Ewin.dialog({
+			url: '../../../html/member/memberManage/add.html',
+			title: '新增'
+		});
+	}
+
+	//详情
+	function memberManage_view(id) {
+		Ewin.dialog({
+			url: '../../../html/member/memberManage/view.html?id=' + id,
+			title: '详情',
+			width: 950
+		});
+	}
+	//修改
+	function memberInfo_edit(id, cusCode, areaCode, cusGroupCode, tagCode, tagName) {
+		Ewin.dialog({
+			url: '../../../html/member/memberManage/edit.html?id=' + id,
+			title: '修改'
+		});
+	}
+	// 重置密码
+	function memberInfo_infoList(id) {
+		Ewin.confirm({
+			message: '确定要重置登录密码吗？'
+		}).on(function (e) {
+			if (e) {
+				sendAjax("post", host_url + '/cloud-web/cusMemberInfo/resetPassword', {
+					id: id
+				}, function (res) {
+					Ewin.alert({ message: '您的新密码为：' + res.rows });
+					$("#member_common_reset_info").closest('.modal').modal('hide');
+					$("#member_tableAcct").bootstrapTable('refresh');
+				})
+			}
+		})
+	}
+	// 删除
+	function memberInfo_del(id) {
+		Ewin.confirm({
+			message: '确定要删除吗？'
+		}).on(function (e) {
+			if (e) {
+				sendAjax("post", host_url + '/cloud-web/cusMemberInfo/delete', {
+					id: id
+				}, function (res) {
+					$("#member_tableAcct").bootstrapTable('refresh');
+				})
+			}
+		})
+	}
+</script>

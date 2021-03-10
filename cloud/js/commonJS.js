@@ -1,0 +1,23 @@
+//公共JS"
+document.write('<script src="../../../js/lib/jquery.min.js"></script>');
+document.write('<script src="../../../js/lib/bootstrap.min.js"></script>');
+document.write('<script src="../../../js/lib/bootstrap-table.min.js"></script>');
+document.write('<script src="../../../js/lib/bootstrap-table-zh-CN.min.js"></script>');
+document.write('<script src="../../../js/lib/bootstrap-paginator.js"></script>');
+document.write('<script src="../../../js/lib/bootstrap-timepicker.min.js"></script>');
+document.write('<script src="../../../js/lib/bootstrap-datetimepicker.js"></script>');
+document.write('<script src="../../../js/lib/bootstrap-datetimepicker.zh-CN.js"></script>');
+document.write('<script src="../../../js/lib/bootstrap_confirm.js"></script>');
+document.write('<script src="../../../js/lib/bootstrap-tab.js"></script>');
+document.write('<script src="../../../js/lib/jquery.combo.select.js"></script>');
+document.write('<script src="../../../js/lib/bootstrapSwitch.js"></script>');
+document.write('<script src="../../../js/lib/bootstrapValidator.js"></script>');
+document.write('<script src="../../../js/lib/qrcode.js"></script>');
+document.write('<script src="../../../js/serviceUrl.js"></script>');
+document.write('<script src="../../../js/lib/browser.js"></script>');
+document.write('<script src="../../../js/common.js"></script>');
+document.write('<script src="../../../js/params.js"></script>');
+document.write('<script src="../../../js/lib/moment.min.js"></script>');
+document.write('<script src="../../../js/lib/moment.js"></script>');
+document.write('<script src="../../../js/lib/daterangepicker.js"></script>');
+document.write('<script src="../../../js/lib/clipboard.min.js"></script>');

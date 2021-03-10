@@ -1,0 +1,144 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal" name="add_form" role="form" id="add_form">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>订单检索</label>
+				<div class="col-xs-8 col-sm-7 flex">
+					<input type="text" class="form-control" id="add_orderNo" name="orderNo" placeholder="请输入平台流水号"
+						autocomplete="off">
+					<button type="button" class="btn btn-primary marginLeft20"
+						onclick="corePayTransFlow_retrieval()">检索</button>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">平台流水号</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="view_tradeOrderNo" name="tradeOrderNo"
+						autocomplete="off" readonly>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">客户单号</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="view_cusOrderNo" name="cusOrderNo" autocomplete="off"
+						readonly>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">会员信息</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="view_customerNo" name="customerNo" autocomplete="off"
+						readonly>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">提款金额(元)</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="view_payAmt" name="payAmt" autocomplete="off" readonly>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">交易完成时间</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="view_updateTime" name="updateTime" autocomplete="off"
+						readonly>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>冲账原因</label>
+				<div class="col-xs-8 col-sm-7">
+					<textarea type="text" class="form-control" id="view_returnMsg" name="returnMsg" placeholder="冲账原因"
+						autocomplete="off" cols="39" rows="4" style="resize:none;"></textarea>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		<button type="button" class="btn btn-primary" onclick="corePayTransFlow_AcctApply()">确定</button>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$(function () {
+		corePayTransFlow_initValidate();
+	});
+	//检索
+	function corePayTransFlow_retrieval() {
+		var str = $.trim($("#add_orderNo").val());
+		var partnerCode = str.substring(0, str.indexOf('|'));
+
+		if ($("#add_orderNo").val().trim() == "") {
+			Ewin.alert({
+				message: '请输入检索条件！'
+			})
+			return false;
+		}
+		sendAjax('POST', host_url + "/cloud-web/corePayTransFlow/search", { orderNo: $("#add_orderNo").val().trim() }, function (res) {
+			if (res.rows) {
+				var data = res.rows;
+
+				$('#view_tradeOrderNo').val(data.orderNo);
+				$('#view_cusOrderNo').val(data.cusOrderNo);
+				$('#view_customerNo').val(data.customerNo + '|' + data.customerName);
+				$('#view_payAmt').val(formatterMoney(data.payAmt));
+				$('#view_updateTime').val(getDateStr(data.updateTime));
+			}
+		});
+	}
+	//初始化验证框架
+	function corePayTransFlow_initValidate() {
+		//进行表单验证
+		$('#add_form').bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: {
+				valid: 'glyphicon glyphicon-ok',
+				invalid: 'glyphicon glyphicon-remove',
+				validating: 'glyphicon glyphicon-refresh'
+			},
+			excluded: [':disabled'],
+			fields: {
+				returnMsg: {
+					message: '冲账原因不可为空',
+					verbose: false,
+					validators: {
+						notEmpty: { message: '冲账原因不可为空' },
+						stringLength: {
+							max: 32,
+							message: '冲账原因不能超过32位限定长度'
+						}
+					}
+				}
+			}
+		});
+	}
+	// 保存
+	function corePayTransFlow_AcctApply() {
+		var bv = $('#add_form').data('bootstrapValidator').validate();
+		if (!bv.isValid()) { //验证不通过
+			return;
+		}
+		if ($("#add_orderNo").val().trim() == "") {
+			Ewin.alert({
+				message: '请输入检索条件！'
+			})
+			return false;
+		}
+		var params = {
+			remark: $('#view_returnMsg').val(),
+			orderNo: $("#add_orderNo").val().trim(),
+			operatorCode: _loginJsonObj.loginName,
+			operatorName: _loginJsonObj.userName
+		};
+		sendAjax('POST', host_url + "/cloud-web/corePayTransFlow/rushAcctApply", params, function (res) {
+			Ewin.alert({
+				message: '恭喜你，操作成功！'
+			}).on(function (e) {
+				if (e) {
+					$('.modal').modal('hide');
+					$("#corePayTransFlowRushTable").bootstrapTable('refresh');
+				}
+			});
+		});
+	}
+</script>

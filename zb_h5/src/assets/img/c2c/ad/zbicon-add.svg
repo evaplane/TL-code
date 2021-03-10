@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="66px" height="66px" viewBox="0 0 66 66" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 56.3 (81716) - https://sketch.com -->
+    <title>xhdpi/iocn_add_2</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <circle id="path-1" cx="25" cy="25" r="25"></circle>
+        <filter x="-30.0%" y="-18.0%" width="160.0%" height="160.0%" filterUnits="objectBoundingBox" id="filter-2">
+            <feMorphology radius="2" operator="erode" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
+            <feOffset dx="0" dy="6" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="6" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0.830389493   0 0 0 0 0   0 0 0 0 0.160597618  0 0 0 0.396361451 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="场外" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="我的广告" transform="translate(-302.000000, -729.000000)">
+            <g id="iocn_add_2" transform="translate(310.000000, 731.000000)">
+                <g id="椭圆形">
+                    <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
+                    <use fill="#E91C41" fill-rule="evenodd" xlink:href="#path-1"></use>
+                </g>
+                <g id="加号" transform="translate(14.000000, 14.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                    <path d="M21.1749827,9.90000043 L11.9624976,9.90000043 L11.9624976,0.962499892 C11.9624976,0.550000861 11.5499986,0 11,0 C10.4499971,0 10.0374981,0.550000861 10.0374981,1.09999957 L10.0374981,10.0375001 L1.09999935,10.0375001 C0.549998602,9.90000022 0,10.4499991 0,11 C0,11.5500009 0.550000753,11.9624999 0.962499704,11.9624999 L9.89999849,11.9624999 L9.89999849,20.9000004 C10.0374984,21.4500013 10.4499992,22 11,22 C11.5499986,22 11.9624976,21.4499991 11.9624976,21.0375001 L11.9624976,11.9624956 L21.0375003,11.9624956 C21.587501,11.9624956 22,11.4124947 22,11 C22,10.5874967 21.7250007,9.89999613 21.1749999,9.89999613 L21.1749827,9.90000043 Z" id="路径"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

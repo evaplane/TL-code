@@ -1,0 +1,197 @@
+<link rel="stylesheet" href="../../../css/lib/bootstrap-datetimepicker.min.css" />
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="accountFlowTotalForm" name="accountFlowTotalForm" role="form" class="form-inline">
+				<div class="form-group">
+					<label class="control-label">银行账号：</label>
+					<input type="text" name="acctNo" class="form-control" type="text" placeholder="银行账号"
+						autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">账户别名：</label>
+					<input type="text" name="aliasName" class="form-control" type="text" placeholder="账户别名"
+						autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">开户姓名：</label>
+					<input type="text" name="acctName" class="form-control" type="text" placeholder="开户姓名"
+						autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">开放量级：</label>
+					<select id="channelMerchantInfo_acctLevel" name="acctLevel"></select>
+				</div>
+				<div class="form-group">
+					<label class="control-label">账单日期：</label>
+					<input id="totalTraDate" type="text" name="tradeDate" class="form-control form_datetime"
+						readonly="readonly">
+				</div>
+				<div class="form-group pull-right">
+					<button id="accountFlowTotalButton" type="button" class="btn btn-primary refreshBtn">查询</button>
+					<button type="button" class="btn btn-default" onclick="accountFlowTotal_resetButton()">重置</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<button type="button" class="btn btn-primary" onclick="rec_acctFlowTotal_download()"
+				style="margin-bottom: 6px;"> 导出excel</button>
+			<table cellpadding="0" cellspacing="0" border="0" id="accountFlowTotalTable"
+				class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$(function () {
+		accountFlowTotalTable();
+		$('#totalTraDate').val(sys_formatDate(new Date(), 'yyyy-MM-dd'));
+		$('#totalTraDate').datetimepicker({
+			format: 'yyyy-mm-dd',
+			autoclose: true,
+			language: 'zh-CN',
+			minView: 'month',
+			pickerPosition: "bottom-right",
+		});
+
+		//获取开放量级
+		var getAllLevel = '';
+		sendAjax("POST", host_url + "/cloud-web/cardBankCardInfo/loadLevel", {}, function (data) {
+			getAllLevel += '<option value="">全部</option>';
+			$.each(data.rows, function (i, item) {
+				getAllLevel += '<option value="' + item.keyValue + '">' + item.keyName + '</option>';
+			});
+			$('#channelMerchantInfo_acctLevel').append(getAllLevel);
+			$("#channelMerchantInfo_acctLevel").comboSelect();
+		})
+	});
+	// 搜索
+	$("#accountFlowTotalButton").click(function () {
+		$("#accountFlowTotalTable").bootstrapTable('destroy');
+		accountFlowTotalTable();
+	});
+	function accountFlowTotal_resetButton() {
+		$('#accountFlowTotalForm')[0].reset();
+		$('#totalTraDate').val(sys_formatDate(new Date(), 'yyyy-MM-dd'));
+	}
+	/*表格加载*/
+	function accountFlowTotalTable() {
+		var mydate = new Date();
+		var totalTraDate = $('#totalTraDate').val();
+		var str = "" + mydate.getFullYear() + "-";
+		str += (mydate.getMonth() + 1) + "-";
+		str += mydate.getDate();
+		var tady = new Date(str.replace("-", "/").replace("-", "/"));
+		var t2 = new Date(totalTraDate.replace("-", "/").replace("-", "/"));
+		if (t2 < tady) {
+			var url = '/cloud-web/cardAcctInfoHistory/pageList';
+		} else {
+			var url = '/cloud-web/cardAcctInfo/pageList';
+		}
+		$('#accountFlowTotalTable').bootstrapTable({
+			url: host_url + url,
+			method: 'GET',
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server",//表格分页的位置
+			cache: false,//是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: 'zh-CN',//中文支持
+			queryParamsType: 'limit',
+			queryParams: function (params) {
+				params.pageSize = params.limit;                        //页面大小
+				params.page = (params.offset / params.limit) + 1;   	 //页码
+				params._sys_login_token = _get_sys_login_token();
+
+				var paramForm = $("#accountFlowTotalForm").serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				params.status = 100;
+				return params;
+			}, //参数
+			columns: [
+				{
+					title: '序号', width: 30, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						var options = $('#accountFlowTotalTable').bootstrapTable('getOptions');
+						return (options.pageNumber - 1) * options.pageSize + index + 1;
+					}
+				},
+				// {
+				// 	title: '操作',
+				// 	field: 'id',
+				// 	align: "center",
+				// 	valign: "middle",
+				// 	width: 50,
+				// 	formatter: function (value, row, index) {
+				// 		return '<a onclick="acctFlowTotal_addAcctAmt(\'' + row.id +'\',\'' + url+'\')" class="operation a_size" title="账户调额" ><img width="24" src="../../../img/cz.svg"></a>';
+				// 	}
+				// },
+				{
+					field: 'createTime', title: '账单日期', width: 100, align: "center", valign: "middle",
+					formatter: function (value, row, index) {
+						if (t2 < tady) {
+							return row.tradeDate;
+						} else {
+							return $('#totalTraDate').val();
+						}
+
+					}
+				},
+				{ field: 'aliasName', title: '账户别名', width: 80, align: "center", valign: "middle" },
+				{ field: 'acctName', title: '开户姓名', width: 100, align: "center", valign: "middle" },
+				{ field: 'acctNo', title: '银行账号', width: 200, align: "center", valign: "middle" },
+				{ field: 'bankName', title: '开户银行', width: 100, align: "center", valign: "middle" },
+				{ field: 'acctLevel', title: '开放量级', width: 100, align: "center", valign: "middle",
+					formatter: function(value, row, index) {
+						return xjReplace(value);
+					} },
+				// {field: 'cardName', title: '超额预警(元)', width: 100, align: "center", valign: "middle"},
+				{
+					field: 'dayRecAmt', title: '当日累计收入(元)', width: 100, align: "right", valign: "middle",
+					formatter: function (value, row, index) { return formatterMoney(value); }
+				},
+				{
+					field: 'dayPayAmt', title: '当日累计支出(元)', width: 100, align: "right", valign: "middle",
+					formatter: function (value, row, index) { return formatterMoney(value); }
+				},
+				{
+					field: 'totalRecAmt', title: '历史累计收入(元)', width: 100, align: "right", valign: "middle",
+					formatter: function (value, row, index) { return formatterMoney(value); }
+				},
+				{
+					field: 'totalPayAmt', title: '历史累计支出(元)', width: 100, align: "right", valign: "middle",
+					formatter: function (value, row, index) { return formatterMoney(value); }
+				},
+			],
+			onLoadSuccess: function (res) { },
+		});
+	}
+
+	//账户调额
+	function acctFlowTotal_addAcctAmt(id, url) {
+		Ewin.dialog({
+			url: '../../recharge/accountFlowTotal/add.html?id=' + id + '&url=' + url,
+			title: '账户调额'
+		});
+	}
+	function rec_acctFlowTotal_download() {
+		var params = {};
+		var paramForm = $("#accountFlowTotalForm").serializeArray();
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		var url = '';
+		$.each(params, function (i, item) {
+			url += '&' + i + '=' + item;
+		});
+		sendAjax('POST', host_url + "/cloud-web/corePayTradeFlow/checkDown", params, function (res) {
+			window.location.href = host_url + "/cloud-web/cardAcctInfo/down?_sys_login_token=" + _get_sys_login_token() + url;
+		});
+	}
+</script>

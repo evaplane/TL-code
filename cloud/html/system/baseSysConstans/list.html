@@ -1,0 +1,316 @@
+<div class="content_center">
+    <div class="content_center_content">
+        <!--查询条件-->
+        <div class="content_center_condition">
+            <form id="baseSysConstans_Form" name="baseSysConstans_Form" role="form" class="form-inline">
+                <div class="form-group">
+                    <label class="control-label">系统编码：</label>
+                    <input name="sysCode" class="form-control" type="text" placeholder="系统编码" autocomplete="off"
+                        onfocus="this.select()">
+                </div>
+                <div class="form-group pull-right">
+                    <button id="query_button_baseSysConstans" type="button" class="btn btn-primary refreshBtn"><i class="fa fa-search"></i>
+                        查询</button>
+                    <button type="reset" class="btn btn-default"><i class="fa fa-refresh"></i> 重置</button>
+                </div>
+                <div class="clearfix"></div>
+            </form>
+        </div>
+        <div class="content_center_table">
+        	<div class="marginBottom">
+                <button type="button" class="btn btn-primary" onclick="refreshBtn()"><i class="fa fa-refresh"></i> 刷新缓存 </button>
+            </div>
+            <table cellpadding="0" cellspacing="0" border="0" id="baseSysContantsTable" class="table table-bordered table-hover"></table>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        baseSysConstansTable();
+        listOptionInit($('#SysCache'),SYS_CACHE_NAME);
+		$('#SysCache').comboSelect()
+    });
+    // 搜索
+    $("#query_button_baseSysConstans").click(function () {
+        $("#baseSysContantsTable").bootstrapTable('refresh');
+        baseSysConstansTable();
+    });
+    $("#query_button_baseSysCache").click(function () {
+    	var key = $('#SysCache option:selected') .val();
+        _refreshSysCache(key);
+    });
+    var flag_btn = true;
+    /*表格加载*/
+    function baseSysConstansTable() {
+        $('#baseSysContantsTable').bootstrapTable({
+            url: host_url + '/cloud-web/pubSysConstans/pageList',
+            method: 'POST',
+            dataType: "json",
+            contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+            pagination: true, //在表格底部显示分页工具栏
+            pageNumber: 1,
+            pageList: [20, 50, 100],
+            clickToSelect: true,
+            sidePagination: "server", //表格分页的位置
+            cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            locale: 'zh-CN', //中文支持
+            queryParamsType: 'limit',
+            queryParams: function (params) {
+                params.pageSize = params.limit; //页面大小
+                params.page = (params.offset / params.limit) + 1; //页码
+                params._sys_login_token = _get_sys_login_token();
+
+                var paramForm = $("#baseSysConstans_Form").serializeArray();
+                $.each(paramForm, function (i, param) {
+                    params[param.name] = $.trim(param.value);
+                });
+                return params;
+            }, //参数
+            columns: [{
+                    title: "序号",
+                    align: 'center',
+                    width: 30,
+                    valign: "middle",
+                    formatter: function (value, row, index) {
+                        var options = $('#baseSysContantsTable').bootstrapTable("getOptions");
+                        return (options.pageNumber - 1) * (options.pageSize) + index + 1;
+                    }
+                },
+                {
+                    title: '操作',
+                    field: 'operation',
+                    align: "center",
+                    valign: "middle",
+                    width: 30,
+                    formatter: function (value, row, index) {
+                        return '<a class="fa fa-edit operation a_size" onclick="_sys_edit(' + row.id +
+                            ')" title="编辑"></a> ';
+                    }
+                },
+                {
+                    field: 'sysCode',
+                    title: '系统编码',
+                    width: 40,
+                    align: "center",
+                    valign: "middle"
+                },
+                {
+                    field: 'paramName',
+                    title: '参数名称',
+                    width: 180,
+                    align: "center",
+                    valign: "middle"
+                },
+                {
+                    field: 'paramCode',
+                    title: '参数代码',
+                    width: 120,
+                    align: "center",
+                    valign: "middle"
+                },
+                {
+                    field: 'paramValue',
+                    title: '参数值',
+                    width: 120,
+                    align: "center",
+                    valign: "middle"
+                },
+                {
+                    field: 'paramDesc',
+                    title: '描述',
+                    width: 180,
+                    align: "center",
+                    valign: "middle"
+                },
+                {
+                    field: 'status',
+                    title: '状态',
+                    width: 30,
+                    align: "center",
+                    valign: "middle",
+                    formatter: function (value, row, index) {
+                        var baseSysConstSwitch;
+                        if (value == 100) {
+                            baseSysConstSwitch =
+                                '<div class="baseSysConstSwitch" data-on="success" data-off="warning"><input type="checkbox" id="' +
+                                row.id + '" value="' + row.id + '" checked /></div>';
+                        } else {
+                            baseSysConstSwitch =
+                                '<div class="baseSysConstSwitch" data-on="success" data-off="warning"><input type="checkbox" id="' +
+                                row.id + '" value="' + row.id + '"/></div>';
+                        }
+                        return baseSysConstSwitch;
+                    }
+                },
+                {
+                    field: 'isEncry',
+                    title: '是否加密',
+                    width: 50,
+                    align: "center",
+                    valign: "middle",
+                    formatter: function (value, row, index) {
+                        return visualParams(IS_STATUS, value);
+                    }
+                },
+                {
+                    field: 'updateTime',
+                    title: '更新时间',
+                    width: 80,
+                    align: "center",
+                    valign: "middle",
+                    formatter: function (value, row, index) {
+                        return formatterDateTime(value)
+                    }
+                }
+
+            ],
+            onClickRow: function (row, $element) {
+                $($element).addClass('table_info').siblings().removeClass('table_info');
+            },
+            onLoadSuccess: function (res) {
+                $('.baseSysConstSwitch').bootstrapSwitch();
+                //开关
+                $('.baseSysConstSwitch').on('switch-change', function (e, data) {
+                    if (!flag_btn) {
+                        flag_btn = true;
+                        return;
+                    } else {
+                        var el = $(data.el),
+                            value = data.value;
+                        var id = el[0].value;
+                        var values;
+                        if (value) { //on
+                            values = 100;
+                        } else { //offS
+                            values = -100;
+                        }
+                        var params = {
+                            "id": id,
+                            "status": values
+                        };
+                        _updateBaseSysConstStatus(params);
+                    }
+                });
+                
+                $('.isEncrySwitch').bootstrapSwitch();
+                //开关
+                $('.isEncrySwitch').on('switch-change', function (e, data) {
+                    if (!flag_btn) {
+                        flag_btn = true;
+                        return;
+                    } else {
+                        var el = $(data.el),
+                            value = data.value;
+                        var id = el[0].value;
+                        var values;
+                        if (value) { //on
+                            values = 100;
+                        } else { //offS
+                            values = -100;
+                        }
+                        var params = { 
+                            "id": id,
+                            "status": values
+                        };
+                        _updateEncryStatus(params);
+                    }
+                });
+            }
+        });
+    }
+
+    //编辑
+    function _sys_edit(id) {
+        Ewin.dialog({
+            url: '../../system/baseSysConstans/edit.html?id=' + id,
+            title: '编辑'
+        });
+    }
+
+    //详情
+    function _view(id) {
+        Ewin.dialog({
+            url: '../../system/baseSysConstans/view.html?id=' + id,
+            title: '详情',
+            width: 950
+        });
+    }
+
+    //删除
+    function _del(id) {
+        Ewin.confirm({
+            message: '是否删除该行？'
+        }).on(function (e) {
+            if (e) { //成功
+                sendAjax('POST', host_url + "/base-web/baseSysConstans/delete", {
+                    'id': id
+                }, function (res) {
+                    Ewin.alert({
+                        message: '恭喜你，操作成功！'
+                    }).on(function (e) {
+                        if (e) {
+                            //重新加载
+                            $("#baseSysContantsTable").bootstrapTable('refresh');
+                        }
+                    });
+                });
+            }
+        });
+    }
+    //修改状态
+    function _updateBaseSysConstStatus(params) {
+        sendAjax('POST', host_url + "/cloud-web/pubSysConstans/updateStatus", params, function (res) {
+            if (res.retCode == SUCCESS_CODE) {
+                alertTips({
+                    message: '恭喜你，操作成功！',
+                    id: 'alert-success'
+                });
+                $("#baseSysContantsTable").bootstrapTable('refresh');
+            } else {
+                Ewin.alert({
+                    message: res.retMsg
+                });
+            }
+        });
+    }
+    function _updateEncryStatus(params) {
+        sendAjax('POST', host_url + "/cloud-web/pubSysConstans/updateEn", params, function (res) {
+            if (res.retCode == SUCCESS_CODE) {
+                alertTips({
+                    message: '恭喜你，操作成功！',
+                    id: 'alert-success'
+                });
+                $("#baseSysContantsTable").bootstrapTable('refresh');
+            } else {
+                Ewin.alert({
+                    message: res.retMsg
+                });
+            }
+        });
+    }
+    //刷新缓存
+    function refreshBtn() {
+    	Ewin.dialog({
+            url: '../../system/baseSysConstans/refresh.html',
+            title: '刷新系统缓存'
+        });
+    }
+    //刷新缓存
+    function _refreshSysCache(key) {
+    	sendAjax('POST', host_url + "/cloud-web/pubSysConstans/clearCache", { 
+            'key': key
+        }, function (res) {
+            if (res.retCode == SUCCESS_CODE) {
+                Ewin.alert({
+                    message: '恭喜你，操作成功'
+                });
+                //$("#baseSysContantsTable").bootstrapTable('refresh');
+            } else {
+                Ewin.alert({
+                    message: res.retMsg
+                });
+            }
+        });
+    }
+</script>

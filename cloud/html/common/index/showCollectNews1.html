@@ -1,0 +1,176 @@
+<link rel="stylesheet" href="../../../css/fonts/rob/iconfont.css" />
+<div class="content_center" id="showCollectNews_1">
+	<div class="content_center_content" id="showCollectNewsContent_1">
+		<!-- <button
+			id="batchrobBillCollect_1"
+			type="button"
+			class="btn btn-primary"
+			style="margin-bottom: 10px;"
+			onclick="newsBatchrobBillCollect_1()"
+		>
+			批量抢单
+		</button> -->
+		<button type="button" class="btn btn-primary" style="margin-bottom: 10px;float: right;"
+			onclick="collectNewsTableRefresh_1()">
+			查询
+		</button>
+		<table id="showCollectNewsTable_1" cellpadding="0" cellspacing="0" border="0"
+			class="table table-bordered table-hover">
+			<thead>
+				<tr>
+					<!-- <th><input type="checkbox" id="news_select_all" /></th> -->
+					<th>序号</th>
+					<th>转出银行</th>
+					<th style="text-align: right;">归集金额(元)</th>
+					<th>平台流水号</th>
+					<th>内容</th>
+					<th>创建时间</th>
+					<th>剩余抢单时间(s)</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody id="showCollectNewsBody_1"></tbody>
+		</table>
+		<div class="modal-footer" id="showCollectNewsFooter_1">
+			<button type="button" class="btn btn-default" data-dismiss="modal">
+				关闭
+			</button>
+		</div>
+	</div>
+</div>
+<style>
+	#showCollectNews_1 {
+		width: 100%;
+		position: relative;
+		height: 793px;
+	}
+
+	#showCollectNewsFooter_1 {
+		position: absolute;
+		bottom: 0px;
+	}
+
+	#showCollectNews_1>li {
+		width: 100%;
+		height: 50px;
+		line-height: 50px;
+		border-bottom: 1px solid #e5e5e5;
+		cursor: pointer;
+	}
+
+	.blue {
+		color: blue;
+	}
+</style>
+<script>
+	var end = "";
+	$(function () {
+		showCollectNewsTable_1();
+	});
+
+	// 查询
+	function collectNewsTableRefresh_1() {
+		showCollectNewsTable_1();
+	}
+	// 显示表格
+	function showCollectNewsTable_1() {
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/coreMessageNotify/getMergeMessageList",
+			{ notifyType: 55 },
+			function (res) {
+				var data = res.rows;
+				for (var key in timer) {
+					if (timer.hasOwnProperty(key)) {
+						clearInterval(timer[key]);
+						delete timer[key];
+					}
+				}
+				$("#collect_header_tip_1").html(data.length);
+				if (data.length > 0) {
+					var newsContent = "";
+					$.each(data, function (i, item) {
+						if (item.surplusTime < 0) {
+							return;
+						}
+						var notify = "提款";
+						newsContent +=
+							"<tr>" +
+							"<td>" +
+							(i + 1) +
+							"</td>" +
+							"<td>" +
+							item.payBankName +
+							"</td>" +
+							"<td style='text-align:right;'>" +
+							formatterMoney(item.payAmt) +
+							"</td>" +
+							"<td>" +
+							item.orderNo +
+							"</td>" +
+							"<td>一笔新的归集订单 金额：" +
+							formatterMoney(item.payAmt) +
+							"待领取进入工作台快速处理</td>" +
+							"<td>" +
+							formatterDateTime(item.createTime) +
+							"</td>" +
+							"<td id='collect_news_surplusTime_1" +
+							i +
+							"'>" +
+							item.surplusTime +
+							"</td>" +
+							"<td><i class='iconfont icon-qiangdan' title='抢单' style='color:#3e7fff;font-size:20px;cursor:pointer;' onclick='robBillCollect_1(\"" +
+							item.orderNo +
+							'","' +
+							item.id +
+							"\")'></i></td>" +
+							"</tr>";
+						countDown(
+							item.surplusTime,
+							"collect_news_surplusTime_1" + i
+						);
+					});
+					$("#showCollectNewsBody_1").html(newsContent);
+				} else {
+					$("#showCollectNewsBody_1").html("<tr><td colspan='8'>没有找到匹配的记录</td></tr>");
+				}
+			}
+		);
+	}
+	// 抢单
+	function robBillCollect_1(orderNo, id) {
+		var params = {
+			orderNo: orderNo,
+			operatorCode: _loginJsonObj.loginName,
+			operatorName: _loginJsonObj.userName
+		};
+		sendAjax_special(
+			"POST",
+			host_url + "/cloud-web/corePayMergeFlow/changeGrad",
+			params,
+			function (res) {
+				if (res.retCode == "000000") {
+					Ewin.dialog({
+						url:
+							"../../../html/workBench/corePayTransFinanceFlow/edit.html?id=" +
+							id,
+						title: "归集办理"
+					});
+					$('#nav-accordion .account_children li').each(function(i,item){
+						if($(item).text()=='财务归集作业'){
+							var dataTabCj = $(item).attr('data-tab');
+							$("#tabContainer").data("tabs").$element.find(".nav-tabs li a[href='#"+dataTabCj+"']").click();
+							$(".account_children li[data-tab='"+dataTabCj+"']").click();
+							$("#corePayTransFinanceFlowTable").bootstrapTable("refresh");
+						}
+					})
+					showCollectNewsTable_1();
+					alertTips({ message: res.retMsg });
+				} else {
+					showCollectNewsTable_1();
+					alertTips({ message: res.retMsg, id: "alert-danger" });
+				}
+			}
+		);
+	}
+</script>

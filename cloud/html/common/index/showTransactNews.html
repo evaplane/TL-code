@@ -1,0 +1,150 @@
+<link rel="stylesheet" href="../../../css/fonts/rob/iconfont.css" />
+<div class="content_center" id="showTransactNews">
+	<div class="content_center_content" id="showTransactNewsContent">
+		<!-- <button
+			id="batchtransactRobBill"
+			type="button"
+			class="btn btn-primary"
+			style="margin-bottom: 10px;"
+			onclick="newsBatchtransactRobBill()"
+		>
+			批量抢单
+		</button> -->
+		<button type="button" class="btn btn-primary" style="margin-bottom: 10px;float: right;"
+			onclick="showTransactNewsTable()">
+			查询
+		</button>
+		<table id="showTransactNewsTable" cellpadding="0" cellspacing="0" border="0"
+			class="table table-bordered table-hover">
+			<thead>
+				<tr>
+					<!-- <th><input type="checkbox" id="news_select_all" /></th> -->
+					<th>序号</th>
+					<th>平台流水号</th>
+					<th style="text-align: right;">归集金额(元)</th>
+					<th>转出银行</th>
+					<th>转出银行账号</th>
+					<th>转出银行户名</th>
+					<th>转出账户别名</th>
+					<th>创建时间</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody id="showTransactNewsBody"></tbody>
+		</table>
+		<div class="modal-footer" id="showTransactNewsFooter">
+			<button type="button" class="btn btn-default" data-dismiss="modal">
+				关闭
+			</button>
+		</div>
+	</div>
+</div>
+<style>
+	#showTransactNews {
+		width: 100%;
+		position: relative;
+		height: 793px;
+	}
+
+	#showTransactNewsFooter {
+		position: absolute;
+		bottom: 0px;
+	}
+
+	#showTransactNews>li {
+		width: 100%;
+		height: 50px;
+		line-height: 50px;
+		border-bottom: 1px solid #e5e5e5;
+		cursor: pointer;
+	}
+
+	.blue {
+		color: blue;
+	}
+</style>
+<script>
+	$(function () {
+		showTransactNewsTable();
+	});
+	// 显示表格
+	function showTransactNewsTable() {
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/coreMessageNotify/getMergeMessageList",
+			{ notifyType: 65 },
+			function (res) {
+				var data = res.rows;
+				$("#transact_header_tip").html(data.length);
+				if (data.length > 0) {
+					var newsContent = "";
+					$.each(data, function (i, item) {
+						var notify = "提款";
+						newsContent +=
+							"<tr>" +
+							// "<td><input type='checkbox' name='news_select' data-routecode=" +
+							// item.routeCode +
+							// " data-orderno=" +
+							// item.orderNo +
+							// "></td>" +
+							"<td>" +
+							(i + 1) +
+							"</td>" +
+							"<td>" +
+							item.orderNo +
+							"</td>" +
+							"<td style='text-align:right;'>" +
+							formatterMoney(item.payAmt) +
+							"</td>" +
+							"<td>" +
+							item.payBankName +
+							"</td>" +
+							"<td>" +
+							item.payAcctNo +
+							"</td>" +
+							"<td>" +
+							item.payAcctName +
+							"</td>" +
+							"<td>" +
+							item.payAliasName +
+							"</td>" +
+							"<td>" +
+							formatterDateTime(item.createTime) +
+							"</td>" +
+							"<td><i class='iconfont icon-qiangdan' title='出款' style='color:#3e7fff;font-size:20px;cursor:pointer;' onclick='transactRobBill(\"" +
+							item.orderNo +
+							'","' +
+							item.id +
+							"\")'></i></td>" +
+							"</tr>";
+					});
+					$("#showTransactNewsBody").html(newsContent);
+				} else {
+					$("#showTransactNewsBody").html("<tr><td colspan='9'>没有找到匹配的记录</td></tr>");
+				}
+			}
+		);
+	}
+	// 抢单
+	function transactRobBill(orderNo, id) {
+		$(".account_children li").each(function (i, item) {
+			if ($(item).text() == "入金归集作业") {
+				dataTab = $(item).attr("data-tab");
+				$("#tabContainer")
+					.data("tabs")
+					.$element.find(".nav-tabs li a[href='#" + dataTab + "']")
+					.click();
+				$(".account_children li[data-tab='" + dataTab + "']").click();
+				$("#corePayTransFlowTable").bootstrapTable("refresh");
+				$("#showTransactNewsBody td :checkbox").prop("checked", false);
+				$("#showTransactNewsTable").bootstrapTable("refresh");
+				Ewin.dialog({
+					url:
+						"../../../html/workBench/corePayTradeCollectFlow/edit.html?id=" +
+						id,
+					title: "归集办理"
+				});
+			}
+		});
+	}
+</script>

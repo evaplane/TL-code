@@ -1,0 +1,228 @@
+<div class="content_center">
+	<div class="content_center_content" style="overflow-x: hidden;">
+		<form class="form-horizontal" name="group_user_edit_form" role="form" id="group_user_edit_form">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>API出款状态</label>
+				<div class="col-xs-8 col-sm-8 edit_apiTransStatus">
+					<div class="group_user_apiTransStatusSwitch" data-on="success" data-off="warning"><input
+							type="checkbox" name="apiTransStatus" value="100" checked /></div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>出款金额区间(元)</label>
+				<div class="col-xs-4 col-sm-3">
+					<input type="text" class="form-control" id="group_user_edit_amtAreaLow" name="amtAreaLow"
+						placeholder="最小金额" autocomplete="off">
+				</div>
+				<div class="amtArea">
+					<span class="amtAreaStyle"> - </span>
+				</div>
+				<div class="col-xs-4 col-sm-3">
+					<input type="text" class="form-control" id="group_user_edit_amtAreaHight" name="amtAreaHight"
+						placeholder="最大金额" autocomplete="off">
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		<button type="button" class="btn btn-primary" onclick="_doSubmit();">确定</button>
+	</div>
+</div>
+<style>
+	.amtArea>.amtAreaStyle {
+		float: left;
+		line-height: 32px;
+	}
+</style>
+<script src="../../../js/lib/bootstrap-treeview.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var set_id, set_apiTransStatus;
+	var set_userCode = getQueryString('userCode');
+	var set_loginName = getQueryString('loginName');
+	$(function () {
+		_validateForm();
+
+		sendAjax('POST', host_url + "/cloud-web/ownUserTradeConfig/view", { 'userCode': set_userCode, 'loginName': set_loginName }, function (res) {
+			var data = res.rows;
+			if (data) {
+				set_id = data.id;
+				$('#group_user_edit_amtAreaLow').val((parseFloat(data.amtAreaLow) / 100).toFixed(2));
+				$('#group_user_edit_amtAreaHight').val((parseFloat(data.amtAreaHight) / 100).toFixed(2));
+
+				if (data.apiTransStatus == -100) {
+					$('.edit_apiTransStatus').html('<div class="group_user_apiTransStatusSwitch" data-on="success" data-off="warning"><input type="checkbox" name="apiTransStatus" value="-100" /></div>');
+				} else {
+					$('.edit_apiTransStatus').html('<div class="group_user_apiTransStatusSwitch" data-on="success" data-off="warning"><input type="checkbox" name="apiTransStatus" value="100" checked /></div>');
+				}
+			}
+		});
+		setTimeout(function () {
+			$('.group_user_apiTransStatusSwitch').bootstrapSwitch();
+			$('.group_user_apiTransStatusSwitch').on('switch-change', function (e, data) {
+				var el = $(data.el),
+					value = data.value;
+				var values;
+				if (value) {//on
+					values = 100;
+				} else {//offS
+					values = -100;
+				}
+				set_apiTransStatus = values;
+			});
+		}, 300);
+
+	});
+
+	//初始化验证框架
+	function _validateForm() {
+		var fields = {};
+		fields.amtAreaLow = toGreaterThan("amtAreaHight")
+		fields.amtAreaHight = toGreaterThan("amtAreaLow")
+		//进行表单验证
+		$('#group_user_edit_form').bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: { valid: 'glyphicon glyphicon-ok', invalid: 'glyphicon glyphicon-remove', validating: 'glyphicon glyphicon-refresh' },
+			excluded: [':disabled'],
+			fields: fields
+			// {
+			//       	amtAreaLow:{
+			//       	    verbose: false,
+			//       	    validators: {
+			//       	    	notEmpty: {message: '最小金额不能为空'},
+			//       	    	regexp: {
+			//       	    		regexp: /^-?\d+\.?\d{0,2}$/,
+			//       	    		message: '请输入正确的金额(小数点后最多两位)'
+			//       	    	},
+			//       	    	lessThan: {
+			//       	    		message: '最小金额不能大于等于1亿',
+			//       	    		value: 99999999.99999999
+			//       	    	},
+			//       	    	greaterThan: {
+			//       	    		value: 0.0000000000000000000000001,
+			//       	    		message: '最小金额必须大于0'
+			//       	    	},
+			// 			callback: {
+			// 				message: '最小金额不能超过最大金额',
+			// 				callback: function(value, validator){
+			// 					var amtAreaHight = $("#group_user_edit_amtAreaHight").val();
+			// 					if(parseFloat(value) >parseFloat(amtAreaHight)){
+			// 						return false;
+			// 					}else{
+			// 						return true;
+			// 					}
+			// 				}
+			// 			}
+			//       	    }
+			//       	},
+			// 	amtAreaHight:{
+			//               verbose: false,
+			//               validators: {
+			//               	notEmpty: {message: '最大金额不能为空'},
+			//               	regexp: {
+			//               		regexp: /^-?\d+\.?\d{0,2}$/,
+			//               		message: '请输入正确的金额(小数点后最多两位)'
+			//               	},
+			//               	lessThan: {
+			//               		message: '最大金额不能大于等于1亿',
+			//               		value: 99999999.99999999
+			//               	},
+			//               	greaterThan: {
+			//               		value: 0.0000000000000000000000001,
+			//               		message: '最大金额必须大于0'
+			//               	},
+			// 			callback: {
+			// 				message: '最大金额不能小于最小金额',
+			// 				callback: function(value, validator){
+			// 					var amtAreaLow = $("#group_user_edit_amtAreaLow").val();
+			// 					if(parseFloat(value) <parseFloat(amtAreaLow)){
+			// 						return false;
+			// 					}else{
+			// 						return true;
+			// 					}
+			// 				}
+			// 			}
+			//               }
+			//           },
+			//       }
+		});
+	}
+	function toGreaterThan(box) {
+		var obj = {
+			verbose: false,
+			validators: {
+				notEmpty: {
+					message: '这是必填字段'
+				},
+				regexp: {
+					regexp: /^-?\d+\.?\d{0,2}$/,
+					message: '请输入正确的金额(小数点后最多两位)'
+				},
+				lessThan: {
+					message: '不能大于等于1亿',
+					value: 99999999.99999999
+				},
+				greaterThan: {
+					value: 0.0000000000000000000000001,
+					message: '必须大于0'
+				},
+				callback: {
+					message: '最大金额必须大于最小金额',
+					callback: function (value, validator, $field) {
+						var otherbox = validator.getFieldElements(box).val();//获得另一个的值
+						if (otherbox == '') {
+							return true;
+						}
+						if (box == "amtAreaLow") {
+							if (parseFloat(otherbox) <= parseFloat(value)) {
+								//当前文本框满足条件，box的文本框也满足条件，更新box文本框的状态；
+								validator.updateStatus(box, validator.STATUS_VALID, 'callback');
+								return true;
+							}
+						} else {
+							if (parseFloat(otherbox) >= parseFloat(value)) {
+								//当前文本框满足条件，box的文本框也满足条件，更新box文本框的状态；
+								validator.updateStatus(box, validator.STATUS_VALID, 'callback');
+								return true;
+							}
+						}
+						return false;
+					}
+				}
+			}
+		}
+		return obj
+
+
+	}
+
+	//提交表单
+	function _doSubmit() {
+		var bv = $('#group_user_edit_form').data('bootstrapValidator').validate();
+		if (!bv.isValid()) {//验证不通过
+			return;
+		}
+
+		var paramForm = $("#group_user_edit_form").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		params.amtAreaLow = parseFloat(params.amtAreaLow * 100).toFixed(0);
+		params.amtAreaHight = parseFloat(params.amtAreaHight * 100).toFixed(0);
+		params.id = set_id;
+		params.userCode = set_userCode;
+		params.loginName = set_loginName;
+		params.apiTransStatus = set_apiTransStatus;
+
+		// debugger
+		sendAjax('POST', host_url + "/cloud-web/ownUserTradeConfig/addSubmit", params, function (res) {
+			Ewin.alert({ message: '恭喜你，操作成功！' }).on(function (e) {
+				if (e) {
+					$('#group_user_edit_form').parents('.modal').modal('hide');
+					$("#recGroupTableUser").bootstrapTable('refresh');
+				}
+			});
+		});
+	}
+</script>

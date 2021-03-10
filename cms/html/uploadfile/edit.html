@@ -1,0 +1,398 @@
+<form class="form-horizontal" name="add_form" role="form" id="add_form">
+    <div class="form-horizontal">
+        <div class="uploadFileBox col-lg-12">
+            <div class="uploadFileBox_left col-xs-5 col-sm-5">
+                <h2>服务器文件夹目录</h2>
+                <div class="uploadFileBox_left_main  col-sm-12">
+                    <label class="uploadFile_radioZ">
+                    <input type="radio" class="add_video_0" id="edit_video_0" value="edit_video_0" name="edit_video"><span id="edit_folder_0"></span>
+                </label>
+                    <div class="uploadFile_leftList" id="edit_uploadFile_leftList"></div>
+                </div>
+            </div>
+            <div class="uploadFileBox_right col-xs-7 col-sm-7 form-groupFolder">
+                <div class="form-group">
+                    <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>文件上传地址：</label>
+                    <div class="col-xs-8 col-sm-8">
+                        <input type="text" class="form-control" id="edit_folderUrl" name="edit_folderUrl" placeholder="请输入文件上传地址" readonly autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <form enctype="multipart/form-data">
+                        <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>上传文件：</label>
+                        <div class="col-xs-8 col-sm-9">
+                            <input type="file" name="edit_file_folder" id="edit_file_folder" style="display:none" multiple class="file-loading">
+                            <input class="btn-dr btn btn-primary marginTop" id="add_fileUploadBtn" type="button" value="上传" onclick="fileUploadClick();">
+                        </div>
+                    </form>
+                </div>
+                <div class="form-group uploadFolderMainListTit_Cont">
+                    <div class="col-xs-12 col-sm-12">
+                        <h3 class="uploadFolderMainListTit">本次上传文件列表</h3>
+                        <div class="uploadFile_leftListBoxMain" id="edit_uploadFolderMainList"></div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- 隐藏域 -->
+            <input id="edit_id" name="id" class="form-control" type="hidden">
+            <input id="edit_batchId" name="batchId" class="form-control" type="hidden">
+        </div>
+
+        <div class="modal-footer" style="padding-bottom: 0;overflow: hidden;">
+            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" id="submit" onclick="_edit_doSubmit()">提交</button>
+        </div>
+        <div class="uploadFileHtmlName col-sm-12">
+            <button type="button" class="btn btn-primary" id="uploadFileHtmlName" onclick="_edit_fileNameFun()">修改项目或html文件名称</button>
+        </div>
+        <div class="uploadFplderMainList2_box col-sm-12">
+            <!-- 已上传文件 -->
+            <h3 class="uploadFplderMainListTit uploadFplderMainListTit2">已上传文件列表</h3>
+            <div class="edit_uploadFolderMainList2" id="edit_uploadFolderMainList2"></div>
+        </div>
+    </div>
+</form>
+
+<div class="loading_box">
+    <img src="../../img/loder.gif" />
+    <p>文件上传中...</p>
+</div>
+<input type="hidden" id="filePathID_J">
+<input type="hidden" id="filePathID_Name">
+<input type="hidden" id="edit_fileUrlStr_Name">
+<script type="text/javascript">
+    $(function() {
+        baseFolder();
+        init();
+    });
+
+    var testStr = 1;
+    var indexStr = 1;
+
+    function baseFolder() {
+        // var edit_fileUrlStr = $("#edit_fileUrlStr").val();
+        // $("#edit_fileUrlStr_Name").val(edit_fileUrlStr);
+        // var edit_fileUrl = $("#edit_fileUrlStr_Name").val();
+        var edit_fileUrl = $("#edit_fileUrlStr").val();
+        var params = {
+            filePath: edit_fileUrl,
+            _sys_login_token: login_token()
+        }
+        $.ajax({
+            type: 'GET',
+            url: host_url + "/cms/getUploadFileTree",
+            cache: false, //清楚ie缓存
+            data: params,
+            dataType: 'json',
+            success: function(res) {
+                if (res.retCode == "000000") {
+                    var data = res.rows;
+                    $("#edit_video_0").attr("filePath", data.filePath);
+                    $("#edit_video_0").attr("fileType", data.fileType);
+                    $("#edit_folder_0").html(data.fileName);
+                    var fileNameList = data.nodes;
+                    var edit_videoListID = "uploadFile_leftListDel_" + testStr;
+                    var edit_videoID = "edit_video_" + indexStr;
+                    var str = "";
+                    $("#edit_uploadFile_leftList").html("");
+                    var fileNameList = data.nodes;
+                    $.each(fileNameList, function(i, item) {
+                        var filePath_str = item.filePath;
+                        var filePathStr = filePath_str.substring(filePath_str.length - 4);
+                        if (filePathStr == "html") {
+                            var filePath_strUrl = filePath_str.substring(0, filePath_str.length - 4);
+                        }
+                        str += '<div class="uploadFile_leftMainListStr">';
+                        str += '<div class="uploadFile_leftListDel" id="' + edit_videoListID + '">';
+                        str += '<label class="uploadFile_radioZ col-lg-8">';
+                        str += '<input type="radio" class="' + edit_videoID + '" id="' + edit_videoID + '" name="edit_video" filePath="' + item.filePath + '" fileType="' + item.fileType + '"><span>' + item.fileName + '</span></label>';
+                        str += '<i class="glyphicon glyphicon-trash"></i>';
+                        str += '</div>';
+                        var fileNameList2 = item.nodes;
+                        console.log(fileNameList2);
+                        if (fileNameList2 == "" || fileNameList2 == null || fileNameList2 == "null") {} else {
+                            $.each(fileNameList2, function(j, item2) {
+                                if (item2.fileType == 2) {
+                                    str += '<div class="uploadFile_leftListDel uploadFile_leftListDel2" id="' + edit_videoListID + '">';
+                                    str += '<label class="uploadFile_radioZ col-lg-8">';
+                                    str += '<input type="radio" class="' + edit_videoID + '" id="' + edit_videoID + '" name="edit_video" filePath="' + item2.filePath + '" fileName="' + item2.fileName + '" fileType="' + item.fileType + '"><span>' + item2.fileName + '</span></label>';
+                                    str += '<i class="glyphicon glyphicon-trash"></i>';
+                                    str += '</div>';
+                                }
+                            });
+                        }
+                        str += '</div>';
+                        // }
+                    })
+                    $("#edit_uploadFile_leftList").append(str);
+                } else {
+                    Ewin.alert({
+                        message: res.retMsg
+                    });
+                    return false;
+                }
+            },
+            error: function() {
+                Ewin.alert({
+                    message: "服务器错误!"
+                });
+                return false;
+            }
+        });
+    }
+
+    $(".form-horizontal").on("click", ".uploadFile_leftListDel i", function(event) {
+        event.stopPropagation();
+        // onclick="delAddRadioNum(\'' + add_videoListID + '\');"
+        var folderPath = $(this).parent().find("input[name='edit_video']").attr("filepath");
+        var fileName = $(this).parent().find("input[name='edit_video']").attr("fileName");
+        var _this = $(this).parent();
+        Ewin.confirm({
+            message: '删除文件夹,该文件夹下所有文件将一起删除,是否确认？'
+        }).on(function(e) {
+            if (e) {
+                var params = {
+                    folderPath: folderPath,
+                    _sys_login_token: login_token()
+                }
+                sendAjax('POST', host_url + "/cms/delFolder", params, function(res) {
+                    if (res.retCode == "000000") {
+                        Ewin.alert({
+                            message: "删除成功!"
+                        });
+                        _this.remove();
+                        baseFolder();
+                        init();
+                        $("#edit_uploadFolderMainList span[fileName='" + fileName + "']").remove();
+                        // location.reload();
+                        // $("#" + add_videoListId).remove();
+                    } else {
+                        Ewin.alert({
+                            message: res.retMsg
+                        });
+                        return false;
+                    }
+                    $(".table").bootstrapTable('refresh');
+                });
+            }
+        });
+
+    })
+
+    function init() {
+        // var edit_id = getQueryString('id');
+        var edit_id = $("#edit_IDStr").val();
+        sendAjax('POST', host_url + "/file/init", {
+            'id': edit_id
+        }, function(res) {
+            var data = res.rows;
+            $('#edit_id').html(data.id);
+            $('#edit_videofolder').html(data.folderNameStr);
+            $('#edit_folderUrl').val(data.fileUrl);
+            $('#edit_batchId').html(data.batchId);
+            var str = '';
+			if(data.fileNameStr != null && data.fileNameStr != '') {
+				var arr = (data.fileNameStr).split(",");
+				for (var i = 0; i < arr.length; i++) {
+					str += '<span class="col-xs-5 col-sm-5">' + arr[i] + '，</span>'
+				}
+				document.getElementById('edit_uploadFolderMainList2').innerHTML = str;
+			} else {
+				document.getElementById('edit_uploadFolderMainList2').innerHTML = '';
+			}
+            
+        });
+    }
+
+    //文件上传
+    fileUpload();
+
+    function fileUpload() {
+        //文件导入
+        var arrJson = [];
+        var str = '';
+        var result = ""; 
+        var test = document.getElementById('edit_file_folder');  
+        test.addEventListener('change', function() {
+            $("#add_fileUploadBtn,#submit").attr("disabled", true);
+            $(".loading_box").show();
+            var t_files = this.files;
+            var arr = [];     
+            for (var i = 0; i < t_files.length; i++) {    //读取文件名称       
+                arrJson.push(t_files[i]);
+                arr.push(t_files[i].name);      //读取文件内容       
+            }
+
+            var folderUrl = $("#edit_folderUrl").val();
+            var fileName = $("#edit_folderUrl").attr('fileName');   
+            for (var i = 0;  i < arr.length; i++) {     
+                str += '<span class="col-xs-5 col-sm-5" fileName="' + fileName + '" fileUrl="' + folderUrl + '">' + arr[i] + '，</span>' 
+            }   
+            document.getElementById('edit_uploadFolderMainList').innerHTML = str;    
+
+            var url = host_url + "/file/uploadFiles?_sys_login_token=" + login_token(); // 接收上传文件的后台地址
+            var form_Data = new FormData(); // FormData 对象
+            for (i = 0; i < t_files.length; i++) {
+                form_Data.append("file", t_files[i]);
+            }
+
+            form_Data.append("filePath", folderUrl);
+            xhr = new XMLHttpRequest(); // XMLHttpRequest 对象
+            xhr.open("post", url, true); //post方式，url为服务器请求地址，true 该参数规定请求是否异步处理。
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var obj = JSON.parse(xhr.responseText);
+                    if (obj.retCode === '000000') {
+                        $("#add_fileUploadBtn,#submit").attr("disabled", false);
+                        $(".loading_box").hide();
+                        Ewin.alert({
+                            message: "上传成功!"
+                        });
+                    } else {
+                        Ewin.alert({
+                            message: obj.retMsg
+                        });
+                        return false;
+                    }
+                } else {
+                    Ewin.alert({
+                        message: obj.retMsg
+                    });
+                    return false;
+                }
+            };
+            xhr.send(form_Data); //开始上传，发送form数据
+        }, false);
+    }
+
+    function fileUploadClick() {
+        var fileType = $("#edit_folderUrl").attr('fileType');
+        if (fileType == '1') {
+            Ewin.alert({
+                message: '请选择文件夹上传!'
+            });
+            return false;
+        }
+        var checked = $('.uploadFileBox_left_main input[type=radio]:checked');
+        if (checked.length <= 0) {
+            Ewin.alert({
+                message: '请先选择上传的服务器文件夹!'
+            });
+            return false;
+        } else {
+            var filePathInput = $(".uploadFileBox_left_main").find("input:checked").attr("filePath");
+            $("#edit_folderUrl").val(filePathInput);
+            $("#edit_file_folder").trigger("click");
+        }
+    }
+
+    $(".uploadFileBox_left_main").on("click", "label", function() {
+        var radioStr = $(this).find("input[type='radio']").attr("filePath");
+        var fileType = $(this).find("input[type='radio']").attr("fileType");
+        var fileNameInput = $(this).find("input[type='radio']").attr("fileName");
+        $("#edit_folderUrl").val(radioStr).attr({
+            'fileType': fileType,
+            'fileName': fileNameInput
+        });
+    });
+
+
+    function edit_fileUploadClick() {
+        var folderUrl = $("#edit_folderUrl").val();
+        if (folderUrl == "") {
+            Ewin.alert({
+                message: "文件上传地址不能为空!"
+            });
+            return false;
+        } else {
+            $("#edit_file_folder").trigger("click");
+        }
+    }
+
+    //修改文件名称
+    function _edit_fileNameFun() {
+        var filepath_str = $("#edit_video_0").attr("filepath");
+        var checked = $('.uploadFileBox_left_main input[type=radio]:checked');
+        if (checked.length > 0) {
+            var filePathID_Name = $('.uploadFileBox_left_main input[type=radio]:checked').next("span").text();
+            $("#filePathID_Name").val(filePathID_Name);
+            var filePath_str2 = $('.uploadFileBox_left_main input[type=radio]:checked').attr("filepath");
+            $("#filePathID_J").val(filePath_str2);
+            var filePathStr2 = filePath_str2.substring(filePath_str2.length - 5);
+        }
+        if (checked.length <= 0) {
+            Ewin.alert({
+                message: '请先选择您要修改的项目文件夹或html文件!'
+            });
+            return false;
+        } else if (filePathStr2 == ".html" || filepath_str == filePath_str2) {
+            Ewin.dialog({
+                url: 'editFileName.html?_sys_login_token=' + login_token(),
+                title: '修改文件名称',
+                width: 800,
+                height: 600,
+            });
+        } else {
+            Ewin.alert({
+                message: '只能修改项目主文件夹名称或后缀为.html的文件!'
+            });
+            return false;
+        }
+
+    }
+
+    function _edit_doSubmit() {
+        var folderUrl = $("#edit_folderUrl").val();
+        var index = folderUrl.lastIndexOf("folder");
+        var reg = new RegExp("\\\\", "g"); //g,表示全部替换。
+        var folder_Url = folderUrl.substring(index, folderUrl.length).replace(reg, "/");
+        var accessPrefix = host_url + "/" + folder_Url + "/";
+        if (folderUrl == "") {
+            Ewin.alert({
+                message: "文件上传地址不能为空!"
+            });
+            return false;
+        }
+        if ($("#edit_uploadFolderMainList span").length <= 0) {
+            Ewin.alert({
+                message: "请选择您要上传的文件!"
+            });
+            return false;
+        } else {
+            $(".loading_box p").html("数据提交中，请稍后......");
+            $("#add_fileUploadBtn,#submit").attr("disabled", true);
+            $(".loading_box").show();
+            var params = {
+                _sys_login_token: login_token(),
+                batchID: $('#edit_batchId').text(),
+                lists: []
+            }
+
+            var arr = $('#edit_uploadFolderMainList span');
+            $.each(arr, function(k, v) {
+                params.lists.push({
+                    folderUrl: $(v).attr('fileUrl'),
+                    folderName: $(v).text(),
+                    accessPrefix: accessPrefix
+                })
+            })
+
+            params.lists = JSON.stringify(params.lists);
+            sendAjax('POST', host_url + "/file/editFile", params, function(res) {
+                $("#add_fileUploadBtn,#submit").attr("disabled", false);
+                $(".loading_box").hide();
+                Ewin.alert({
+                    message: '恭喜你，操作成功！'
+                }).on(function(e) {
+                    if (e) {
+                        $('#add_form').parents('.modal').modal('hide');
+                        $(".table").bootstrapTable('refresh');
+                        $('#submit').attr('disabled', false);
+                    }
+                });
+            });
+
+        }
+    }
+</script>

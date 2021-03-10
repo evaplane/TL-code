@@ -1,0 +1,207 @@
+html,body{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    Font-family: 'open sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    overflow: hidden;
+}
+h2{
+    margin: 0;
+}
+.el-breadcrumb{
+    height: 58px;
+    line-height: 58px;
+    padding-left: 20px;
+}
+.operation{
+    background-color: #fff;
+    border-radius: 5px;
+    padding-left: 25px;
+}
+.operation .el-col{
+    padding-top: 20px;
+}
+.cell{
+    text-align: center;
+}
+.el-main.outer{
+    padding: 0;
+    background-color: #f3f3f4;
+    width: 87%;
+    min-width: 600px;
+    height: 100%;
+    overflow: hidden;
+}
+.content{
+    padding: 20px;
+    border-radius: 5px;
+    background-color: #fff;
+}
+.el-input__inner{
+    height: 35px;
+}
+.el-button {
+    margin-top: 3px;
+}
+.el-table th{
+    background-color: rgb(247, 247, 247);
+}
+.block{
+    margin-top: 10px;
+}
+a{
+    text-decoration: none;
+    color: #333;
+}
+.el-link--inner{
+    height: 30px;
+}
+.detail{
+    width: 100%;
+}
+.detail .el-row{
+    margin-bottom:0px;
+}
+.detail .grid-content{
+    min-height: 40px;
+    line-height: 40px;
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+}
+.detail .detailBottom .grid-content{
+    border-bottom: 1px solid #ccc;
+}
+.detail .el-col:nth-child(4n) .grid-content{
+    border-right: 1px solid #ccc;
+}
+.opendialog .el-col-6{
+    min-width: 229px!important;
+}
+.grid-content{
+    min-width: 80px;
+}
+.el-col-2{
+    min-width: 90px;
+}
+.el-col-4{
+    min-width: 250px;
+}
+.el-col-5{
+    min-width: 285px;
+}
+.el-col-6{
+    min-width: 360px;
+}
+.el-col-8{
+    min-width: 430px;
+}
+.el-col-10{
+    min-width: 520px;
+}
+.el-col-12{
+    min-width: 650px;
+}
+.detailDialog .el-dialog{
+    width: 50%;
+}
+.detail-bg{
+    background-color: #eee;
+}
+.el-dialog{
+    min-width: 500px;
+}
+.el-tree{
+    width: 300px;
+}
+.fa.fa-plus-square{
+    font-size: 36px;
+    margin-left: 10px;
+    position: relative;
+    top: 7px;
+}
+.el-menu--popup .el-menu-item{
+    background-color: #222e32;
+}
+.gatherDialog .el-dialog{
+    min-width: 600px;
+}
+.publishTime .el-range-input{
+    min-width: 150px;
+}
+.publishTime .el-date-editor {
+    min-width: 350px;
+}
+.mainTitle .el-col-2{
+    min-width: 150px;
+}
+.el-breadcrumb{
+    min-width: 800px;
+}
+.el-date-editor--datetimerange.el-input, .el-date-editor--datetimerange.el-input__inner{
+    width: 370px;
+}
+.el-date-editor .el-range-separator,.el-date-editor .el-range__icon,.el-date-editor .el-range__close-icon{
+    line-height: 29px;
+}
+.el-icon-circle-close:before{
+    content: "\e6db";
+    font-size: 18px;
+}
+.inner{
+    box-sizing: border-box;
+}
+.inner .el-textarea__inner{
+    border-radius: 0
+}
+.inner .content{
+    padding: 0;
+    padding-bottom: 30px;
+}
+.inner .demo-ruleForm{
+    padding:30px 30px 10px 150px;
+}
+.inner .rightsRow{
+    padding-left: 220px;
+}
+.inner .innerTitle{
+    font-size: 18px;
+    font-weight: 500;
+}
+.inner .el-select{
+    width: 100%;
+}
+.inner .rightsRow{
+    font-size: 14px;
+}
+.inner .el-input__inner{
+    border-radius: 0px;
+}
+#innerMain{
+    overflow: hidden;
+    overflow-y:scroll
+}
+.inner .inner-button{
+    min-width: 250px;
+    float: right;
+    background-color: #fff;
+    margin-top: -20px;
+}
+.el-input-number{
+    width: 7%;
+    min-width: 96px;
+}
+.operation .el-form-item{
+    margin-bottom: 0;
+}
+.operation.el-row{
+    padding-bottom: 20px;
+}
+.el-checkbox__input.is-disabled.is-checked .el-checkbox__inner{
+    background-color: #409EFF;
+    border-color: #409EFF;
+}
+.el-checkbox__input.is-disabled.is-indeterminate .el-checkbox__inner{
+    background-color: #409EFF;
+    border-color: #409EFF;
+}

@@ -1,0 +1,244 @@
+﻿<div class="content_center">
+    <div class="content_center_content">
+        <form class="form-horizontal" name="editType_form" role="form" id="editType_form">
+            <div class="form-group">
+                <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>系统名称：</label>
+                <div class="col-xs-8 col-sm-7">
+                    <input type="text" class="form-control" id="edit_sysCode" name="sysCode" placeholder="系统名称"
+                        autocomplete="off">
+                    <!-- <select class="form-control" id="edit_sysCode" name="sysCode" style="display: none;"></select> -->
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>类组解释：</label>
+                <div class="col-xs-8 col-sm-7">
+                    <input type="text" class="form-control" id="edit_groupName" name="groupName" placeholder="类组解释"
+                        autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>类组别名：</label>
+                <div class="col-xs-8 col-sm-7">
+                    <input type="text" class="form-control" id="edit_groupAlias" name="groupAlias" placeholder="类组别名"
+                        autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>键值：</label>
+                <div class="col-xs-8 col-sm-7">
+                    <input type="text" class="form-control" id="edit_keyValue" name="keyValue" placeholder="键值"
+                        autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>键名：</label>
+                <div class="col-xs-8 col-sm-7">
+                    <input type="text" class="form-control" id="edit_keyName" name="keyName" placeholder="键名"
+                        autocomplete="off">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-xs-4 col-sm-3"><span class="red"></span>排序：</label>
+                <div class="col-xs-8 col-sm-7">
+                    <input type="text" class="form-control" id="edit_sortNo" name="sortNo" placeholder="排序"
+                        autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-4 col-sm-3"><span class="red"></span>描述：</label>
+                <div class="col-xs-8 col-sm-7">
+                    <textarea class="form-control" id="edit_paramDesc" name="paramDesc" placeholder="描述" autocomplete="off"
+                        cols="39" rows="4" style="resize:none;"></textarea>
+                </div>
+            </div>
+            <!-- 隐藏域 -->
+            <input id="edit_id" name="id" class="form-control" type="hidden">
+        </form>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+    <button type="button" class="btn btn-primary" onclick="_doSubmit();">确定</button>
+</div>
+<script type="text/javascript">
+    $(function () {
+
+        _validateForm();
+        var edit_id = getQueryString('id');
+        var url = host_url + "/cloud-web/pubTypeGroup/view";
+        sendAjax('POST', url, {
+            'id': edit_id
+        }, function (res) {
+            var data = res.rows;
+
+            $('#edit_id').val(data.id);
+            $('#edit_sysCode').val(data.sysCode);
+            $('#edit_groupName').val(data.groupName);
+            $('#edit_groupAlias').val(data.groupAlias);
+            $('#edit_keyValue').val(data.keyValue);
+            $('#edit_keyName').val(data.keyName);
+            $('#edit_paramDesc').val(data.paramDesc);
+            $('#edit_sortNo').val(data.sortNo);
+
+            // sendAjax('POST', host_url + "/cloud-web/pubTypeGroup/getSysSet", {}, function (res) {
+            //     var newSysCodeSet = res.rows;
+            //     var sysCodeSet = [];
+            //     $.each(newSysCodeSet, function (i, param) {
+            //         if (param != '') {
+            //             sysCodeSet.push(param)
+            //         }
+            //     })
+            //     if (sysCodeSet != undefined) {
+            //         $("#edit_sysCode").append('<option value="">全部</option>');
+            //         $.each(sysCodeSet, function (i, param) {
+            //             $("#edit_sysCode").append("<option value='" + param + "'>" +
+            //                 param + "</option>");
+            //         });
+            //         $("#edit_sysCode option[value='" + data.sysCode + "']").attr("selected",
+            //             "selected");
+            //         $('#edit_sysCode').comboSelect({
+            //             extendStyle: false
+            //         });
+            //     }
+            // });
+        });
+
+    });
+
+    //初始化验证框架
+    function _validateForm() {
+        //进行表单验证
+        $('#editType_form').bootstrapValidator({
+            message: '输入值不合法',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                sysCode: {
+                    message: '系统名称验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '系统名称不能为空'
+                        },
+                        stringLength: {
+                            min: 1,
+                            max: 32,
+                            message: '长度必须在1-32之间'
+                        }
+                    }
+                },
+                groupName: {
+                    message: '类组解释验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '类组解释不能为空'
+                        },
+                        stringLength: {
+                            min: 1,
+                            max: 64,
+                            message: '长度必须在1-64之间'
+                        }
+                    }
+                },
+                groupAlias: {
+                    message: '类组别名验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '类组别名不能为空'
+                        },
+                        stringLength: {
+                            min: 1,
+                            max: 32,
+                            message: '长度必须在1-32之间'
+                        }
+                    }
+                },
+                keyValue: {
+                    message: '键值验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '键值不能为空'
+                        },
+                        stringLength: {
+                            min: 1,
+                            max: 64,
+                            message: '长度必须在1-64之间'
+                        }
+                    }
+                },
+                keyName: {
+                    message: '键名验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '键名不能为空'
+                        },
+                        stringLength: {
+                            min: 1,
+                            max: 128,
+                            message: '长度必须在1-128之间'
+                        }
+                    }
+                },
+                paramDesc: {
+                    message: '描述验证失败',
+                    validators: {
+                        stringLength: {
+                            max: 128,
+                            message: '长度必须在1-128之间'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    //提交表单
+    function _doSubmit() {
+        var bv = $('#editType_form').data('bootstrapValidator').validate();
+        if (!bv.isValid()) { //验证不通过
+            return;
+        }
+
+        var paramForm = $("#editType_form").serializeArray();
+        var params = {};
+        $.each(paramForm, function (i, param) {
+            params[param.name] = $.trim(param.value);
+        });
+        // params.sysCode = $('#edit_sysCode option:selected').val();
+        if ($.trim(params.sortNo) != "") {
+            var sortNo = /^\d{1,4}$/;
+            if (sortNo.test(params.sortNo)) {
+                sendAjax('POST', host_url + "/cloud-web/pubTypeGroup/editSubmit", params, function (res) {
+                    Ewin.alert({
+                        message: '恭喜你，操作成功！'
+                    }).on(function (e) {
+                        if (e) {
+                            $('#editType_form').parents('.modal').modal('hide');
+                            $("#baseTypeGroupTable").bootstrapTable('refresh');
+                        }
+                    });
+                });
+            } else {
+                Ewin.alert({
+                    message: '请输入1-4位正整数排序字段！'
+                });
+            }
+        } else if ($.trim(params.sortNo) == "") {
+            params.sortNo = '9999';
+            sendAjax('POST', host_url + "/cloud-web/pubTypeGroup/editSubmit", params, function (res) {
+                Ewin.alert({
+                    message: '恭喜你，操作成功！'
+                }).on(function (e) {
+                    if (e) {
+                        $('#editType_form').parents('.modal').modal('hide');
+                        $(".table").bootstrapTable('refresh');
+                        location.reload();
+                    }
+                });
+            });
+        }
+    }
+</script>

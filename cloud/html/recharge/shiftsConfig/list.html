@@ -1,0 +1,316 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal" name="shiftsconfig_add_form" role="form" id="shiftsconfig_add_form">
+			<div class="form-group col-xs-12 col-sm-12">
+				<label class="control-label col-xs-2 col-sm-2" style="margin-top:5px;"
+					id="fixed_amount_label">排班班次时间：</label>
+				<div class="col-xs-9 col-sm-9 addGCodeMoneyNumList">
+					<div class="col-xs-12 col-sm-12 merchent_routeAmt_tradePeriodMain" id="ddGCodeMoneyNum_fca">
+						<input type="text" class="form-control routeAmt_tradePeriod payAmtNumVal" id="start_GDMoney_fca"
+							name="routeName" placeholder="班次名称" autocomplete="off" />
+						<input type="text" name="oneMinTime" readonly="readonly"
+							class="routeAmt_tradePeriod timepicker timepicker-default form-control member_common_product_timepickerStart"
+							placeholder="从" />
+						<input type="text" name="oneMaxTime" readonly="readonly"
+							class="routeAmt_tradePeriod timepicker timepicker-default form-control member_common_product_timepickerEnd"
+							placeholder="到" />
+						<i class="glyphicon glyphicon-plus btn_routeAmt_tradePeriod add_routeAmt_tradePeriod"
+							onclick="addGCodeMoneyNumList_fca()"></i>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<!-- <button type="button" class="btn btn-default" data-dismiss="modal">取消</button> -->
+		<button type="button" class="btn btn-primary" onclick="shiftsConfig__doSubmit()">
+			保存
+		</button>
+	</div>
+</div>
+<link rel="stylesheet" type="text/css" href="../../../css/lib/bootstrap-timepicker.min.css" />
+<script type="text/javascript" src="../../../js/lib/bootstrap-timepicker.min.js"></script>
+<script type="text/javascript">
+	$(function () {
+		// shiftsCpnfig_validateForm(); //验证初始化
+		timepicker();
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/cardRoutePoolInfo/loadRouteCode",
+			{},
+			function (res) {
+				var chnMerchantAmts = res.rows;
+				if (chnMerchantAmts.length > 0) {
+					$("#shiftsconfig_add_form .glyphicon").hide();
+					var oneMinTime_0 = chnMerchantAmts[0].oneMinTime.toString();
+					var oneMaxTime_0 = chnMerchantAmts[0].oneMaxTime.toString();
+
+					if (chnMerchantAmts[0].twoMaxTime) {
+						var twoMaxTime_0 = chnMerchantAmts[0].twoMaxTime.toString();
+						if (twoMaxTime_0.length == 3) {
+							oneMaxTime_0 =
+								twoMaxTime_0.substring(0, 1) +
+								":" +
+								twoMaxTime_0.substring(1);
+						} else {
+							oneMaxTime_0 =
+								twoMaxTime_0.substring(0, 2) +
+								":" +
+								twoMaxTime_0.substring(2);
+						}
+					} else {
+						if (oneMaxTime_0.toString().length == 3) {
+							oneMaxTime_0 =
+								oneMaxTime_0.substring(0, 1) +
+								":" +
+								oneMaxTime_0.substring(1);
+						} else {
+							oneMaxTime_0 =
+								oneMaxTime_0.substring(0, 2) +
+								":" +
+								oneMaxTime_0.substring(2);
+						}
+					}
+					if (oneMinTime_0.length == 3) {
+						oneMinTime_0 =
+							oneMinTime_0.substring(0, 1) +
+							":" +
+							oneMinTime_0.substring(1);
+					} else {
+						oneMinTime_0 =
+							oneMinTime_0.substring(0, 2) +
+							":" +
+							oneMinTime_0.substring(2);
+					}
+
+					$("#ddGCodeMoneyNum_fca input[name=routeName]")
+						.val(chnMerchantAmts[0].routeName)
+						.attr({
+							"data-id": chnMerchantAmts[0].id,
+							"data-routeCode": chnMerchantAmts[0].routeCode
+						});
+					$("#ddGCodeMoneyNum_fca input[name=oneMinTime]").val(
+						oneMinTime_0
+					);
+					$("#ddGCodeMoneyNum_fca input[name=oneMaxTime]").val(
+						oneMaxTime_0
+					);
+					var payStr = "";
+					for (var i = 1; i < chnMerchantAmts.length; i++) {
+						var rowId = "ddGCodeMoneyNum_" + i;
+						var routeName = chnMerchantAmts[i].routeName;
+						var oneMinTime = chnMerchantAmts[
+							i
+						].oneMinTime.toString();
+						var oneMaxTime = chnMerchantAmts[
+							i
+						].oneMaxTime.toString();
+
+						if (oneMinTime.length == 3) {
+							oneMinTime =
+								oneMinTime.substring(0, 1) +
+								":" +
+								oneMinTime.substring(1);
+						} else {
+							oneMinTime =
+								oneMinTime.substring(0, 2) +
+								":" +
+								oneMinTime.substring(2);
+						}
+						if (chnMerchantAmts[i].twoMaxTime) {
+							var twoMaxTime = chnMerchantAmts[
+								i
+							].twoMaxTime.toString();
+							if (twoMaxTime.length == 3) {
+								oneMaxTime =
+									twoMaxTime.substring(0, 1) +
+									":" +
+									twoMaxTime.substring(1);
+							} else {
+								oneMaxTime =
+									twoMaxTime.substring(0, 2) +
+									":" +
+									twoMaxTime.substring(2);
+							}
+						} else {
+							if (oneMaxTime.length == 3) {
+								oneMaxTime =
+									oneMaxTime.substring(0, 1) +
+									":" +
+									oneMaxTime.substring(1);
+							} else {
+								oneMaxTime =
+									oneMaxTime.substring(0, 2) +
+									":" +
+									oneMaxTime.substring(2);
+							}
+						}
+
+						payStr +=
+							'<div class="col-xs-12 col-sm-12 merchent_routeAmt_tradePeriodMain merchent_routeAmt_tradePeriodMain_1" id="' +
+							rowId +
+							'">' +
+							'<input type="text" class="form-control routeAmt_tradePeriod payAmtNumVal" id="start_GDMoney_cfa" data-id="' +
+							chnMerchantAmts[i].id +
+							'" data-routeCode="' +
+							chnMerchantAmts[i].routeCode +
+							'" name="routeName" value="' +
+							routeName +
+							'" placeholder="班次名称" autocomplete="off">' +
+							'<input type="text" name="oneMinTime" readonly="readonly" class="routeAmt_tradePeriod timepicker timepicker-default form-control member_common_product_timepickerStart" value="' +
+							oneMinTime +
+							'" placeholder="从">' +
+							'<input type="text" name="oneMaxTime" readonly="readonly" class="routeAmt_tradePeriod timepicker timepicker-default form-control member_common_product_timepickerEnd" value="' +
+							oneMaxTime +
+							'" placeholder="到">' +
+							// '<i class="glyphicon glyphicon-minus btn_routeAmt_tradePeriod cut_routeAmt_tradePeriod" onclick="delGCodeMoneyNum_cfa(\'' +
+							// rowId + '\');"></i>' +
+							"</div>";
+					}
+					$(".addGCodeMoneyNumList").append(payStr);
+					timepicker();
+					setTimeout(function () {
+						shiftsCpnfig_validateForm(); //验证初始化
+					}, 100);
+				}
+			}
+		);
+	});
+	//初始化验证框架
+	function shiftsCpnfig_validateForm() {
+		//进行表单验证
+		$("#shiftsconfig_add_form").bootstrapValidator({
+			message: "输入值不合法",
+			feedbackIcons: {
+				valid: "glyphicon glyphicon-ok",
+				invalid: "glyphicon glyphicon-remove",
+				validating: "glyphicon glyphicon-refresh"
+			},
+			excluded: [":disabled"],
+			fields: {
+				routeName: {
+					message: "班次名称验证失败",
+					validators: {
+						stringLength: {
+							min: 1,
+							max: 20,
+							message: "班次名称长度1-20"
+						},
+						notEmpty: {
+							message: "班次名称不能为空"
+						}
+					}
+				}
+			}
+		});
+	}
+	// 声明全局变量
+	var ddGCodeMoneyNum_fca = 1;
+
+	// 添加固定金额
+	function addGCodeMoneyNumList_fca() {
+		if (ddGCodeMoneyNum_fca < 10) {
+			var rowId = "ddGCodeMoneyNum_fca" + ddGCodeMoneyNum_fca;
+			var insertStr =
+				'<div class="col-xs-12 col-sm-12 merchent_routeAmt_tradePeriodMain merchent_routeAmt_tradePeriodMain_1" id="' +
+				rowId +
+				'">' +
+				'<input type="text" class="form-control routeAmt_tradePeriod payAmtNumVal" id="start_GDMoney_cfa" name="routeName" placeholder="班次名称" autocomplete="off">' +
+				'<input type="text" name="oneMinTime" readonly="readonly" class="routeAmt_tradePeriod timepicker timepicker-default form-control member_common_product_timepickerStart" placeholder="从">' +
+				'<input type="text" name="oneMaxTime" readonly="readonly" class="routeAmt_tradePeriod timepicker timepicker-default form-control member_common_product_timepickerEnd" placeholder="到">' +
+				'<i class="glyphicon glyphicon-minus btn_routeAmt_tradePeriod cut_routeAmt_tradePeriod" onclick="delGCodeMoneyNum_cfa(\'' +
+				rowId +
+				"');\"></i>" +
+				"</div>";
+			$(".addGCodeMoneyNumList").append(insertStr);
+			timepicker();
+			ddGCodeMoneyNum_fca++;
+		} else {
+			Ewin.alert({
+				message: "固定金额最多10个"
+			});
+		}
+	}
+
+	// 删除固定金额
+	function delGCodeMoneyNum_cfa(rowID) {
+		ddGCodeMoneyNum_fca--;
+		$("#" + rowID).remove();
+	}
+	// 时间控件
+	function timepicker() {
+		$(".member_common_product_timepickerStart").timepicker({
+			defaultTime: "09:00",
+			showMeridian: false,
+			minuteStep: 1
+		});
+
+		$(".member_common_product_timepickerEnd").timepicker({
+			defaultTime: "21:00",
+			showMeridian: false,
+			minuteStep: 1
+		});
+	}
+
+	//提交
+	function shiftsConfig__doSubmit() {
+		var bv = $("#shiftsconfig_add_form")
+			.data("bootstrapValidator")
+			.validate();
+		if (!bv.isValid()) {
+			//验证不通过
+			return;
+		}
+		var receiptAmtListJSON = [];
+		var addGCodeMoneyNumList = $(".addGCodeMoneyNumList").children("div");
+		var flag = true;
+		for (var i = 0; i < addGCodeMoneyNumList.length; i++) {
+			var addGJ = addGCodeMoneyNumList.eq(i);
+			var receiptAmtList = addGJ.find("input[name=routeName]").val();
+
+			if (receiptAmtList == "") {
+				receiptAmtList = "";
+			} else {
+				receiptAmtListJSON.push({
+					routeName: receiptAmtList,
+					index: i,
+					id: addGJ.find("input[name=routeName]").attr("data-id"),
+					routeCode: addGJ
+						.find("input[name=routeName]")
+						.attr("data-routeCode"),
+					oneMinTime: Number(
+						addGJ
+							.find("input[name=oneMinTime]")
+							.val()
+							.replace(":", "")
+					),
+					oneMaxTime: Number(
+						addGJ
+							.find("input[name=oneMaxTime]")
+							.val()
+							.replace(":", "")
+					)
+				});
+			}
+		}
+		if (receiptAmtListJSON.length > 5) {
+			Ewin.alert({ message: "新增班次不能超过5个" });
+		} else {
+			sendAjax(
+				"POST",
+				host_url + "/cloud-web/cardRoutePoolInfo/addSubmit",
+				{ list: JSON.stringify(receiptAmtListJSON) },
+				function (res) {
+					Ewin.alert({ message: "恭喜你，操作成功！" }).on(function (
+						e
+					) {
+						if (e) {
+							// $('#shiftsconfig_add_form').parents('.modal').modal('hide');
+							// getAllShiftsLists();
+						}
+					});
+				}
+			);
+		}
+	}
+</script>

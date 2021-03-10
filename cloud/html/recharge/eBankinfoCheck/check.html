@@ -1,0 +1,212 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal basic" name="edit_form" role="form" id="edit_form">
+			<table cellpadding="0" cellspacing="0" border="0" class=" table table-bordered ">
+				<tbody>
+					<tr>
+						<td class="title col-sm-2">账户别名：</td>
+						<td class="col-sm-4 " id="view_aliasName"></td>
+						<td class="title col-sm-2">账号预警(万元)：</td>
+						<td class="col-sm-4 " id="view_cardLimit"></td>
+					</tr>
+					<tr>
+						<td class="title col-sm-2">开户银行：</td>
+						<td class="col-sm-4 " id="view_bankName"></td>
+						<td class="title col-sm-2">开户姓名：</td>
+						<td class="col-sm-4 " id="view_acctName"></td>
+					</tr>
+					<tr>
+						<td class="title col-sm-2">银行卡号：</td>
+						<td class="col-sm-4 " id="view_bankCode"></td>
+						<td class="title col-sm-2">开户地址：</td>
+						<td class="col-sm-4 " id="view_provinceName"></td>
+					</tr>
+					<tr>
+						<td class="title col-sm-2">支行行名：</td>
+						<td class="col-sm-4 " id="view_subBankName"></td>
+						<td class="title col-sm-2">账户类型：</td>
+						<td class="col-sm-4 " id="view_bankName">对私</td>
+					</tr>
+					<tr>
+						<td class="title col-sm-2">备注：</td>
+						<td class="col-sm-4" id="view_remark"></td>
+						<td class="title col-sm-2">出金限额：</td>
+						<td class="col-sm-4" id="view_cardUseCode"></td>
+						<!-- <td class='title col-sm-2'>账号用途：</td>
+						<td class="col-sm-4" id="view_cardUseType"></td> -->
+					</tr>
+				</tbody>
+			</table>
+			<div class="form-group marginTop">
+				<label class="col-sm-3 control-label" style="padding-top: 0;">审核意见：</label>
+				<div class="col-sm-9">
+					<label><input type="radio" name="authStatus" value="100" />
+						通过</label>
+					<label><input type="radio" name="authStatus" value="-100" />不通过</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label id="add_lbl_name" class="control-label col-xs-4 col-sm-3"><span class="red">*</span>审核备注：</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="edit_authRemark" name="authRemark" placeholder="请输入审核备注"
+						autocomplete="off" />
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">
+			取消
+		</button>
+		<button type="button" class="btn btn-primary" onclick="edit_chnMerchantInfo_doSbmit()">
+			确定
+		</button>
+	</div>
+</div>
+<script type="text/javascript">
+	var id = getQueryString("id");
+	$(function () {
+		_validateForm(); //验证初始化
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/cardBankCardInfo/view",
+			{
+				id: id
+			},
+			function (res) {
+				var data = res.rows;
+
+				$("#view_aliasName").text(data.aliasName);
+				if (data.cardLimit == 0) {
+					$("#view_cardLimit").text("");
+				} else {
+					$("#view_cardLimit").text(data.cardLimit);
+				}
+				var cardUseCode = "";
+				if (data.cardUseCode == 10) {
+					cardUseCode = "小额卡";
+				} else if (data.cardUseCode == 20) {
+					cardUseCode = "中额卡";
+				} else if (data.cardUseCode == 30) {
+					cardUseCode = "大额卡";
+				} else if (data.cardUseCode == 40) {
+					cardUseCode = "超大额卡";
+				} else {
+					cardUseCode = "-";
+				}
+				$("#view_bankName").text(data.bankName);
+				$("#view_acctName").text(data.acctName);
+				$("#view_bankCode").text(data.acctNo);
+				$("#view_cardUseCode").text(cardUseCode);
+
+				sendAjax(
+					"POST",
+					host_url + "/cloud-web/pubTypeGroup/findPubTypeGroupList",
+					{ sysCode: "Card", groupName: "card_type" },
+					function (resp) {
+						var cardUseTypeList = [];
+						$.each(resp.rows, function (i, item) {
+							cardUseTypeList.push({
+								id: item.keyValue,
+								text: item.keyName
+							});
+						});
+						$("#view_cardUseType").text(
+							visualParams(cardUseTypeList, data.cardUseType)
+						);
+					}
+				);
+
+				$("#view_provinceName").text(
+					data.provinceName + "-" + data.cityName
+				);
+				if (data.subBankName == "") {
+					$("#view_subBankName").text("-");
+				} else {
+					$("#view_subBankName").text(data.subBankName);
+				}
+				if (data.remark == "") {
+					$("#view_remark").text("-");
+				} else {
+					$("#view_remark").text(data.remark);
+				}
+			}
+		);
+	});
+	//审核单选框
+	$("#edit_form input[name='authStatus']").on("change", function () {
+		var flag = $(this).prop("checked");
+		if (flag) {
+			var val = $(this).val();
+			if (val == "100") {
+				if ($("#edit_authRemark").val() == "") {
+					$("#edit_authRemark").val("通过");
+				}
+			} else {
+				if ($("#edit_authRemark").val() == "") {
+					$("#edit_authRemark").val("不通过");
+				}
+			}
+			$("#edit_form").bootstrapValidator("revalidateField", "authRemark");
+		}
+	});
+	//初始化验证框架
+	function _validateForm() {
+		//进行表单验证
+		$("#edit_form").bootstrapValidator({
+			message: "输入值不合法",
+			excluded: {},
+			feedbackIcons: {
+				valid: "glyphicon glyphicon-ok",
+				invalid: "glyphicon glyphicon-remove",
+				validating: "glyphicon glyphicon-refresh"
+			},
+			fields: {
+				authRemark: {
+					message: "审核备注不可为空",
+					verbose: false,
+					validators: {
+						notEmpty: { message: "审核备注不可为空" },
+						stringLength: {
+							max: 32,
+							message: "审核备注不能超过32位限定长度"
+						}
+					}
+				}
+			}
+		});
+	}
+	function edit_chnMerchantInfo_doSbmit() {
+		var bv = $("#edit_form")
+			.data("bootstrapValidator")
+			.validate();
+		if (!bv.isValid()) {
+			//验证不通过
+			return;
+		}
+
+		if (typeof $("input[name=authStatus]:checked").val() == "undefined") {
+			Ewin.alert({ message: "请选择是否审核通过" });
+			return;
+		}
+		var paramForm = $("#edit_form").serializeArray();
+		var params = {
+			id: id,
+			authStatus: $("input[name=authStatus]:checked").val(),
+			authRemark: $("#edit_authRemark").val()
+		};
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/cardBankCardInfo/auth",
+			params,
+			function (res) {
+				Ewin.alert({ message: "恭喜你，操作成功！" }).on(function (e) {
+					if (e) {
+						$(".modal").modal("hide");
+						$("#eBankinfoCheckTable").bootstrapTable("refresh");
+					}
+				});
+			}
+		);
+	}
+</script>

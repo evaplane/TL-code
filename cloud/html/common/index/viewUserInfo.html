@@ -1,0 +1,46 @@
+<div class="content_center">
+    <div class="content_center_content">
+        <table cellpadding="0" cellspacing="0" border="0" id="table" class="table table-bordered">
+            <tbody class="basic">
+                <tr>
+                    <td class='title col-sm-2'>用户名：</td>
+                    <td class="col-sm-4" id="view_userName"></td>
+                    <td class='title col-sm-2'>登录账号：</td>
+                    <td class="col-sm-4" id="view_loginName"></td>
+                </tr>
+                <tr>
+                    <td class='title col-sm-2'>用户角色：</td>
+                    <td class="col-sm-4" id="view_roleAliase"></td>
+                    <td class='title col-sm-2'>用户状态：</td>
+                    <td class="col-sm-4" id="view_status"></td>
+                </tr>
+                <tr>
+                	<td class='title col-sm-2'>创建时间：</td>
+                    <td class="col-sm-4" id="view_createTime"></td>
+                	<td class='title col-sm-2'>更新时间：</td>
+                    <td class="col-sm-4" id="view_updateTime"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal-footer" id="close">
+    <button type="button" class="btn btn-default cancel" data-dismiss="modal">关闭</button>
+</div>
+<script type="text/javascript">
+$(function(){
+	var token = getQueryString('token');
+    sendAjax( 'POST', host_url+"/cloud-web/ownSsoUser/viewByCode", {"_sys_login_token": token}, function(res){
+        var data=res.rows;
+ 
+        $('#view_userName').html(data.userName);
+        $('#view_phoneNumber').html(data.userMobile);
+        $('#view_loginName').html(data.loginName);
+        $('#view_roleAliase').html(data.userRole);
+        $('#view_email').html(data.userEmail);
+        $('#view_status').html(sys_getTitle_Id(data.status,CORE_STATUS));
+        $('#view_createTime').html(getDateStr(data.createTime));
+        $('#view_updateTime').html(getDateStr(data.updateTime));
+    });
+});
+</script>

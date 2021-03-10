@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport"
+		content="width=1280, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+	<meta name="renderer" content="webkit">
+	<meta name="renderer" content="webkit|ie-comp|ie-stand">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<link rel="shortcut icon" type="image/x-icon" href="../../../img/top.png" media="screen" />
+	<title>云记账-管理系统</title>
+	<link rel="stylesheet" href="../../../css/lib/bootstrap.min.css" />
+	<link rel="stylesheet" href="../../../css/lib/bootstrap-treeview.min.css">
+	<link rel="stylesheet" href="../../../css/lib/combo.select.css" />
+	<link rel="stylesheet" href="../../../css/lib/bootstrapSwitch.css" />
+	<link rel="stylesheet" href="../../../css/lib/font-awesome.css" />
+	<link rel="stylesheet" href="../../../css/iconfont/iconfont.css" />
+	<link rel="stylesheet" href="../../../css/com.css" />
+	<link rel="stylesheet" href="../../../css/lib/animate.min.css" />
+</head>
+
+<body>
+	<div class="wrapper">
+		<header>
+			<div class="login_img">
+				<span>云记账系统</span>
+				<!--<img src="../../../img/logo1.png"/>-->
+			</div>
+			<div class="header_content">
+				<div class="container-fluid">
+					<i class="fa fa-list sidebar-toggle-box" aria-hidden="true"></i>
+					<ul class="nav navbar-nav header_center" id="menuUl"></ul>
+					<ul class="header_right">
+						<li>
+							<a href="javascript:void(0);" onclick="viewUserInfo()" title="用户"><span><img
+										src="../../../img/user.png"></span><span class="user"></span></a>
+						</li>
+						<li id="showNewsTipsBox">
+							<a href="javascript:void(0);" title="出金消息" onclick="showNews()"><span
+									class="header_line"><img src="../../../img/tip.png"></span><span>出金消息</span><span
+									id='header_tip_box'><span id='header_tip'
+										style="font-weight:bold;">0</span></span></a>
+						</li>
+						<li id="showCollectNewsTipsBox">
+							<a href="javascript:void(0);" title="归集消息" onclick="showCollectNews()"><span
+									class="header_line"><img src="../../../img/tip.png"></span><span>归集消息</span><span
+									id='collect_header_tip_box'><span id='collect_header_tip'
+										style="font-weight:bold;">0</span></span></a>
+						</li>
+						<li id="showCollectNewsTipsBox_1">
+							<a href="javascript:void(0);" title="归集消息" onclick="showCollectNews_1()"><span
+									class="header_line"><img src="../../../img/tip.png"></span><span>归集消息</span><span
+									id='collect_header_tip_box_1'><span id='collect_header_tip_1'
+										style="font-weight:bold;">0</span></span></a>
+						</li>
+						<li id="showCollectNewsTransactTipsBox">
+							<a href="javascript:void(0);" title="归集办理" onclick="showTransactNews()"><span
+									class="header_line"><img src="../../../img/tip.png"></span><span>归集办理</span><span
+									id='transact_header_tip_box'><span id='transact_header_tip'
+										style="font-weight:bold;">0</span></span></a>
+						</li>
+						<li id="showCollectNewsOverTimeTipsBox">
+							<a href="javascript:void(0);" title="归集超时" onclick="showOverTimeNews()"><span
+									class="header_line"><img src="../../../img/tip.png"></span><span>归集超时</span><span
+									id='overTime_header_tip_box'><span id='overTime_header_tip'
+										style="font-weight:bold;">0</span></span></a>
+						</li>
+						<li>
+							<a href="javascript:void(0);" onclick="updatePass()" title="安全"><span
+									class="header_line"><img src="../../../img/saft.png"><span>安全</span></span></a>
+						</li>
+						<li>
+							<a href="javascript:void(0);" onclick="logout()" title="退出"><span class="header_line"><img
+										src="../../../img/quit.png"><span>退出</span></span></a>
+						</li>
+					</ul>
+				</div>
+				<div class="content-title">
+					<i class="fa fa-angle-left" id="leftNav"></i>
+					<div id="tabContainer"></div>
+					<i class="fa fa-angle-right" id="rightNav"></i>
+					<div class="dropdown navClose" style="height: 34px;color: #000000;">
+						<i class="fa fa-close dropdown-toggle" id="allNav" data-toggle="dropdown"></i>
+						<ul class="dropdown-menu" role="menu" aria-labelledby="allNav">
+							<li role="presentation">
+								<a role="menuitem" tabindex="-1" href="#" class="removeAll">关闭所有</a>
+							</li>
+							<li role="presentation">
+								<a role="menuitem" tabindex="-1" href="#" class="removeOther">关闭其他</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<!--</div>-->
+		</header>
+		<div class="content">
+			<!-- 左侧模块区 -->
+			<div id="sidebar" class="nav-collapse">
+				<!--<div class="navbar-brand"><img src="../../../img/logo.png"/></div>-->
+				<ul class="sidebar-menu" id="nav-accordion"></ul>
+			</div>
+			<!--右侧内容区域-->
+			<aside class="ModularType">
+				<div class="content">
+					<div class="tabContent" style="position: relative;"></div>
+				</div>
+			</aside>
+		</div>
+	</div>
+</body>
+
+</html>
+<style type="text/css">
+	#header_tip_box,
+	#collect_header_tip_box,
+	#overTime_header_tip_box,
+	#transact_header_tip_box,
+	#collect_header_tip_box_1 {
+		display: inline-block;
+		background-color: red;
+		color: #fff;
+		width: 15px;
+		height: 15px;
+		line-height: 15px;
+		text-align: center;
+		border-radius: 50%;
+	}
+
+	#header_tip,
+	#collect_header_tip,
+	#transact_header_tip,
+	#overTime_header_tip,
+	#collect_header_tip_1 {
+		margin-left: 0;
+		transform: scale(0.8);
+	}
+
+	#collect_header_tip_box,
+	#overTime_header_tip_box {
+		background-color: #00ABE9;
+	}
+
+	#showNewsTipsBox,
+	#showCollectNewsTipsBox,
+	#showCollectNewsOverTimeTipsBox,
+	#showCollectNewsTransactTipsBox {
+		display: none;
+	}
+</style>
+<script type="text/javascript" src="../../../js/commonJS.js"></script>
+<script type="text/javascript" src="../../../js/header.js"></script>
+<script type="text/javascript" src="../../../js/lib/bootstrap-notify.min.js"></script>
+<script type="text/javascript" src="../../../js/bootstrapNotify.js"></script>
+<script>
+	$(function () {
+		// 存款方式存储
+		sendAjax("get", host_url + "/cloud-web/cardBankCardInfo/loadVirAcctLevel", {}, function (res) {
+			if (res.retCode == '000000') {
+				if (res.rows) {
+					// level = res.rows.paramValue;
+					window.localStorage.setItem(
+						"sybJsonLevel",
+						JSON.stringify(res.rows)
+					);
+				}
+			}
+		})
+		//导航左侧按钮
+		var liLength = parseInt($(".over").css('width')) / 160;
+		var numwidth = 160;
+
+		$("#leftNav").click(function () {
+			var obj = $(this).next().find(".over ul");
+			if (!(obj.is(":animated"))) {
+				var lefts = parseInt(obj.css("left").slice(0, -2));
+
+				var liWidth = $(obj).width() / $(obj).find('li').length;
+				if (lefts < 0) {
+					obj.animate({ left: lefts + liWidth }, 1000);
+				} else {
+					obj.animate({ left: '29' }, 1000);
+				}
+				if (lefts >= 29) {
+					obj.animate({ left: '29' }, 1000);
+				}
+			}
+		});
+		//导航右侧按钮
+		$("#rightNav").click(function () {
+			var obj = $(this).prev().find(".over ul");
+			var left = $(".over ul").css('left').slice(0, -2);
+			var rightLength = parseInt($(".over ul").width()) + parseInt(left);
+
+			if (!(obj.is(":animated"))) {
+				var arr = $('.over ul li');
+				var width = 0;
+				for (var i = 0; i < arr.length; i++) {
+					width += $(arr[i])[0].offsetWidth;
+				}
+				if (Math.abs(left) + $(".over").width() < width) {
+					obj.animate({ left: left - numwidth }, 1000);
+				}
+			}
+		});
+		//关闭所有页签
+		$('.removeAll').click(function () {
+			$.each($('.over ul li'), function (i, item) {
+				var id = $(this).find('a').attr('href').slice(1);
+				if (id != 'index') {
+					$("#tabContainer").data("tabs").remove(id);
+				}
+				$("#tabContainer .nav-tabs li:eq(0) a").tab("show");
+				$(".tab-pane:eq(0)").addClass('active in');
+			});
+			$('#tabContainer .nav-tabs').css('left', '29px');
+			tabLists = {};
+			sessionStorage.setItem('tabLists', JSON.stringify(tabLists));
+		});
+		//关闭其他页签
+		$('.removeOther').click(function () {
+			var activeId = $('.over ul li.active').find('a').attr('href').slice(1);
+			$.each($('.over ul li'), function (i, item) {
+				var id = $(this).find('a').attr('href').slice(1);
+				if (id != 'index' && id != activeId) {
+					$("#tabContainer").data("tabs").remove(id);
+				}
+				$("#tabContainer .nav-tabs li a[href='" + activeId + "']").tab("show");
+				$(".tab-pane#" + activeId).addClass('active in');
+			});
+			for (var i in tabLists) {
+				if (tabLists[i].id !== activeId) {
+					delete (tabLists[i])
+				}
+			}
+			tabLists[activeId].active = true;
+			sessionStorage.setItem('tabLists', JSON.stringify(tabLists));
+			$('#tabContainer .nav-tabs').css('left', '29px');
+		});
+
+		// sendAjax( 'POST', host_url+"/cloud-web/ownSsoUser/findSsoLoginInfoByToken", {"_sys_login_token": _get_token()}, function(res){
+		//     var data=res.rows;
+		// });
+
+	})
+
+	function viewUserInfo() {
+		Ewin.dialog({ url: '../../common/index/viewUserInfo.html?token=' + _get_token(), title: '用户信息', width: 950 });
+	}
+
+	function updatePass() {
+		Ewin.dialog({ url: '../../common/index/updatePass.html?token=' + _get_token(), title: '修改密码' });
+	}
+
+	// 消息页面
+	function showNews() {
+		Ewin.dialog({ url: '../../common/index/showNews.html', title: '出金消息' });
+	}
+
+	// 归集消息
+	function showCollectNews() {
+		Ewin.dialog({ url: '../../common/index/showCollectNews.html', title: '归集消息' });
+	}
+
+	// 超时
+	function showOverTimeNews() {
+		Ewin.dialog({ url: '../../common/index/showOverTimeNews.html', title: '归集超时' });
+	}
+
+	// 归集办理
+	function showTransactNews() {
+		Ewin.dialog({ url: '../../common/index/showTransactNews.html', title: '归集办理' });
+	}
+
+	// 归集人员归集消息
+	function showCollectNews_1() {
+		Ewin.dialog({ url: '../../common/index/showCollectNews1.html', title: '归集消息' });
+	}
+</script>

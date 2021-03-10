@@ -1,0 +1,176 @@
+<div class="content_center">
+	<div class="content_center_content" style="overflow-x: hidden;">
+		<form class="form-horizontal" name="add_form_auth_user" role="form" id="add_form_auth_user">
+			<div class="row">
+				<div class="col-sm-7">
+					<div class="form-group">
+						<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>用户名</label>
+						<div class="col-xs-8 col-sm-8">
+							<input type="text" class="form-control" id="add_userName" name="userName" placeholder="用户名"
+								autocomplete="off">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>登录账号</label>
+						<div class="col-xs-8 col-sm-8">
+							<input type="text" class="form-control" id="add_loginName" name="loginName"
+								placeholder="登录账号" autocomplete="off">
+
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>用户角色</label>
+						<div class="col-xs-8 col-sm-7">
+							<select class="col-sm-12" id="add_role" name='roleId'></select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>登录密码</label>
+						<div class="col-xs-8 col-sm-8">
+							<input type="password" class="form-control" id="add_password" name="password"
+								placeholder="登录密码" autocomplete="new-password">
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-5">
+					<div class="form-group" id="treeview"></div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		<button type="button" class="btn btn-primary" onclick="auth_user_doSubmit()">确定</button>
+	</div>
+</div>
+<script type="text/javascript" src="../../../js/lib/jquery.md5.js"></script>
+<script type="text/javascript" src="../../../js/lib/bootstrap-treeview.min.js"></script>
+<script type="text/javascript">
+	var load_roleVal = [];
+	$(function () {
+		_validateForm();//验证初始化
+		initRole();
+		$('#add_role').on('change', function () {
+			var dataValue = $('#add_role').find("option:selected").attr('data-value');
+			menu(dataValue);
+		});
+		menu();
+	});
+
+	function initRole() {
+		sendAjax('POST', host_url + "/cloud-web/authRole/selectRoleListByUser", {}, function (res) {
+			$('#add_role').html('');
+			var accountRule = '<option value="">请选择</option>';
+			$.each(res.rows, function (i, param) {
+				accountRule += '<option value="' + param.roleName + '" data-value="' + param.id + '" data-id="' + i + '">' + param.roleName + '</option>';
+			});
+			$('#add_role').append(accountRule);
+			$('#add_role').comboSelect();
+		});
+	}
+
+	//分配菜单
+	function menu(roleId) {
+		sendAjax('POST', host_url + "/cloud-web/authMenu/viewMenuByRoleId", { "roleIds": roleId, "platform": 20 }, function (res) {
+			$('#treeview').treeview({
+				data: res.rows,
+				showTags: true,
+				showCheckbox: true,
+				levels: 1,//设置继承树默认展开的级别设置继承树默认展开的级别
+				//multiSelect: true, 
+				onNodeChecked: function (event, data) { //选中父节点，则自动选择子节点
+					$('#treeview').treeview('toggleNodeChecked', [data.nodeId, { silent: true }]);
+				},
+				onNodeUnchecked: function (event, data) {
+					$('#treeview').treeview('toggleNodeChecked', [data.nodeId, { silent: true }]);
+				}
+			});
+		});
+	}
+	//初始化验证框架
+	function _validateForm() {
+		//进行表单验证
+		$('#add_form_auth_user').bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: { valid: 'glyphicon glyphicon-ok', invalid: 'glyphicon glyphicon-remove', validating: 'glyphicon glyphicon-refresh' },
+			excluded: [':disabled'],
+			fields: {
+				userName: {
+					message: '用户名验证失败',
+					validators: {
+						notEmpty: { message: '用户名不能为空' },
+						stringLength: {
+							min: 2,
+							max: 16,
+							message: '长度必须在2-16之间'
+						}
+					}
+				},
+				loginName: {
+					message: '登录账号验证失败',
+					validators: {
+						notEmpty: { message: '登录账号不能为空' },
+						stringLength: {
+							min: 2,
+							max: 16,
+							message: '长度必须在2-16之间'
+						},
+						regexp: {
+							regexp: /^[0-9a-zA-Z]+$/,
+							message: '登录账号只支持字母和数字'
+						}
+					}
+				},
+				roleId: {
+					message: '用户角色验证失败',
+					validators: {
+						notEmpty: { message: '用户角色不能为空' }
+					}
+				},
+				password: {
+					message: '登录密码验证失败',
+					validators: {
+						notEmpty: { message: '登录密码不能为空' },
+						stringLength: {
+							min: 6,
+							max: 32,
+							message: '长度必须在6-32之间'
+						},
+						regexp: {
+							regexp: /^[0-9a-zA-Z]+$/,
+							message: '登录密码只支持字母和数字'
+						}
+					}
+				}
+			}
+		});
+	}
+
+	//提交
+	function auth_user_doSubmit() {
+		var bv = $('#add_form_auth_user').data('bootstrapValidator').validate();
+		if (!bv.isValid()) {//验证不通过
+			return;
+		}
+		var paramForm = $("#add_form_auth_user").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		params.password = $.md5(params.password);
+		params.userType = 10;
+		load_roleVal = $('#add_role').find("option:selected").attr('data-value');
+		params.roleIds = '[' + load_roleVal + ']';
+		params.userRole = $('#add_role').val().toString();
+		params.roleId = $('#add_role').val().toString();
+
+		sendAjax('GET', host_url + "/cloud-web/ownSsoUser/addSubmit", params, function (res) {
+			Ewin.alert({ message: '恭喜你，操作成功！' }).on(function (e) {
+				if (e) {
+					$('#add_form_auth_user').parents('.modal').modal('hide');
+					$("#tableUser").bootstrapTable('refresh');
+				}
+			});
+		});
+	}
+</script>

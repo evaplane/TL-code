@@ -1,0 +1,73 @@
+<div class="content_center">
+  <div class="content_center_content basic">
+    <table cellpadding="0" cellspacing="0" border="0" class=" table table-bordered ">
+      <tbody>
+        <tr>
+          <td class='title col-sm-2'>平台号：</td>
+          <td class="col-sm-4" id="view_cusCode"></td>
+          <td class='title col-sm-2'>平台名称：</td>
+          <td class="col-sm-4" id="view_cusName"></td>
+        </tr>
+        <tr>
+          <td class='title col-sm-2'>平台状态：</td>
+          <td class="col-sm-4" id="view_loginStatus"></td>
+          <td class='title col-sm-2'>登录账号：</td>
+          <td class="col-sm-4" id="view_loginName"></td>
+        </tr>
+        <tr>
+          <td class='title col-sm-2'>邮箱：</td>
+          <td class="col-sm-4" id="view_email" ></td>
+          <td class='title col-sm-2'>更新人：</td>
+          <td class="col-sm-4" id="view_updateUser" ></td>
+        </tr>
+        <tr>
+          <td class='title col-sm-2'>收款通知地址：</td>
+          <td class="col-sm-4" id="view_recNotifyUrl"></td>
+          <td class='title col-sm-2'>付款通知地址：</td>
+          <td class="col-sm-4" id="view_payNotifyUrl"></td>
+        </tr>
+        <tr>
+          <td class='title col-sm-2'>创建时间：</td>
+          <td class="col-sm-4" id="view_createTime"></td>
+          <td class='title col-sm-2'>最新更新时间：</td>
+          <td class="col-sm-4"   id="view_updateTime"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="modal-footer" id="close">
+  <button type="button" class="btn btn-default cancel" data-dismiss="modal">关闭</button>
+</div>
+<script type="text/javascript ">
+  $(function () {
+    var id = getQueryString('id');
+    sendAjax('POST', host_url + "/cloud-web/cusMemberInfo/view", {	
+      'id': id
+    }, function (res) {
+      var data = res.rows;
+      $("#view_cusCode").text(data.cusCode);
+      $("#view_cusName").text(data.cusName);
+      $("#view_mobile").text(data.mobileArea+data.mobileNum);
+      $("#view_loginName").text(data.loginName);
+      if(data.email == ''){
+      	$("#view_email").text('-');
+      }else{
+      	 $("#view_email").text(data.email);
+      };
+      $("#view_loginStatus").text(visualParams(MEMBER_COMMON_STATUS,data.loginStatus));
+      // $("#view_cusGroup").text(data.cusGroup);
+      var refCusMsg = data.refCusCode ? data.refCusCode+" | "+data.refCusName : '-';
+      $("#view_refCusMsg").text(refCusMsg);
+
+      $('#view_createTime').html(getDateStr(data.createTime));
+      $('#view_createUser').html(data.createUser);
+      $('#view_resetStatusTime').html(getDateStr(data.resetStatusTime));
+      $('#view_resetStatusUser').html(data.operaterUser);
+      $('#view_updateTime').html(getDateStr(data.updateTime));
+      $('#view_updateUser').html(data.updateUser);
+	  $('#view_recNotifyUrl').html(data.recNotifyUrl);
+	  $('#view_payNotifyUrl').html(data.payNotifyUrl);
+    });
+  });
+</script>

@@ -1,0 +1,50 @@
+<div class="content_center">
+  <div class="content_center_content" id="member_common_reset_info">
+    <div class="contentBtn" id="contentBtn_resubut">
+      <button type="button" class="btn btn-primary firstBtn" onclick="member_common_reset_login()"><span
+          class="operation a_size iconfont1 iconfont-czdlmm"></span>重置登录密码</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  #member_common_reset_info .contentBtn {
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #member_common_reset_info .contentBtn button {
+    height: 50px;
+  }
+
+  #member_common_reset_info .contentBtn .firstBtn {
+    margin-right: 100px;
+  }
+
+  #member_common_reset_info .contentBtn button span{
+    color: #FFF;
+    padding: 0 5px;
+  }
+</style>
+
+<script>
+  var member_common_reset_id = getQueryString('id');
+  // 重置登录密码
+  function member_common_reset_login() {
+    Ewin.confirm({
+      message: '确定要重置登录密码吗？'
+    }).on(function (e) {
+      if (e) {
+        sendAjax("post", host_url + '/cloud-web/cusMemberInfo/resetPassword', {
+          id: member_common_reset_id
+        }, function (res) {
+          Ewin.alertTips();
+          $("#member_common_reset_info").closest('.modal').modal('hide');
+          $("#member_tableAcct").bootstrapTable('refresh');
+        })
+      }
+    })
+  }
+</script>

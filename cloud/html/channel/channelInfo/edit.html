@@ -1,0 +1,140 @@
+<div class="content_center">
+    <div class="content_center_content">
+        <form class="form-horizontal bv-form" name="edit_form" role="form" id="channelInfo_edit_form" novalidate="novalidate">
+            <div class="form-group">
+                <label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>渠道编码：</label>
+                <div class="col-xs-6 col-sm-7">
+                    <input name="channelCode" class="form-control" type="text" placeholder="渠道编码" autocomplete="off" id="channelInfo_channelCode" disabled>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>渠道名称：</label>
+                <div class="col-xs-6 col-sm-7">
+                    <input type="text" class="form-control" name="channelName" placeholder="渠道名称"  autocomplete="off" id="channelInfo_edit_channelName" disabled>
+                </div>
+            </div>
+            <div class="form-group" style='margin-bottom:0px;'>
+                <label class="control-label col-xs-3 col-sm-2"><span class="red">*</span>渠道接口地址：</label>
+                <div class="col-xs-6 col-sm-7">
+                    <input name="requestUrl" class="form-control" type="text" placeholder="渠道接口地址" autocomplete="off" id="channelInfo_requestUrl">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-xs-3 col-sm-2"></label>
+                <div class="col-xs-6 col-sm-7">
+                    <!-- <span class='red'>11</span> -->
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>          
+    <button type="button" class="btn btn-primary" onclick="channelInfo_edit_doSubmit(this)">保存</button>
+</div>
+<script type="text/javascript" src="../../../js/lib/jquery.md5.js"></script>
+<script>
+    var id = getQueryString('id');
+    $(function() {
+        channelInfo_edit_initValidate()
+        //详细信息
+        sendAjax( "POST", host_url+"/cloud-web/chnChannelInfo/view", {id:id}, function(data){
+            if(data.retCode=='000000'){
+                $('#channelInfo_channelCode').val(data.rows.channelCode);
+                $('#channelInfo_edit_channelName').val(data.rows.channelName);
+                $('#channelInfo_requestUrl').val(data.rows.requestUrl);
+            }
+        })
+    })
+    //初始化验证框架
+    function channelInfo_edit_initValidate() {
+        //进行表单验证
+        $('#channelInfo_edit_form').bootstrapValidator({
+            message: '输入值不合法',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            excluded: [':disabled'],
+            fields: {
+                channelCode: {
+                    message: '渠道编码验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '渠道编码不能为空'
+                        },
+                        stringLength: {
+                            max: 32,
+                            message: '渠道编码不能超过32位'
+                        }
+                    }
+                },
+                channelName: {
+                    message: '渠道名称验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '渠道名称不能为空'
+                        },
+                        stringLength: {
+                            max: 64,
+                            message: '渠道名称不能超过64位'
+                        }
+                    }
+                },
+                requestUrl: {
+                    verbose: false,
+                    message: '渠道接口地址验证失败',
+                    validators: {
+                        notEmpty: {
+                            message: '渠道接口地址不能为空'
+                        },
+                        stringLength: {
+                            max: 128,
+                            message: '渠道接口地址不能超过128位'
+                        },
+                        regexp: {
+                          // regexp: /^https?:\/\/(([a-zA-Z0-9_-])+(\.)?)*(:\d+)?(\/((\.)?(\?)?=?&?[a-zA-Z0-9_-](\?)?)*)*$/i,
+                          regexp: /^https?:\/\//i,
+                          message: '渠道接口地址开头必须为http://或者https://'
+                        },
+                        callback:{
+                            message: '渠道接口地址不能输入中文',
+                            callback: function (value, validator) {
+                                var reg = /[\u4e00-\u9fa5]/g;
+                                if(reg.test(value)){
+                                  return false;
+                                }else{
+                                  return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+    }
+
+    function channelInfo_edit_doSubmit() {
+        var bv = $('#channelInfo_edit_form').data('bootstrapValidator').validate();
+        if (!bv.isValid()) { //验证不通过
+            return;
+        }
+        var paramForm = $("#channelInfo_edit_form").serializeArray();
+        var params = {};
+        $.each(paramForm, function(i, param) {
+            params[param.name] = param.value.trim();
+        });
+        params.id = id
+        sendAjax('POST', host_url + "/cloud-web/chnChannelInfo/editSubmit", params, function(res) {
+            Ewin.alert({
+                message: '恭喜你，操作成功！'
+            }).on(function(e) {
+                if (e) {
+                    $('#channelInfo_edit_form').parents('.modal').modal('hide');
+                    $("#channelInfo_Table").bootstrapTable('refresh');
+                }
+            });
+        });
+    }
+</script>

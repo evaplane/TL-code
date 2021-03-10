@@ -1,0 +1,234 @@
+<div class="content_center">
+	<div class="content_center_content" style="overflow-x: hidden;">
+		<form class="form-horizontal" name="pay_edit_form" role="form" id="pay_edit_form">
+			<div class="row">
+				<div class="col-sm-7">
+					<div class="form-group">
+						<label class="control-label col-xs-4 col-sm-3"><span class="red"></span>用户名</label>
+						<div class="col-xs-8 col-sm-8">
+							<input type="text" class="form-control" id="pay_edit_userName" name="userName"
+								placeholder="用户名" autocomplete="off" readonly="readonly" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-xs-4 col-sm-3"><span class="red"></span>登录账号</label>
+						<div class="col-xs-8 col-sm-8">
+							<input type="text" class="form-control" id="pay_edit_loginName" name="loginName"
+								placeholder="登录账号" autocomplete="off" readonly="readonly" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>用户角色</label>
+						<div class="col-xs-8 col-sm-8">
+							<select class="col-sm-12" id="edit_roleAliase" name="roleAliase"></select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-xs-4 col-sm-3">登录密码</label>
+						<div class="col-xs-8 col-sm-8">
+							<input type="password" class="form-control" id="pay_edit_password" name="password"
+								placeholder="登录密码" autocomplete="new-password" />
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-5">
+					<div class="form-group" id="edit_treeview"></div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">
+			取消
+		</button>
+		<button type="button" class="btn btn-primary" onclick="_doSubmit();">
+			确定
+		</button>
+	</div>
+</div>
+<script src="../../../js/lib/bootstrap-treeview.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var edit_id = getQueryString("id");
+	var edit_load_roleVal = [];
+	$(function () {
+		_validateForm();
+		$("#edit_roleAliase").on("change", function () {
+			var dataValue = $("#edit_roleAliase")
+				.find("option:selected")
+				.attr("data-value");
+			menu(dataValue);
+		});
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/ownSsoUser/view",
+			{ id: edit_id },
+			function (res) {
+				var data = res.rows.user;
+
+				$("#edit_userCode").val(data.userCode);
+				$("#pay_edit_userName").val(data.userName);
+				$("#pay_edit_loginName").val(data.loginName);
+
+				new Promise(userRoles).then(function () {
+					$(
+						"#edit_roleAliase option[value='" + data.userRole + "']"
+					).attr("selected", "selected");
+					$("#edit_roleAliase+.combo-input").val(
+						$("#edit_roleAliase option[selected]").text()
+					);
+					$("#edit_roleAliase").comboSelect();
+				});
+				menu(res.rows.roleIds);
+				listOption($("#edit_status"), CORE_STATUS);
+				$("#edit_status").val(data.status);
+				$("#edit_status").comboSelect({ extendStyle: false });
+			}
+		);
+	});
+
+	//初始化验证框架
+	function _validateForm() {
+		//进行表单验证
+		$("#pay_edit_form").bootstrapValidator({
+			message: "输入值不合法",
+			feedbackIcons: {
+				valid: "glyphicon glyphicon-ok",
+				invalid: "glyphicon glyphicon-remove",
+				validating: "glyphicon glyphicon-refresh"
+			},
+			excluded: [":disabled"],
+			fields: {
+				password: {
+					message: "登录密码验证失败",
+					validators: {
+						// notEmpty: {message: '登录密码不能为空'},
+						stringLength: {
+							min: 6,
+							max: 32,
+							message: "登录密码长度必须在6 ~ 32之间"
+						},
+						regexp: {
+							regexp: /^[0-9a-zA-Z]+$/,
+							message: "登录密码只支持字母和数字"
+						}
+					}
+				},
+				roleId: {
+					message: "用户角色验证失败",
+					validators: {
+						notEmpty: { message: "用户角色不能为空" }
+					}
+				}
+			}
+		});
+	}
+
+	//提交表单
+	function _doSubmit() {
+		var bv = $("#pay_edit_form")
+			.data("bootstrapValidator")
+			.validate();
+		if (!bv.isValid()) {
+			//验证不通过
+			return;
+		}
+
+		var paramForm = $("#pay_edit_form").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		params.id = edit_id;
+		if (params.password) {
+			params.password = $.md5(params.password);
+		}
+		params.userType = 10;
+		// params.userRole = pay_user_role
+		// params.roleIds = '['+pay_roleId+']';
+		edit_load_roleVal = $("#edit_roleAliase option:selected").attr(
+			"data-value"
+		);
+		params.roleIds = "[" + edit_load_roleVal + "]";
+		params.userRole = $("#edit_roleAliase")
+			.val()
+			.toString();
+		params.roleId = $("#edit_roleAliase")
+			.val()
+			.toString();
+
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/ownSsoUser/editSubmit",
+			params,
+			function (res) {
+				Ewin.alert({ message: "恭喜你，操作成功！" }).on(function (e) {
+					if (e) {
+						$("#pay_edit_form")
+							.parents(".modal")
+							.modal("hide");
+						$("#tableUserPay").bootstrapTable("refresh");
+					}
+				});
+			}
+		);
+	}
+	//分配菜单
+	function menu(roleId) {
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/authMenu/viewMenuByRoleId",
+			{ roleIds: roleId, platform: 20 },
+			function (res) {
+				$("#edit_treeview").treeview({
+					data: res.rows,
+					showTags: true,
+					showCheckbox: true,
+					levels: 1, //设置继承树默认展开的级别设置继承树默认展开的级别
+					//multiSelect: true,
+					onNodeChecked: function (event, data) {
+						//选中父节点，则自动选择子节点
+						$("#edit_treeview").treeview("toggleNodeChecked", [
+							data.nodeId,
+							{ silent: true }
+						]);
+					},
+					onNodeUnchecked: function (event, data) {
+						$("#edit_treeview").treeview("toggleNodeChecked", [
+							data.nodeId,
+							{ silent: true }
+						]);
+					}
+				});
+			}
+		);
+	}
+	//用户角色
+	function userRoles(suc) {
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/authRole/selectAllRoleByPlatform",
+			{},
+			function (res) {
+				var accountRule = "";
+				$("#edit_roleAliase").html("");
+				$.each(res.rows, function (i, param) {
+					accountRule +=
+						'<option value="' +
+						param.roleName +
+						'" data-value="' +
+						param.id +
+						'" data-id="' +
+						i +
+						'">' +
+						param.roleName +
+						"</option>";
+				});
+				$("#edit_roleAliase").append(accountRule);
+				$("#edit_roleAliase").comboSelect({});
+				if (suc) {
+					suc();
+				}
+			}
+		);
+	}
+</script>

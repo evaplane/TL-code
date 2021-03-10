@@ -1,0 +1,266 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal" name="add_form" role="form" id="add_form">
+			<div class="content_center_title">新增定向</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>用户名</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="add_userAcct" name="userAcct" placeholder="请输入用户名"
+						autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>班次</label>
+				<div class="col-xs-8 col-sm-7">
+					<select id="workBench_trade_add_routeCode" name="routeCode"
+						onchange="workBench_trade_add_routeCode_change(this)"></select>
+				</div>
+			</div>
+			<div class="form-group" style="display: none">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>银行账号</label>
+				<div class="col-xs-8 col-sm-7">
+					<select id="workBench_trade_add_acctNo" name="acctNo"></select>
+				</div>
+			</div>
+			<div class="form-group center">
+				<button type="button" class="btn btn-primary" onclick="_doSubmit()">确定</button>
+			</div>
+		</form>
+		<div class="content_center_title">已配置信息</div>
+		<div class="content_center_table">
+			<table cellpadding="0" cellspacing="0" border="0" id="corePayTradeAddTable"
+				class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+	</div>
+</div>
+<script type="text/javascript">
+	$(function () {
+		_validateForm(); //验证初始化
+		getRouteCode();
+		corePayTradeAddTable();
+	});
+	// 获取 班次 列表
+	function getRouteCode() {
+		sendAjax("get", host_url + "/cloud-web/cardRoutePoolInfo/loadRouteCode", {}, function (res) {
+			var data = res.rows;
+			var str = '<option value="">请选择</option>'
+			$.each(data, function (i, item) {
+				str += `<option value="${item.routeCode}" timeLimit="${item.timeLimit}">${item.routeName}</option>`
+			});
+			$('#workBench_trade_add_routeCode').html(str).comboSelect();
+		})
+	}
+
+	function workBench_trade_add_routeCode_change(obj) {
+		var routeCode = $(obj).val();
+		if (routeCode) {
+			getBankByRouteCode(routeCode);
+		} else {
+			$("#workBench_trade_add_acctNo").closest(".form-group").hide();
+		}
+	}
+
+	// 根据班次 获取 银行账号 列表
+	function getBankByRouteCode(code) {
+		sendAjax("get", host_url + "/cloud-web/cardRoutePoolMerch/loadBankByRouteCode", { 'routeCode': code, 'cardUseType': 10, 'status': 100 }, function (res) {
+			var data = res.rows;
+			var str = '<option value="">请选择</option>'
+			$.each(data, function (i, item) {
+				str += `<option value="${item.acctNo}" aliasName="${item.aliasName}">${item.aliasName} | ${item.acctNo}</option>`
+			});
+			$('#workBench_trade_add_acctNo').html(str).comboSelect();
+			$("#workBench_trade_add_acctNo").closest(".form-group").show();
+			$('#add_form').data("bootstrapValidator").resetField("acctNo");
+		})
+	}
+
+	/*表格加载*/
+	function corePayTradeAddTable() {
+		$('#corePayTradeAddTable').bootstrapTable({
+			url: host_url + '/cloud-web/cardUserBankMapping/pageList',
+			method: 'GET',
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏  
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置  
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: 'zh-CN', //中文支持
+			queryParamsType: 'limit',
+			queryParams: function (params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = (params.offset / params.limit) + 1; //页码
+				params._sys_login_token = _get_sys_login_token();
+				var paramForm = $("#corePayTradeFlowForm").serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				return params;
+			}, //参数  
+			columns: [{
+				title: '序号',
+				field: 'index',
+				width: 40,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					var pageSize = $('#corePayTradeAddTable').bootstrapTable('getOptions').pageSize;
+					var pageNumber = $('#corePayTradeAddTable').bootstrapTable('getOptions').pageNumber;
+					return pageSize * (pageNumber - 1) + index + 1;
+				}
+			}, {
+				title: '操作', field: 'operation', align: "center", valign: "middle", width: 50,
+				formatter: function (value, row, index) {
+					return '<a class="fa fa-trash-o  operation a_size" title="删除" onclick="mapping_del(\'' + row.id + '\')"></a> ';
+				}
+			},
+			{
+				field: 'routeName',
+				title: '班次',
+				width: 70,
+				align: "center",
+				valign: "middle"
+			},
+			{
+				field: 'userAcct',
+				title: '用户名',
+				width: 100,
+				align: "center",
+				valign: "middle"
+			},
+			{
+				field: 'acctNo',
+				title: '银行账号',
+				width: 100,
+				align: "center",
+				valign: "middle"
+			},
+			{
+				field: 'createTime',
+				title: '创建时间',
+				width: 100,
+				align: "center",
+				valign: "middle",
+				formatter: function (value, row, index) {
+					return getDateStr(value);
+				}
+			},
+			{
+				field: 'createUser',
+				title: '操作员',
+				width: 100,
+				align: "center",
+				valign: "middle"
+			},
+			],
+			onClickRow: function (row, $element) {
+				$($element).addClass('table_info').siblings().removeClass('table_info');
+			},
+			onLoadSuccess: function (res) {
+				//加载成功时执行  
+			},
+		});
+	}
+
+	//初始化验证框架
+	function _validateForm() {
+		//进行表单验证
+		$('#add_form').bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: {
+				valid: 'glyphicon glyphicon-ok',
+				invalid: 'glyphicon glyphicon-remove',
+				validating: 'glyphicon glyphicon-refresh'
+			},
+			excluded: [':disabled'],
+			fields: {
+				userAcct: {
+					message: '用户名验证失败',
+					validators: {
+						notEmpty: {
+							message: '用户名不能为空'
+						},
+						stringLength: {
+							min: 2,
+							max: 32,
+							message: '用户名长度2-32'
+						}
+					}
+				},
+				routeCode: {
+					message: '班次验证失败',
+					validators: {
+						notEmpty: {
+							message: '班次不能为空'
+						}
+					}
+				},
+				acctNo: {
+					message: '银行账号验证失败',
+					validators: {
+						notEmpty: {
+							message: '银行账号不能为空'
+						}
+					}
+				}
+			}
+		});
+	}
+
+	//提交
+	function _doSubmit() {
+		var bv = $('#add_form').data('bootstrapValidator').validate();
+		if (!bv.isValid()) { //验证不通过
+			return;
+		}
+
+		var paramForm = $("#add_form").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		params.routeName = $("#workBench_trade_add_routeCode option:selected").text();
+		params.routeShowTime = $("#workBench_trade_add_routeCode option:selected").attr('timelimit');
+		params.acctName = $("#workBench_trade_add_acctNo option:selected").attr('acctName');
+
+		sendAjax('POST', host_url + "/cloud-web/cardUserBankMapping/addSubmit", params, function (res) {
+			Ewin.alert({
+				message: '恭喜你，操作成功！'
+			}).on(function (e) {
+				if (e) {
+					$("#add_form")[0].reset();
+					$("#workBench_trade_add_acctNo").closest(".form-group").hide();
+					$('#add_form').data("bootstrapValidator").resetForm();
+					$('#corePayTradeAddTable').bootstrapTable('refresh');
+					$("#corePayTradeFlowFormTable").bootstrapTable('refresh');
+				}
+			});
+		});
+	}
+
+	//删除
+	function mapping_del(id) {
+		Ewin.confirm({ message: '是否删除该行？' }).on(function (e) {
+			if (e) {//成功
+				sendAjax('POST', host_url + "/cloud-web/cardUserBankMapping/delete", { 'id': id }, function (res) {
+					Ewin.alert({ message: '恭喜你，操作成功！' }).on(function (e) {
+						if (e) {
+							//重新加载
+							$("#add_form")[0].reset();
+							$("#workBench_trade_add_acctNo").closest(".form-group").hide();
+							$('#add_form').data("bootstrapValidator").resetForm();
+							$('#corePayTradeAddTable').bootstrapTable('refresh');
+							$("#corePayTradeFlowFormTable").bootstrapTable('refresh');
+						}
+					});
+				});
+			}
+		});
+	}
+
+</script>

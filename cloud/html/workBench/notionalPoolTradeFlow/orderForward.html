@@ -1,0 +1,183 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal" name="add_form" role="form" id="add_form">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>班次名称</label>
+				<div class="col-xs-8 col-sm-7">
+					<select class="form-control" id="view_routeCode" name="routeCode"
+						onchange="getBankNotionalPool()"></select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>出款卡</label>
+				<div class="col-xs-8 col-sm-7">
+					<select class="form-control" id="view_payAcctNo" name="payAcctNo">
+						<option value="">请选择</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group finance">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>收款卡</label>
+				<div class="col-xs-8 col-sm-7">
+					<select class="form-control" id="view_recAcctNo" name="recAcctNo">
+						<option value="">请选择</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>归集金额(元)</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="view_payAmt" name="payAmt" autocomplete="off"
+						placeholder="归集金额">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>归集备注</label>
+				<div class="col-xs-8 col-sm-7">
+					<textarea type="text" class="form-control" id="view_remark" name="remark" placeholder="归集备注"
+						autocomplete="off" cols="39" rows="4" style="resize:none;"></textarea>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		<button type="button" class="btn btn-primary" onclick="notionalPall_doSubmit()">保存</button>
+	</div>
+</div>
+<script type="text/javascript">
+	$(function () {
+		_validateForm(); //验证初始化
+		notionalPool_search();
+		$('#view_payAcctNo').comboSelect();
+		$('#view_recAcctNo').comboSelect();
+	});
+	// 获取 班次 列表
+	function notionalPool_search() {
+		sendAjax("Post", host_url + "/cloud-web/cardRoutePoolInfo/loadRouteCode", {}, function (res) {
+			var data = res.rows;
+
+			var str = '<option value="">请选择</option>'
+			$.each(data, function (i, item) {
+				str += '<option value="' + item.routeCode + '">' + item.routeName + '</option>'
+			});
+			$('#view_routeCode').html(str).comboSelect();
+		})
+	}
+	// 根据班次 获取 银行账号 列表
+	function getBankNotionalPool() {
+		var v_routeCode = $('#view_routeCode').val();
+		if (v_routeCode) {
+			sendAjax("get", host_url + "/cloud-web/cardRoutePoolMerch/loadNoRecCard", { 'routeCode': v_routeCode }, function (res) {
+				var data = res.rows;
+
+				var str = '<option value="">请选择</option>'
+				$.each(data, function (i, item) {
+					str += '<option value="' + item.acctNo + '" data-acctName="' + item.acctName + '">' + item.acctName + ' | ' + item.acctNo + '</option>'
+				});
+				$('#view_payAcctNo').html(str).comboSelect();
+				$('#view_recAcctNo').html(str).comboSelect();
+				$('#add_form').data("bootstrapValidator").resetField("payAcctNo");
+			})
+		}
+
+	}
+	//初始化验证框架
+	function _validateForm() {
+		//进行表单验证
+		$('#add_form').bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: {
+				valid: 'glyphicon glyphicon-ok',
+				invalid: 'glyphicon glyphicon-remove',
+				validating: 'glyphicon glyphicon-refresh'
+			},
+			excluded: [':disabled'],
+			fields: {
+				routeCode: {
+					message: '班次名称验证失败',
+					validators: {
+						notEmpty: {
+							message: '班次名称不能为空'
+						}
+					}
+				},
+				payAcctNo: {
+					message: '出款卡号验证失败',
+					validators: {
+						notEmpty: {
+							message: '出款卡号不能为空'
+						}
+					}
+				},
+				recAcctNo: {
+					message: '收款卡号验证失败',
+					validators: {
+						notEmpty: {
+							message: '收款卡号不能为空'
+						}
+					}
+				},
+				payAmt: {
+					message: '金额验证失败',
+					verbose: false,
+					validators: {
+						notEmpty: {
+							message: '金额不能为空'
+						},
+						regexp: {
+							regexp: /^-?\d+\.?\d{0,2}$/,
+							message: '请输入正确的金额(小数点后最多两位)'
+						},
+						greaterThan: {
+							value: 0.00000000000000000000000000000000001,
+							message: '金额必须大于0'
+						},
+						lessThan: {
+							value: 99999999,
+							message: '金额不能超过99999999元'
+						},
+					}
+				},
+				remark: {
+					message: '备注不可为空',
+					verbose: false,
+					validators: {
+						notEmpty: { message: '备注不可为空' },
+						stringLength: {
+							max: 32,
+							message: '备注不能超过32位限定长度'
+						}
+					}
+				}
+			}
+		});
+	}
+
+	//提交
+	function notionalPall_doSubmit() {
+		var bv = $('#add_form').data('bootstrapValidator').validate();
+		if (!bv.isValid()) { //验证不通过
+			return;
+		}
+
+		var paramForm = $("#add_form").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		params.routeName = $("#view_routeCode option:selected").text();
+		params.payAmt = parseFloat(params.payAmt * 100).toFixed(0);
+
+		sendAjax('POST', host_url + "/cloud-web/corePayMergeFlow/merge", params, function (res) {
+			Ewin.alert({
+				message: '恭喜你，操作成功！'
+			}).on(function (e) {
+				if (e) {
+					$('.modal').modal('hide');
+					$("#notionalPoolTable").bootstrapTable('refresh');
+				}
+			});
+		});
+	}
+</script>

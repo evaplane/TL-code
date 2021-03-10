@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="375px" height="309px" viewBox="0 0 375 309" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 55.2 (78181) - https://sketchapp.com -->
+    <title>路径 8 + 路径 9蒙版</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="0%" y1="16.0497067%" x2="100%" y2="77.8250539%" id="linearGradient-1">
+            <stop stop-color="#F62147" offset="0%"></stop>
+            <stop stop-color="#C40024" offset="100%"></stop>
+        </linearGradient>
+        <path d="M0,285.150391 C36.1119792,266.371094 67.9733073,257.98763 95.5839844,260 C123.194661,262.01237 159.705729,272.01237 205.117187,290 C269.786458,316.867187 326.414062,315.250651 375,285.150391 L375,0 L0,0 L0,285.150391 Z" id="path-2"></path>
+    </defs>
+    <g id="-------" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="download/bg">
+            <g id="路径-8-+-路径-9蒙版">
+                <mask id="mask-3" fill="white">
+                    <use xlink:href="#path-2"></use>
+                </mask>
+                <use id="蒙版" fill="url(#linearGradient-1)" xlink:href="#path-2"></use>
+                <path d="M0,230.875 C32.2122396,251.625 66.3294271,259.333333 102.351563,254 C156.384766,246 252.791992,225.548828 289.381836,222.507813 C325.97168,219.466797 405.213867,236 405.213867,254 L383.736328,316.601563 L0,305.006796 L0,230.875 Z" id="路径-8" fill="#FF6A6A" opacity="0.292480469" mask="url(#mask-3)"></path>
+                <path d="M48.2851562,252.541129 C105.68099,215.869932 164.772786,214.536598 225.560547,248.541129 C286.348307,282.545659 339.073568,292.028695 383.736328,276.990234 L352,307.394645 L-23,317.541129 L48.2851562,252.541129 Z" id="路径-9" fill="#FFAAAA" opacity="0.185174851" mask="url(#mask-3)"></path>
+            </g>
+        </g>
+    </g>
+</svg>

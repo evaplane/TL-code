@@ -1,0 +1,195 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal" name="add_account_quota_form" role="form" id="add_account_quota_form">
+			<div class="form-group col-xs-12 col-sm-12">
+				<label class="control-label col-xs-2 col-sm-2" style="margin-top:5px;"
+					id="account_quota_label">账户额度金额(元)：</label>
+				<div class="col-xs-9 col-sm-9 addAccountQuotaNumList">
+					<div class="col-xs-12 col-sm-12 accountQuota_main" id="accountQuotaNum_fca">
+						<input type="text" class="form-control routeAmt_tradePeriod payAmtNumVal"
+							id="start_accountQuota_fca" name="amtName" placeholder="账户名称" autocomplete="off"
+							readonly="readonly">
+						<input type="text" name="oneMinMoney" class="routeAmt_tradePeriod form-control" data-id="1"
+							placeholder="从">
+						<input type="text" name="oneMaxMoney" class="routeAmt_tradePeriod form-control" data-id="1"
+							placeholder="到">
+						<i class="glyphicon glyphicon-plus btn_routeAmt_tradePeriod add_routeAmt_tradePeriod"
+							onclick="addAccountQuotaNumList_fca()"></i>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<!-- <button type="button" class="btn btn-default" data-dismiss="modal">取消</button> -->
+		<button type="button" class="btn btn-primary" onclick="accountQuota__doSubmit()">保存</button>
+	</div>
+</div>
+<style>
+	.accountQuota_main {
+		margin-bottom: 10px;
+	}
+
+	.addAccountQuotaNumList {
+		margin-top: 10px;
+	}
+</style>
+<script type="text/javascript">
+	$(function () {
+		sendAjax('POST', host_url + "/cloud-web/cardTradeAmtConfig/list", {}, function (res) {
+			var accQuotaAmts = res.rows;
+			if (accQuotaAmts.length > 0) {
+				$('#add_account_quota_form .glyphicon').hide();
+				var oneMinMoney_0 = parseFloat((accQuotaAmts[0].amtAreaLow) / 100).toFixed(2);
+				var oneMaxMoney_0 = parseFloat((accQuotaAmts[0].amtAreaHight) / 100).toFixed(2);
+
+				$("#accountQuotaNum_fca input[name=amtName]").val(accQuotaAmts[0].amtName).attr({ 'data-id': accQuotaAmts[0].id });
+				$("#accountQuotaNum_fca input[name=amtName]").val(accQuotaAmts[0].amtName).attr({ 'data-amtCode': accQuotaAmts[0].amtCode });
+				$("#accountQuotaNum_fca input[name=amtName]").val(accQuotaAmts[0].amtName).attr({ 'data-amtName': accQuotaAmts[0].amtName });
+				$("#accountQuotaNum_fca input[name=oneMinMoney]").val(oneMinMoney_0);
+				$("#accountQuotaNum_fca input[name=oneMaxMoney]").val(oneMaxMoney_0);
+				var payStr = "";
+				for (var i = 1; i < accQuotaAmts.length; i++) {
+					var rowId = "accountQuotaNum_" + i;
+					var amtName = accQuotaAmts[i].amtName;
+					var oneMinMoney = parseFloat((accQuotaAmts[i].amtAreaLow) / 100).toFixed(2);
+					var oneMaxMoney = parseFloat((accQuotaAmts[i].amtAreaHight) / 100).toFixed(2);
+
+					payStr += '<div class="col-xs-12 col-sm-12 accountQuota_main" id="' + rowId + '">' +
+						'<input type="text" readonly="readonly" class="form-control routeAmt_tradePeriod payAmtNumVal" id="start_GDMoney_cfa" data-id="' + accQuotaAmts[i].id + '" data-amtCode="' + accQuotaAmts[i].amtCode + '" data-amtName="' + accQuotaAmts[i].amtName + '" name="amtName" value="' + amtName + '" placeholder="账户名称" autocomplete="off">' +
+						'<input type="text" name="oneMinMoney" data-id="' + accQuotaAmts[i].id + '" class="routeAmt_tradePeriod form-control" value="' + oneMinMoney + '" placeholder="从">' +
+						'<input type="text" name="oneMaxMoney" data-id="' + accQuotaAmts[i].id + '" class="routeAmt_tradePeriod form-control" value="' + oneMaxMoney + '" placeholder="到">' +
+						// '<i class="glyphicon glyphicon-minus btn_routeAmt_tradePeriod cut_routeAmt_tradePeriod" onclick="delGCodeMoneyNum_cfa(\'' +
+						// rowId + '\');"></i>' +
+						'</div>';
+				}
+				$(".addAccountQuotaNumList").append(payStr);
+				setTimeout(function () {
+					_validateForm();//验证初始化
+				}, 100)
+			}
+		});
+
+	});
+	//初始化验证框架
+	function _validateForm() {
+		var fields = {};
+		fields.oneMinMoney = accountQuotaGreaterThan("oneMaxMoney")
+		fields.oneMaxMoney = accountQuotaGreaterThan("oneMinMoney")
+		//进行表单验证
+		$('#add_account_quota_form').bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: { valid: 'glyphicon glyphicon-ok', invalid: 'glyphicon glyphicon-remove', validating: 'glyphicon glyphicon-refresh' },
+			excluded: [':disabled'],
+			fields: fields
+		});
+	}
+
+	function accountQuotaGreaterThan(box) {
+		var obj = {
+			verbose: false,
+			validators: {
+				notEmpty: {
+					message: '这是必填字段'
+				},
+				regexp: {
+					regexp: /^-?\d+\.?\d{0,2}$/,
+					message: '请输入正确的金额(小数点后最多两位)'
+				},
+				lessThan: {
+					message: '不能大于等于1亿',
+					value: 99999999.99999999
+				},
+				greaterThan: {
+					value: 0,
+					message: '必须大于等于0'
+				},
+				callback: {
+					message: '最大金额必须大于最小金额',
+					callback: function (value, validator, $field) {
+						var otherbox = validator.getFieldElements(box);//获得另一个的值
+						for (var i = 0; i < otherbox.length; i++) {
+							if (otherbox[i].dataset.id == $field[0].dataset.id) {
+								if (box == "oneMinMoney") {
+									if (Number(otherbox[i].value) <= Number($field[0].value)) {
+										return true;
+									}
+								} else {
+									if (Number(otherbox[i].value) >= Number($field[0].value)) {
+										return true;
+									}
+								}
+							}
+						}
+						return false;
+					}
+				}
+			}
+		}
+		return obj
+	}
+
+	// 声明全局变量
+	var accountQuotaNum_fca = 1;
+
+	// 添加固定金额
+	function addAccountQuotaNumList_fca() {
+		if (accountQuotaNum_fca < 10) {
+			var rowId = "accountQuotaNum_fca" + accountQuotaNum_fca;
+			var insertStr =
+				'<div class="col-xs-12 col-sm-12 accountQuota_main accountQuota_main_1" id="' +
+				rowId + '">' +
+				'<input type="text" class="form-control routeAmt_tradePeriod payAmtNumVal" readonly="readonly" id="start_accountQuota_fca" name="routeName" placeholder="账户名称" autocomplete="off">' +
+				'<input type="text" name="oneMinMoney" class="routeAmt_tradePeriod form-control" placeholder="从">' +
+				'<input type="text" name="oneMaxMoney" class="routeAmt_tradePeriod form-control" placeholder="到">' +
+				// '<i class="glyphicon glyphicon-minus btn_routeAmt_tradePeriod cut_routeAmt_tradePeriod" onclick="delGCodeMoneyNum_cfa(\'' +
+				// rowId + '\');"></i>' +
+				'</div>';
+			$(".addAccountQuotaNumList").append(insertStr);
+			accountQuotaNum_fca++;
+		} else {
+			Ewin.alert({
+				message: '固定金额最多10个'
+			})
+		}
+	}
+
+	// 删除金额
+	function delGCodeMoneyNum_cfa(rowID) {
+		accountQuotaNum_fca--;
+		$("#" + rowID).remove();
+	}
+
+	//提交
+	function accountQuota__doSubmit() {
+		var bv = $('#add_account_quota_form').data('bootstrapValidator').validate();
+		if (!bv.isValid()) {//验证不通过
+			return;
+		}
+		var receiptAmtListJSON = [];
+		var addAccountQuotaNumList = $(".addAccountQuotaNumList").children("div");
+		var flag = true;
+		for (var i = 0; i < addAccountQuotaNumList.length; i++) {
+			var addGJ = addAccountQuotaNumList.eq(i);
+			var receiptAmtList = addGJ.find("input[name=amtName]").val();
+			if (receiptAmtList == "") {
+				receiptAmtList = "";
+			} else {
+				receiptAmtListJSON.push({
+					id: addGJ.find("input[name=amtName]").attr('data-id'),
+					amtCode: addGJ.find("input[name=amtName]").attr('data-amtCode'),
+					amtName: addGJ.find("input[name=amtName]").attr('data-amtName'),
+					amtAreaLow: parseFloat(addGJ.find("input[name=oneMinMoney]").val() * 100).toFixed(0),
+					amtAreaHight: parseFloat(addGJ.find("input[name=oneMaxMoney]").val() * 100).toFixed(0),
+				});
+			}
+		}
+		if (receiptAmtListJSON.length > 5) {
+			Ewin.alert({ message: '新增出金限额不能超过5个' });
+		} else {
+			sendAjax('POST', host_url + "cloud-web/cardTradeAmtConfig/editSubmit", { list: JSON.stringify(receiptAmtListJSON) }, function (res) {
+				Ewin.alert({ message: '恭喜你，操作成功！' })
+			});
+		}
+	}
+</script>

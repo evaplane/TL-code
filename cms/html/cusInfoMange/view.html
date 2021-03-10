@@ -1,0 +1,60 @@
+<table cellpadding="0" cellspacing="0" border="0" id="table" class="table table-bordered">
+    <tbody class="basic">
+        <tr>
+            <td class='title col-sm-4'>姓名：</td>
+            <td class="col-sm-8" id="view_cusName"></td>
+        </tr>
+        <tr>
+            <td class='title col-sm-4'>电话：</td>
+            <td class="col-sm-8" id="view_mobile"></td>
+        </tr>
+        <!-- <tr>
+            <td class='title col-sm-4'>省份名称：</td>
+            <td class="col-sm-8" id="view_provinceName"></td>
+        </tr>
+        <tr>
+            <td class='title col-sm-4'>城市名称：</td>
+            <td class="col-sm-8" id="view_cityName"></td>
+        </tr> -->
+        <tr>
+            <td class='title col-sm-4'>问卷信息：</td>
+            <td class="col-sm-8" id="view_questions"></td>
+        </tr>
+        <tr>
+            <td class='title col-sm-4'>创建时间：</td>
+            <td class="col-sm-8" id="view_createtime"></td>
+        </tr>
+        <!-- <tr>
+            <td class='title col-sm-4'>最新更新时间：</td>
+            <td class="col-sm-8" id="view_updatetime"></td>
+        </tr> -->
+    </tbody>
+</table>
+<div class="modal-footer" id="close">
+    <button type="button" class="btn btn-primary cancel" data-dismiss="modal">关闭</button>
+</div>
+
+<script type="text/javascript">
+    $(function() {
+        var view_id = getQueryString('id');
+        sendAjax('GET', host_url + "/cusInfo/view", {
+            'id': view_id
+        }, function(res) {
+            var data = res.rows;
+            var questionMap = data.questionMap;
+            var str = '';
+            for (var i in questionMap) {
+                if (questionMap[i] && typeof(questionMap[i]) === 'string') {
+                    str += '<p><span>' + i + "&nbsp;&nbsp;&nbsp;&nbsp;" + questionMap[i] + '</span></p>'
+                }
+            }
+            $('#view_cusName').html(data.cusName);
+            $('#view_mobile').html(data.mobile);
+            // $('#view_provinceName').html(data.provinceName);
+            // $('#view_cityName').html(data.cityName);
+            $('#view_createtime').html(data.createtime);
+            // $('#view_updatetime').html(data.updatetime);
+            $('#view_questions').html(str);
+        });
+    });
+</script>

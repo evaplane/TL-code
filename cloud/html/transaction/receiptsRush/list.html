@@ -1,0 +1,306 @@
+<link rel="stylesheet" href="../../../css/lib/daterangepicker-bs3.css" />
+<link rel="stylesheet" href="../../../css/lib/bootstrap-table.min.css" />
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="transaction_receiptsRush_Form" name="transaction_receiptsRush_Form" role="form"
+				class="form-inline">
+				<div class="form-group customerNo">
+					<label class="control-label">平台号：</label>
+					<input name="customerNo" class="form-control" type="text" placeholder="平台号" autocomplete="off" />
+				</div>
+				<div class="form-group customerName">
+					<label class="control-label">平台名称：</label>
+					<input name="customerName" class="form-control" type="text" placeholder="平台名称" autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">原平台流水号：</label>
+					<input name="tradeOrderNo" class="form-control" type="text" placeholder="原平台流水号"
+						autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">冲账流水号：</label>
+					<input type="text" name="orderNo" class="form-control" type="text" placeholder="冲账流水号"
+						autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">冲账状态：</label>
+					<select class="form-control" id="receiptsRush_status" name="status"></select>
+				</div>
+				<div class="form-group">
+					<label class="control-label">创建日期：</label>
+					<input type="text" name="receiptsRush_CreateTime" id="receiptsRush_CreateTime"
+						class="form-control dateranges" placeholder="创建日期" autocomplete="off" readonly="readonly" />
+
+				</div>
+				<div class="form-group pull-right">
+					<button id="receiptsRush_button" type="button" class="btn btn-primary refreshBtn">
+						<i class="fa fa-search"></i>查询
+					</button>
+					<button type="reset" class="btn btn-default fee_list_reset">
+						<i class="fa fa-refresh"></i> 重置
+					</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<button type="button" class="btn btn-primary" onclick="receiptsRush_download()" style="margin-bottom: 6px;">
+				导出excel
+			</button>
+			<table cellpadding="0" cellspacing="0" border="0" id="receiptsRush_Table"
+				class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<style type="text/css">
+	#receiptsRush_Table.table {
+		width: 2500px;
+	}
+</style>
+<script>
+	var tradeTypeList;
+	$(function () {
+		listOptionInit($("#receiptsRush_status"), C_STATUS);
+		$("#receiptsRush_status").comboSelect();
+		$("#receiptsRush_CreateTime").daterangepicker(
+			{
+				timePicker: true,
+				timePickerIncrement: 1,
+				format: "YYYY-MM-DD HH:mm:ss",
+				// startDate: startDate,
+				// endDate: endDate,
+				opens: "center"
+			},
+			function (start, end, label) { }
+		);
+		receiptsRush_Table();
+	});
+	// 搜索
+	$("#receiptsRush_button").click(function () {
+		$("#receiptsRush_Table").bootstrapTable("refresh");
+	});
+
+	/*表格加载*/
+	function receiptsRush_Table() {
+		$("#receiptsRush_Table").bootstrapTable({
+			url: host_url + "/cloud-web/coreRushAcctFlow/pageList",
+			method: "GET",
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: "zh-CN", //中文支持
+			queryParamsType: "limit",
+			queryParams: function (params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = params.offset / params.limit + 1; //页码
+				params._sys_login_token = _get_sys_login_token();
+
+				var paramForm = $(
+					"#transaction_receiptsRush_Form"
+				).serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				params.rushType = 10;
+				if (params.receiptsRush_CreateTime) {
+					params.startTime = params.receiptsRush_CreateTime.substring(
+						0,
+						19
+					);
+					params.endTime = params.receiptsRush_CreateTime.substring(
+						21,
+						41
+					);
+				}
+				delete params.receiptsRush_CreateTime;
+				return params;
+			}, //参数
+			columns: [
+				{
+					title: "序号",
+					width: 30,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						var options = $("#receiptsRush_Table").bootstrapTable(
+							"getOptions"
+						);
+						return (
+							(options.pageNumber - 1) * options.pageSize +
+							index +
+							1
+						);
+					}
+				},
+				{
+					field: "customerNo",
+					title: "平台号",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "customerName",
+					title: "平台名称",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "userAcct",
+					title: "用户名",
+					width: 180,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "userName",
+					title: "真实姓名",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "orderNo",
+					title: "冲账流水号",
+					width: 180,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "cusOrderNo",
+					title: "客户单号",
+					width: 180,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "tradeOrderNo",
+					title: "原平台流水号",
+					width: 180,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "rushAmt",
+					title: "冲账金额(元)",
+					width: 100,
+					align: "right",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return formatterMoney(value, 2);
+					}
+				},
+				{
+					field: "payAmt",
+					title: "存款金额(元)",
+					width: 100,
+					align: "right",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return formatterMoney(value, 2);
+					}
+				},
+				{
+					field: "operatorName",
+					title: "操作员",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "returnMsg",
+					title: "冲账原因",
+					width: 150,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "authName",
+					title: "复核人",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "authRemark",
+					title: "复核备注",
+					width: 150,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "status",
+					title: "冲账状态",
+					width: 80,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return visualParams(C_STATUS, value);
+					}
+				},
+				{
+					field: "authTime",
+					title: "审核时间",
+					width: 150,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return getDateStr(value);
+					}
+				},
+				{
+					field: "createTime",
+					title: "创建时间",
+					width: 150,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return getDateStr(value);
+					}
+				}
+			],
+			onClickRow: function (row, $element) {
+				$($element)
+					.addClass("table_info")
+					.siblings()
+					.removeClass("table_info");
+			},
+			onLoadSuccess: function (res) {
+				//加载成功时执行
+			}
+		});
+	}
+
+	function receiptsRush_download() {
+		var params = {};
+		var paramForm = $("#transaction_receiptsRush_Form").serializeArray();
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		if (params.receiptsRush_CreateTime) {
+			params.startTime = params.receiptsRush_CreateTime.substring(0, 19);
+			params.endTime = params.receiptsRush_CreateTime.substring(21, 41);
+		}
+		delete params.receiptsRush_CreateTime;
+		params.rushType = 10;
+		var url = "";
+		$.each(params, function (i, item) {
+			url += "&" + i + "=" + item;
+		});
+		sendAjax('POST', host_url + "/cloud-web/corePayTradeFlow/checkDown", {}, function (res) {
+			window.location.href =
+				host_url +
+				"/cloud-web/coreRushAcctFlow/down?_sys_login_token=" +
+				_get_sys_login_token() +
+				url;
+		});
+	}
+</script>

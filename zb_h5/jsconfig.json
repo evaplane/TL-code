@@ -1,0 +1,17 @@
+{
+  "include": [
+    "./src/**/*"
+  ],
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@img/*": ["./src/assets/img/*"],
+      "@scss/*": ["./src/assets/scss/*"],
+    }
+  },
+  "exclude": [
+    "./node_modules",
+    "src/assets/static-download"
+  ]
+}

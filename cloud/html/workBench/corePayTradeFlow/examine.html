@@ -1,0 +1,241 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<h5 class="text-right marginTop">
+			创建时间：<span id="workBench_trade_examine_createTime"></span>
+		</h5>
+		<table cellpadding="0" cellspacing="0" border="0" class="table table-bordered marginTop">
+			<tbody class="basic">
+				<tr>
+					<td class="title col-sm-2">客户单号：</td>
+					<td class="col-sm-4" id="workBench_trade_examine_cusOrderNo"></td>
+					<td class="title col-sm-2">平台流水号：</td>
+					<td class="col-sm-4" id="workBench_trade_examine_orderNo"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">存款方式：</td>
+					<td class="col-sm-4" id="workBench_trade_examine_payType"></td>
+					<td class="title col-sm-2">收款银行：</td>
+					<td class="col-sm-4" id="workBench_trade_examine_recBankName"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">收款户名：</td>
+					<td class="col-sm-4" id="workBench_trade_examine_recAcctName"></td>
+					<td class="title col-sm-2">收款卡号：</td>
+					<td class="col-sm-4" id="workBench_trade_examine_recAcctNo"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">银行附言：</td>
+					<td class="col-sm-4" colspan="3" id="workBench_trade_examine_recRemark"></td>
+				</tr>
+			</tbody>
+		</table>
+		<h5 class="marginTop">用户存款信息</h5>
+		<hr />
+		<table cellpadding="0" cellspacing="0" border="0" class="table table-bordered marginTop">
+			<tbody class="basic">
+				<tr>
+					<td class="title col-sm-2">用户名：</td>
+					<td class="col-sm-4" id="workBench_trade_examine_userAcct"></td>
+					<td class="title col-sm-2">用户星级：</td>
+					<td class="col-sm-4" id="workBench_trade_examine_userLevel"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">存款金额(元)：</td>
+					<td class="col-sm-4" id="workBench_trade_examine_orderAmt"></td>
+					<td class="title col-sm-2">真实姓名：</td>
+					<td class="col-sm-4" id="workBench_trade_examine_userName"></td>
+				</tr>
+				<tr>
+					<td class="title col-sm-2">存款人：</td>
+					<td class="col-sm-4" id="workBench_trade_examine_payAcctName"></td>
+					<td class="title col-sm-2">存款人卡号：</td>
+					<td class="col-sm-4" id="workBench_trade_examine_payAcctNo"></td>
+				</tr>
+			</tbody>
+		</table>
+		<hr />
+		<table cellpadding="0" cellspacing="0" border="0" class="table table-bordered marginTop">
+			<tbody class="basic">
+				<tr>
+					<td class="title col-sm-2">入款操作员：</td>
+					<td class="col-sm-4" id="workBench_trade_examine_userCode"></td>
+					<td class="title col-sm-2">操作时间：</td>
+					<td class="col-sm-4" id="workBench_trade_examine_updateTime"></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<form class="form-horizontal" id="workBench_trade_examine_form">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-2"><span class="red">*</span>审核意见:</label>
+				<div class="radio col-xs-4 col-sm-2">
+					<label>
+						<input style="margin: 2px 0 0 -20px;" type="radio" name="status" value="100" />
+						通过
+					</label>
+				</div>
+				<div class="radio col-xs-4 col-sm-2">
+					<label>
+						<input style="margin: 2px 0 0 -20px;" type="radio" name="status" value="-100" />
+						不通过
+					</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-2"><span class="red">*</span>审核备注:</label>
+				<div class="col-xs-8 col-sm-9">
+					<input type="text" class="form-control" id="workBench_trade_examine_remark" name="remark"
+						placeholder="请输入审核备注" autocomplete="off" />
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">
+			取消
+		</button>
+		<button type="button" class="btn btn-primary" onclick="workBench_trade_examine_submit()">
+			确定
+		</button>
+	</div>
+</div>
+
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript">
+	var edit_id = "";
+	var workBench_trade_examine_orderNo = "";
+	$(function () {
+		edit_id = getQueryString("id");
+		var url = host_url + "/cloud-web/corePayTradeFlow/view";
+		sendAjax("POST", url, { id: edit_id }, function (res) {
+			var data = res.rows;
+			workBench_trade_examine_orderNo = data.orderNo;
+			$("#workBench_trade_examine_createTime").text(
+				formatterDateTime(data.createTime)
+			);
+			$("#workBench_trade_examine_cusOrderNo").text(data.cusOrderNo);
+			$("#workBench_trade_examine_orderNo").text(data.orderNo);
+
+			sendAjax(
+				"POST",
+				host_url + "/cloud-web/pubTypeGroup/findPubTypeGroupList",
+				{ sysCode: "Core", groupName: "pay_type" },
+				function (res) {
+					$.each(res.rows, function (i, item) {
+						if (item.keyValue == data.payType) {
+							$("#workBench_trade_examine_payType").text(
+								item.keyName
+							);
+						}
+					});
+				}
+			);
+			$("#workBench_trade_examine_recBankName").text(data.recBankName);
+			$("#workBench_trade_examine_recAcctName").text(data.recAcctName);
+			$("#workBench_trade_examine_recAcctNo").text(data.recAcctNo);
+			$("#workBench_trade_examine_recRemark").text(data.recRemark);
+			$("#workBench_trade_examine_userAcct").text(data.userAcct);
+			$("#workBench_trade_examine_userLevel").text(data.userLevel + "星");
+			$("#workBench_trade_examine_userName").text(data.userName);
+			$("#workBench_trade_examine_orderAmt").text(
+				formatterMoney_edit(data.payAmt)
+			);
+			$("#workBench_trade_examine_payAcctName").text(data.payAcctName);
+			$("#workBench_trade_examine_payAcctNo").text(data.payAcctNo);
+			var userCode = JSON.parse(localStorage.getItem("sybJsonLocal"))
+				.userCode;
+			$("#workBench_trade_examine_userCode").text(data.operatorName);
+			$("#workBench_trade_examine_updateTime").text(
+				formatterDateTime(data.updateTime)
+			);
+			workBench_trade_examine_initValidate();
+		});
+
+		$("#workBench_trade_examine_form input[name='status']").on(
+			"change",
+			function () {
+				var flag = $(this).prop("checked");
+				var remark = $.trim($("#workBench_trade_examine_remark").val());
+				if (flag && !remark) {
+					var val = $(this).val();
+					if (val == "100") {
+						if ($("#workBench_trade_examine_remark").val() == "") {
+							$("#workBench_trade_examine_remark").val("通过");
+						}
+					} else {
+						if ($("#workBench_trade_examine_remark").val() == "") {
+							$("#workBench_trade_examine_remark").val("不通过");
+						}
+					}
+					$("#workBench_trade_examine_form").bootstrapValidator(
+						"revalidateField",
+						"remark"
+					);
+				}
+			}
+		);
+	});
+
+	//初始化验证框架
+	function workBench_trade_examine_initValidate() {
+		//进行表单验证
+		$("#workBench_trade_examine_form").bootstrapValidator({
+			message: "输入值不合法",
+			feedbackIcons: {
+				valid: "glyphicon glyphicon-ok",
+				invalid: "glyphicon glyphicon-remove",
+				validating: "glyphicon glyphicon-refresh"
+			},
+			excluded: [":disabled"],
+			fields: {
+				remark: {
+					message: "审核备注验证失败",
+					validators: {
+						notEmpty: {
+							message: "审核备注不能为空"
+						},
+						stringLength: {
+							max: 32,
+							message: "审核备注超过32位限定长度"
+						}
+					}
+				}
+			}
+		});
+	}
+
+	// 保存
+	function workBench_trade_examine_submit() {
+		var bv = $("#workBench_trade_examine_form")
+			.data("bootstrapValidator")
+			.validate();
+		if (!bv.isValid()) {
+			//验证不通过
+			return;
+		}
+		var statusVal = $(
+			"#workBench_trade_examine_form input[name='status']:checked"
+		).val();
+		var remarkVal = $("#workBench_trade_examine_remark").val();
+		if (!statusVal) {
+			Ewin.alert({ message: "请选择是否审核通过" });
+			return false;
+		}
+		sendAjax(
+			"post",
+			host_url + "/cloud-web/corePayTradeFlow/financeGroupAuth",
+			{
+				status: statusVal,
+				orderNo: workBench_trade_examine_orderNo,
+				remark: remarkVal
+			},
+			function (res) {
+				$("#authCorePayTradeFlowFormTable").bootstrapTable("refresh");
+				$("#workBench_trade_examine_form")
+					.closest(".modal")
+					.modal("hide");
+				Ewin.alert({ message: "恭喜你，操作成功！" });
+			}
+		);
+	}
+</script>

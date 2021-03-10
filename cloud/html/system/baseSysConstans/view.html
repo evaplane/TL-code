@@ -1,0 +1,61 @@
+﻿<div class="content_center">
+	<div class="content_center_content">
+		<table cellpadding="0" cellspacing="0" border="0" id="table" class="table table-bordered">
+		    <tbody class="basic">
+		        <tr>
+		            <td class='title col-sm-4'>系统编码：</td>
+		            <td class="col-sm-8" id="view_sysCode"></td>
+		        </tr>
+		        <tr>
+		            <td class='title col-sm-4'>参数名称：</td>
+		            <td class="col-sm-8" id="view_paramName"></td>
+		        </tr>
+		        <tr>
+		            <td class='title col-sm-4'>参数代码：</td>
+		            <td class="col-sm-8" id="view_paramCode"></td>
+		        </tr>
+		        <tr>
+		            <td class='title col-sm-4'>参数值：</td>
+		            <td class="col-sm-8" id="view_paramValue"></td>
+		        </tr>
+		        <tr>
+		            <td class='title col-sm-4'>描述：</td>
+		            <td class="col-sm-8" id="view_paramDesc"></td>
+		        </tr>
+		        <tr>
+		            <td class='title col-sm-4'>状态：</td>
+		            <td class="col-sm-8" id="view_status"></td>
+		        </tr>
+		        <tr>
+		            <td class='title col-sm-4'>添加时间：</td>
+		            <td class="col-sm-8" id="view_createTime"></td>
+		        </tr>
+		        <tr>
+		            <td class='title col-sm-4'>更新时间：</td>
+		            <td class="col-sm-8" id="view_updateTime"></td>
+		        </tr>
+		    </tbody>
+		</table>
+	</div>
+</div>
+<div class="modal-footer" id="close">
+    <button type="button" class="btn btn-default cancel" data-dismiss="modal">关闭</button>
+</div>
+<script type="text/javascript">
+$(function(){
+	var view_id = getQueryString('id');
+	sendAjax( 'POST', host_url+"/base-web/baseSysConstans/view", {'id':view_id}, function(res){
+		var data=res.rows;
+
+		$('#view_id').html(data.id);
+		$('#view_sysCode').html(data.sysCode);
+		$('#view_paramName').html(data.paramName);
+		$('#view_paramCode').html(data.paramCode);
+		$('#view_paramValue').html(data.paramValue);
+		$('#view_paramDesc').html(data.paramDesc);
+        $('#view_status').html(visualParams(SYS_STATUS, data.status));
+        $('#view_createTime').html(formatterDateTime(data.createTime));
+        $('#view_updateTime').html(formatterDateTime(data.updateTime));
+	});
+});
+</script>

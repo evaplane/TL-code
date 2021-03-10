@@ -1,0 +1,429 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal" name="pay_add_form" role="form" id="pay_add_form">
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>账号用途</label>
+				<!-- <div class="col-xs-8 col-sm-7">
+					<select class="form-control" id="pay_add_cardUseType" name="cardUseType" onchange="changeCardUseType()"></select>
+				</div> -->
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="pay_add_cardUseType" name="cardUseType" value="入款卡"
+						readonly>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>财务组长</label>
+				<div class="col-xs-8 col-sm-7">
+					<select class="form-control" id="pay_add_groupCode" name="groupCode"></select>
+				</div>
+			</div>
+			<div class="form-group finance">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>财务人员</label>
+				<div class="col-xs-8 col-sm-7">
+					<select class="form-control" id="pay_add_operatorCode" name="operatorCode"></select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>开放量级</label>
+				<div class="col-xs-8 col-sm-7 add_acctLevel">
+					<select class="multiselect multiselectLevel form-control" id="pay_add_acctLevel" name="acctLevel"
+						multiple="multiple"></select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3">会员配置</label>
+				<div class="col-xs-8 col-sm-7 add_Member">
+					<select class="multiselect multiselectMember form-control" id="pay_add_Member" name="cusCode"
+						multiple="multiple"></select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>银行卡号</label>
+				<div class="col-xs-8 col-sm-7">
+					<select class="form-control" id="pay_add_acctNo" name="acctNo"></select>
+				</div>
+				<i class="glyphicon glyphicon-plus btn_routeAmt_tradePeriod add_routeAmt_tradePeriod"
+					onclick="payAddShiftAdd_fca()"></i>
+			</div>
+			<div class="bankNo"></div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		<button type="button" class="btn btn-primary" onclick="_doPaySubmit()">保存</button>
+	</div>
+</div>
+<link rel="stylesheet" href="../../../css/lib/bootstrap-multiselect.css" />
+<style>
+	.add_acctLevel .multiselect-container,
+	.add_Member .multiselect-container {
+		width: 100%;
+	}
+</style>
+<script type="text/javascript" src="../../../js/lib/bootstrap-multiselect.js"></script>
+<script type="text/javascript">
+	var id = "", routeCode = "", shiftAdd_fca;
+	$(function () {
+		id = getQueryString("id");
+		routeCode = getQueryString("routeCode");
+		getPaySelectLevelList();
+		initData_pay_shift();
+	});
+	function initData_pay_shift() {
+		shiftAdd_fca = 0;
+		shift_validateForm();//验证初始化
+		// 入金财务  40 入金财务组长 52
+		getPaySelectBankList(0);
+		getPaySelectUserList(40);
+		getPaySelectUserList(52);
+		getMember();
+		// getPaySelectUserList(60);
+		//账号用途
+		// sendAjax( "POST", host_url+"/cloud-web/pubTypeGroup/findPubTypeGroupList", {sysCode:'Card','groupName':'card_type'}, function(data){
+		// 	$('#pay_add_cardUseType').html('');
+		// 	let cardUseType ='<option value="">请选择</option>';
+		// 	$.each(data.rows,function(i,item){
+		// 		cardUseType += '<option value="'+item.keyValue+'">'+item.keyName+'</option>';
+		// 	});
+		// 	$('#pay_add_cardUseType').append(cardUseType);
+		// 	$("#pay_add_cardUseType").comboSelect();
+		// });
+	}
+	// 声明全局变量
+	var acctNoList = [];
+	// 添加固定金额
+	function payAddShiftAdd_fca() {
+		var acctNo = $('#pay_add_acctNo option:selected').text();
+		if (acctNo == "") {
+			Ewin.alert({
+				message: '请先选择银行卡'
+			})
+			return;
+		}
+		if (shiftAdd_fca < 10) {
+			var rowId = "shiftAdd_fca" + shiftAdd_fca;
+			var insertStr =
+				'<div class="form-group"  id="' + rowId + '">' +
+				'<label class="control-label col-xs-4 col-sm-3"></label>' +
+				'<div class="col-xs-8 col-sm-7">' +
+				'<input type="text" name="acctAdd" readonly="readonly" class="form-control" data-value="' + $('#pay_add_acctNo').val() + '" value="' + acctNo + '">' +
+				'</div>' +
+				'<i class="glyphicon glyphicon-minus shift_del btn_routeAmt_tradePeriod cut_routeAmt_tradePeriod" onclick="shiftAdd_cfa(\'' +
+				rowId + '\');"></i>' +
+				'</div>' +
+				'</div>';
+			if ($('#pay_add_acctNo').val() != "") {
+				acctNoList.push($('#pay_add_acctNo').val());
+
+				acctNoList.sort();
+				if (isRepeat(acctNoList)) {
+					Ewin.alert({
+						message: '卡号已添加'
+					})
+					var indexOne = acctNoList.indexOf($('#pay_add_acctNo').val());
+					if (indexOne > -1) {
+						acctNoList.splice(indexOne, 1);
+						shiftAdd_fca--;
+					}
+				} else {
+					$(".bankNo").append(insertStr);
+					shiftAdd_fca++;
+					return;
+				}
+			}
+		} else {
+			Ewin.alert({
+				message: '最多可添加10个银行卡号'
+			})
+		}
+	}
+	// 判断数据是否重复
+	function isRepeat(arr) {
+		var hash = {};
+		for (var i in arr) {
+			if (hash[arr[i]]) {
+				return true;
+			}
+			// 不存在该元素，则赋值为true，可以赋任意值，相应的修改if判断条件即可
+			hash[arr[i]] = true;
+		}
+		return false;
+	}
+	// 删除固定金额
+	function shiftAdd_cfa(rowID) {
+		shiftAdd_fca--;
+
+		var index = acctNoList.indexOf($("#" + rowID + " input").attr('data-value'));
+		if (index > -1) {
+			acctNoList.splice(index, 1);
+		}
+		$("#" + rowID).remove();
+	}
+	// 获取 组长(50) 或 财务(40) 下拉框
+	function getPaySelectUserList(role) {
+		sendAjax('POST', host_url + "/cloud-web/ownSsoUser/selectUserListByRole", { 'role': role }, function (res) {
+			var data = res.rows;
+			var lists = "<option value=''>请选择</option>";
+			$.each(data, function (i, item) {
+				lists += '<option value="' + item.loginName + '" name="' + item.userName + '" >' + item.loginName + "(" + item.userName + ")" + '</option>';
+			});
+			if (role == 52) {
+				$('#pay_add_groupCode').html(lists);
+				$('#pay_add_groupCode').comboSelect();
+			} else {
+				$('#pay_add_operatorCode').html(lists);
+				$('#pay_add_operatorCode').comboSelect();
+			}
+		});
+	}
+
+	// 获取 银行卡号 下拉框
+	function getPaySelectBankList(cardUseType) {
+		sendAjax('POST', host_url + "/cloud-web/cardBankCardInfo/loadBank", { "id": id, "cardUseType": 10 }, function (res) {
+			var data = res.rows;
+			var lists = [];
+			$.each(data, function (i, item) {
+				lists.push({
+					id: item.acctNo,
+					text: item.aliasName + " / " + item.acctNo
+				});
+			});
+			listOptionInit2('#pay_add_acctNo', lists)
+			$('#pay_add_acctNo').comboSelect();
+		});
+	}
+
+	var selectedValue = "";
+	// 获取 开发量级 下拉框
+	function getPaySelectLevelList() {
+		new Promise(multiselectLevel).then(function () {
+			$('.multiselectLevel').multiselect({
+				buttonClass: 'btn',
+				buttonWidth: '100%',
+				buttonText: function (options) {
+					if (options.length == 0) {
+						return '请选择';
+					} else {
+						var selected = '';
+						options.each(function () {
+							selected += $(this).text() + ',';
+						});
+						return selected.substr(0, selected.length - 1);
+					}
+				},
+				onChange: function (option, checked) {
+					selectedValue = ""
+					$('select#pay_add_acctLevel option:selected').each(function (i, item) {
+						selectedValue += $(item).val() + ',';
+					});
+				}
+			});
+		})
+
+	}
+	function multiselectLevel(suc) {
+		sendAjax('POST', host_url + "/cloud-web/cardBankCardInfo/loadLevel", {}, function (res) {
+			var data = res.rows;
+			$.each(data, function (i, item) {
+				var add_acctLevel = '<option value="' + item.keyValue + '" data-value="' + item.id + '">' + item.keyName + '</option>';
+				$('#pay_add_acctLevel').append(add_acctLevel);
+			});
+			if (suc) {
+				suc();
+			}
+		});
+	}
+	var selectedMember = "";
+	// 获取 会员配置 下拉框
+	function getMember() {
+		selectedMember = "";
+		new Promise(multiselectgetMember).then(function () {
+			$('.multiselectMember').multiselect({
+				buttonClass: 'btn',
+				buttonWidth: '100%',
+				buttonText: function (options) {
+					if (options.length == 0) {
+						return '请选择';
+					} else {
+						var select = '';
+						options.each(function () {
+							select += $(this).text() + ',';
+						});
+						return select.substr(0, select.length - 1);
+					}
+				},
+				onChange: function (option, checked) {
+					selectedMember = "";
+					$('select#pay_add_Member option:selected').each(function (i, item) {
+						selectedMember += $(item).val() + ',';
+					});
+				}
+			});
+		})
+
+	}
+	function multiselectgetMember(suc) {
+		// 会员配置
+		sendAjax("POST", host_url + "/cloud-web/cusMemberInfo/getAllCusMember", {}, function (data) {
+			$('#pay_add_Member').html('');
+			$.each(data.rows, function (i, item) {
+				var Member = '<option value="' + item.cusCode + '">' + item.cusCode + '(' + item.cusName + ')</option>';
+				$('#pay_add_Member').append(Member);
+			});
+			if (suc) {
+				suc();
+			}
+		})
+	}
+
+	// 账号用途 改变
+	function changeCardUseType() {
+		var cardUseType = $('#pay_add_cardUseType').val();
+		console.log(cardUseType)
+		if (cardUseType == 10) {
+			getPaySelectUserList(40);
+		} else if (cardUseType == 20) {
+			getPaySelectUserList(60);
+		}
+		if (cardUseType) {
+			getPaySelectBankList(cardUseType);
+		}
+		$(".bankNo").html('');
+		shiftAdd_fca = 0;
+	}
+
+	//初始化验证框架
+	function shift_validateForm() {
+		//进行表单验证
+		$('#pay_add_form').bootstrapValidator({
+			message: '输入值不合法',
+			feedbackIcons: { valid: 'glyphicon glyphicon-ok', invalid: 'glyphicon glyphicon-remove', validating: 'glyphicon glyphicon-refresh' },
+			excluded: [':disabled'],
+			fields: {
+				groupCode: {
+					verbose: false,
+					message: '财务组长验证失败',
+					validators: {
+						callback: {
+							message: '财务组长不能为空',
+							callback: function (value, validator) {
+								var cardUseType = $("#pay_add_cardUseType").val();
+								if (cardUseType == 20) {
+									return true;
+								} else {
+									if (value) {
+										return true;
+									} else {
+										return false;
+									}
+								}
+							}
+						}
+					}
+				},
+				operatorCode: {
+					verbose: false,
+					message: '财务人员验证失败',
+					validators: {
+						notEmpty: { message: '财务人员不能为空' }
+					}
+				},
+				acctNo: {
+					verbose: false,
+					message: '银行卡号验证失败',
+					validators: {
+						notEmpty: { message: '银行卡号不能为空' }
+					}
+				},
+				acctLevel: {
+					verbose: false,
+					message: '开放量级验证失败',
+					validators: {
+						notEmpty: { message: '开放量级不能为空' }
+					}
+				},
+				cardUseType: {
+					verbose: false,
+					message: '账号用途验证失败',
+					validators: {
+						notEmpty: { message: '账号用途不能为空' }
+					}
+				}
+			}
+		});
+	}
+
+	//提交
+	function _doPaySubmit() {
+		var bv = $('#pay_add_form').data('bootstrapValidator').validate();
+		if (!bv.isValid()) {//验证不通过
+			return;
+		}
+		var acctNoLists = '';
+		var paramForm = $("#pay_add_form").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+
+		$.each(acctNoList, function (i, item) {
+			acctNoLists += item + ',';
+		});
+		params.acctNoList = acctNoLists.slice(0, acctNoLists.length - 1);
+		if (params.acctNoList == "" || $('input[name="acctAdd"]').val() == undefined) {
+			Ewin.alert({
+				message: '请点击“+”添加此银行信息再保存'
+			});
+			return;
+		}
+		delete params.acctNo;
+		delete params.acctAdd;
+		params.operatorCode = $("#pay_add_operatorCode option:selected").val();
+		params.operatorName = $("#pay_add_operatorCode option:selected").attr('name');
+
+		params.groupCode = $("#pay_add_groupCode option:selected").val();
+		if (params.groupCode) {
+			params.groupName = $("#pay_add_groupCode option:selected").attr('name');
+		}
+		// params.cardUseType = $('#pay_add_cardUseType option:selected').val();
+		params.cardUseType = "10"
+		params.routeCode = routeCode;
+		params.acctLevel = selectedValue.slice(0, selectedValue.length - 1);
+
+		if (selectedMember) {
+			if (selectedMember.split(',').length > 21) {
+				Ewin.alert({
+					message: '最多可添加20个会员'
+				});
+				return;
+			}
+
+			params.cusList = selectedMember.slice(0, selectedMember.length - 1);
+		}
+
+
+		sendAjax('POST', host_url + "/cloud-web/cardRoutePoolMerch/addSubmit", params, function (res) {
+			Ewin.alert({ message: '恭喜你，操作成功！' }).on(function (e) {
+				if (e) {
+					getAllPayShiftsLists();
+					initData_pay_shift();
+					//清空多选框选中代码：
+					$('select[multiple="multiple"]').multiselect('clearSelection');
+					$('select[multiple="multiple"]').multiselect('refresh');
+					$(".bankNo").html('');
+					$('#pay_add_cardUseType~.combo-input').val('');
+					$('#pay_add_cardUseType~ul li').removeClass('option-selected option-hover');
+					$('#pay_add_operatorCode~.combo-input').val('');
+					$('#pay_add_operatorCode~ul li').removeClass('option-selected option-hover');
+					$('#pay_add_acctNo~.combo-input').val('');
+					$('#pay_add_acctNo~ul li').removeClass('option-selected option-hover');
+					$('#pay_add_acctLevel~.combo-input').val('');
+					$('#pay_add_acctLevel~ul li').removeClass('option-selected option-hover');
+					$('#pay_add_groupCode~.combo-input').val('');
+					$('#pay_add_groupCode~ul li').removeClass('option-selected option-hover');
+
+				}
+			});
+		});
+	}
+</script>

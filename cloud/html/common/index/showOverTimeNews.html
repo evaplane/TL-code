@@ -1,0 +1,190 @@
+<link rel="stylesheet" href="../../../css/fonts/rob/iconfont.css" />
+<div class="content_center" id="showOverTImeNews">
+	<div class="content_center_content" id="showOverTImeNewsContent">
+		<button id="batchRobBill" type="button" class="btn btn-primary" style="margin-bottom: 10px;"
+			onclick="overTimeSignRead()">
+			标记已读
+		</button>
+		<button type="button" class="btn btn-primary" style="margin-bottom: 10px;float: right;"
+			onclick="showOverTImeNewsTable()">
+			查询
+		</button>
+		<table id="showOverTImeNewsTable" cellpadding="0" cellspacing="0" border="0"
+			class="table table-bordered table-hover">
+			<thead>
+				<tr>
+					<th>
+						<input type="checkbox" id="news_over_time_select_all" />
+					</th>
+					<th>序号</th>
+					<th>平台流水号</th>
+					<th style="text-align: right;">归集金额(元)</th>
+					<th>转出银行</th>
+					<th>转出银行账号</th>
+					<th>转出银行户名</th>
+					<th>转出账户别名</th>
+					<th>描述</th>
+					<th>创建时间</th>
+				</tr>
+			</thead>
+			<tbody id="showOverTimeNewsBody"></tbody>
+		</table>
+	</div>
+	<div class="modal-footer" id="showOverTImeNewsFooter">
+		<button type="button" class="btn btn-default" data-dismiss="modal">
+			关闭
+		</button>
+	</div>
+</div>
+<style>
+	#showOverTImeNews {
+		width: 100%;
+		position: relative;
+		height: 793px;
+	}
+
+	#showOverTImeNewsContent {
+		width: 100%;
+		position: absolute;
+		top: 0;
+	}
+
+	#showOverTImeNewsFooter {
+		position: absolute;
+		bottom: 0px;
+	}
+
+	#showOverTImeNews>li {
+		width: 100%;
+		height: 50px;
+		line-height: 50px;
+		border-bottom: 1px solid #e5e5e5;
+		cursor: pointer;
+	}
+
+	.blue {
+		color: blue;
+	}
+</style>
+<script>
+	$(function () {
+		showOverTImeNewsTable();
+	});
+	// 显示表格
+	function showOverTImeNewsTable() {
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/coreMessageNotify/getMergeMessageList",
+			{ notifyType: 62 },
+			function (res) {
+				var data = res.rows;
+				$("#overTime_header_tip").html(data.length);
+				if (data.length > 0) {
+					var newsContent = "";
+					$.each(data, function (i, item) {
+						var notify = "提款";
+						newsContent +=
+							"<tr>" +
+							"<td><input type='checkbox' name='news_select' data-routecode=" +
+							item.routeCode +
+							" data-orderno=" +
+							item.orderNo +
+							"></td>" +
+							"<td>" +
+							(i + 1) +
+							"</td>" +
+							"<td>" +
+							item.orderNo +
+							"</td>" +
+							"<td style='text-align:right;'>" +
+							formatterMoney(item.payAmt) +
+							"</td>" +
+							"<td>" +
+							item.payBankName +
+							"</td>" +
+							"<td>" +
+							item.payAcctNo +
+							"</td>" +
+							"<td>" +
+							item.payAcctName +
+							"</td>" +
+							"<td>" +
+							item.payAliasName +
+							"</td>" +
+							"<td style='color:red'>订单超时</td>" +
+							"<td>" +
+							formatterDateTime(item.createTime) +
+							"</td>" +
+							"</tr>";
+					});
+					$("#showOverTimeNewsBody").html(newsContent);
+					newSelectOverTime();
+				} else {
+					$("#showOverTimeNewsBody").html("<tr><td colspan='10'>没有找到匹配的记录</td></tr>");
+				}
+			}
+		);
+	}
+
+	// 全选和反选
+	function newSelectOverTime() {
+		$("#news_over_time_select_all").on("click", function () {
+			var checkAll = $("#news_over_time_select_all").prop("checked");
+			$("#showOverTimeNewsBody td :checkbox").prop("checked", checkAll);
+		});
+
+		$("#showOverTimeNewsBody").on("click", "input[type=checkbox]", function (
+			e
+		) {
+			e.stopPropagation();
+			var allLength = $("#showOverTimeNewsBody td :checkbox").length;
+			var checkLength = $(
+				"#showOverTimeNewsBody input[type='checkbox']:checked"
+			).length;
+			if (checkLength == allLength) {
+				$("#news_over_time_select_all").prop("checked", true);
+			} else {
+				$("#news_over_time_select_all").prop("checked", false);
+			}
+		});
+	}
+	// 标记已读
+	function overTimeSignRead() {
+		var checkLength = $(
+			"#showOverTimeNewsBody input[type='checkbox']:checked"
+		).length;
+		if (checkLength == 0) {
+			Ewin.alert({ message: "请选中一行标记已读" });
+			return false;
+		}
+		var allChecked = document.getElementsByName("news_select");
+		var check_val = [];
+		for (var i = 0; i < allChecked.length; i++) {
+			if (allChecked[i].checked) check_val.push(allChecked[i]);
+		}
+		var orderNoList = [];
+		for (var i = 0; i < check_val.length; i++) {
+			orderNoList.push(check_val[i].dataset["orderno"]);
+		}
+		orderNoList = orderNoList.join(",");
+		sendAjax_special(
+			"POST",
+			host_url + "/cloud-web/coreMessageNotify/batchMergeRemoveMessage",
+			{ orderNoList: orderNoList },
+			function (res) {
+				if (res.retCode == "000000") {
+					$("#news_over_time_select_all").prop("checked", false);
+					$("#showOverTimeNewsBody td :checkbox").prop(
+						"checked",
+						false
+					);
+					$("#showOverTImeNewsTable").bootstrapTable("refresh");
+					showOverTImeNewsTable();
+					alertTips({ message: res.retMsg });
+				} else {
+					alertTips({ message: res.retMsg, id: "alert-danger" });
+				}
+			}
+		);
+	}
+</script>

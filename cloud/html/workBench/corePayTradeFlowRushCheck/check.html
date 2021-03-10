@@ -1,0 +1,183 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal basic" name="edit_form" role="form" id="edit_form">
+			<div class="content_center_title">原交易信息</div>
+			<table cellpadding="0" cellspacing="0" border="0" class=" table table-bordered ">
+				<tbody>
+					<tr>
+						<td class="title col-sm-2">客户单号：</td>
+						<td class="col-sm-4 " id="view_cusOrderNo"></td>
+						<td class="title col-sm-2">平台流水号：</td>
+						<td class="col-sm-4 " id="view_tradeOrderNo"></td>
+					</tr>
+					<tr>
+						<td class="title col-sm-2">存款金额(元)：</td>
+						<td class="col-sm-4 " colspan="3" id="view_orderAmt"></td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="content_center_title">冲账信息</div>
+			<table cellpadding="0" cellspacing="0" border="0" class=" table table-bordered ">
+				<tbody>
+					<tr>
+						<td class="title col-sm-2">冲账流水号：</td>
+						<td class="col-sm-4 " id="view_orderNo"></td>
+						<td class="title col-sm-2">冲账金额(元)：</td>
+						<td class="col-sm-4 " id="view_rushAmt"></td>
+					</tr>
+					<tr>
+						<td class="title col-sm-2">申请时间：</td>
+						<td class="col-sm-4 " id="view_createTime"></td>
+						<td class="title col-sm-2">操作员：</td>
+						<td class="col-sm-4 " id="view_operatorName"></td>
+					</tr>
+					<tr>
+						<td class="title col-sm-2">冲账原因：</td>
+						<td class="col-sm-8" colspan="3" id="view_returnMsg"></td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="form-group marginTop">
+				<label class="col-sm-3 control-label" style="padding-top: 0;">审核意见：</label>
+				<div class="col-sm-9">
+					<label><input type="radio" name="status" value="100" />
+						通过</label>
+					<label><input type="radio" name="status" value="-100" />不通过</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label id="add_lbl_name" class="control-label col-xs-4 col-sm-3"><span class="red">*</span>审核备注：</label>
+				<div class="col-xs-8 col-sm-7">
+					<input type="text" class="form-control" id="edit_remark" name="remark" placeholder="请输入审核备注"
+						autocomplete="off" />
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">
+			取消
+		</button>
+		<button type="button" class="btn btn-primary" onclick="edit_chnMerchantInfo_doSbmit()">
+			确定
+		</button>
+	</div>
+</div>
+<script type="text/javascript">
+	var check_id = getQueryString("id");
+	var check_orderNo = getQueryString("orderNo");
+	$(function () {
+		_validateForm(); //验证初始化
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/coreRushAcctFlow/view",
+			{
+				id: check_id
+			},
+			function (res) {
+				var data = res.rows;
+
+				$("#view_customerNo").text(data.customerNo);
+				$("#view_customerName").text(data.customerName);
+				$("#view_cusOrderNo").text(data.cusOrderNo);
+				$("#view_orderNo").text(data.orderNo);
+				$("#view_tradeOrderNo").text(data.tradeOrderNo);
+				$("#view_orderAmt").text(formatterMoney(data.payAmt));
+				$("#view_createTime").text(getDateStr(data.createTime));
+
+				$("#view_rushAmt").text(formatterMoney(data.rushAmt));
+				$("#view_createTime").text(getDateStr(data.createTime));
+				$("#view_operatorName").text(data.operatorName);
+				$("#view_returnMsg").text(data.returnMsg);
+
+				findConstantValue("Core", "pay_type");
+				setTimeout(function () {
+					$("#view_tradeType").text(
+						sys_getTitle_Id(data.tradeType, lists)
+					);
+				}, 500);
+			}
+		);
+	});
+	//审核单选框
+	$("#edit_form input[name='status']").on("change", function () {
+		var flag = $(this).prop("checked");
+		if (flag) {
+			var val = $(this).val();
+			if (val == "100") {
+				if ($("#edit_remark").val() == "") {
+					$("#edit_remark").val("通过");
+				}
+			} else {
+				if ($("#edit_remark").val() == "") {
+					$("#edit_remark").val("不通过");
+				}
+			}
+			$("#edit_form").bootstrapValidator("revalidateField", "remark");
+		}
+	});
+	//初始化验证框架
+	function _validateForm() {
+		//进行表单验证
+		$("#edit_form").bootstrapValidator({
+			message: "输入值不合法",
+			excluded: {},
+			feedbackIcons: {
+				valid: "glyphicon glyphicon-ok",
+				invalid: "glyphicon glyphicon-remove",
+				validating: "glyphicon glyphicon-refresh"
+			},
+			fields: {
+				remark: {
+					message: "审核备注不可为空",
+					verbose: false,
+					validators: {
+						notEmpty: { message: "审核备注不可为空" },
+						stringLength: {
+							max: 32,
+							message: "审核备注不能超过32位限定长度"
+						}
+					}
+				}
+			}
+		});
+	}
+	function edit_chnMerchantInfo_doSbmit() {
+		var bv = $("#edit_form")
+			.data("bootstrapValidator")
+			.validate();
+		if (!bv.isValid()) {
+			//验证不通过
+			return;
+		}
+
+		if (typeof $("input[name=status]:checked").val() == "undefined") {
+			Ewin.alert({ message: "请选择是否审核通过" });
+			return;
+		}
+		var paramForm = $("#edit_form").serializeArray();
+		var params = {
+			orderNo: check_orderNo,
+			status: $("input[name=status]:checked").val(),
+			remark: $("#edit_remark").val()
+		};
+		params.operatorCode = _loginJsonObj.loginName;
+		params.operatorName = _loginJsonObj.userName;
+
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/corePayTradeFlow/rushAcctAuth",
+			params,
+			function (res) {
+				Ewin.alert({ message: "恭喜你，操作成功！" }).on(function (e) {
+					if (e) {
+						$(".modal").modal("hide");
+						$("#corePayTradeFlowRushCheckFormTable").bootstrapTable(
+							"refresh"
+						);
+					}
+				});
+			}
+		);
+	}
+</script>

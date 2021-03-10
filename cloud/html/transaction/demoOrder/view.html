@@ -1,0 +1,145 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<div class="basic">
+			<p class="content_center_title">基本信息</p>
+			<table cellpadding="0" cellspacing="0" border="0" id="table"
+				class="table table-bordered settle_settleOriRecord_top">
+				<tbody class="basic">
+					<tr>
+						<td class='title col-sm-2'>拆单流水号：</td>
+						<td class="col-sm-4" id="view_orderNo"></td>
+						<td class='title col-sm-2'>客户单号：</td>
+						<td class="col-sm-4" id="view_cusOrderNo"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>用户名：</td>
+						<td class="col-sm-4" id="view_userAcct"></td>
+						<td class='title col-sm-2'>真实姓名：</td>
+						<td class="col-sm-4" id="view_userName"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>订单金额(元)：</td>
+						<td class="col-sm-4" id="view_orderAmt"></td>
+						<td class='title col-sm-2'>提款金额(元)：</td>
+						<td class="col-sm-4" id="view_payAmt"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>手续费(元)：</td>
+						<td class="col-sm-4" id="view_feeAmt"></td>
+						<td class='title col-sm-2'>提款银行：</td>
+						<td class="col-sm-4" id="view_recBankName"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>提款银行卡号：</td>
+						<td class="col-sm-4" id="view_recAcctNo"></td>
+						<td class='title col-sm-2'>账户姓名：</td>
+						<td class="col-sm-4" id="view_recAcctName"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>订单状态：</td>
+						<td class="col-sm-4" colspan="3" id="view_status"></td>
+					</tr>
+					<tr>
+						<td class='title col-sm-2'>创建时间：</td>
+						<td class="col-sm-4" id="view_createTime"></td>
+						<td class='title col-sm-2'>完成时间：</td>
+						<td class="col-sm-4" id="view_payTime"></td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="demo_view"></div>
+		</div>
+	</div>
+	<div class="modal-footer" id="close">
+		<button type="button" class="btn btn-default cancel" data-dismiss="modal">关闭</button>
+	</div>
+</div>
+<script type="text/javascript">
+	var tradeTypeList;
+	$(function () {
+		var view_orderNo = getQueryString('orderNo');
+		var view_id = getQueryString('id');
+		//基本信息
+		sendAjax('POST', host_url + "/cloud-web/coreSplitOrderFlow/view", {
+			'id': view_id
+		}, function (res) {
+			var data = res.rows;
+
+			$('#view_customerNo').html(data.customerNo);
+			$('#view_customerName').html(data.customerName);
+			$('#view_orderNo').html(data.orderNo);
+			$('#view_cusOrderNo').html(data.cusOrderNo);
+			$('#view_userAcct').html(data.userAcct);
+			$('#view_userName').html(data.userName);
+			$('#view_orderAmt').html(formatterMoney(data.orderAmt));
+			$('#view_payAmt').html(formatterMoney(data.payAmt));
+			$('#view_feeAmt').html(formatterMoney(data.feeAmt));
+			$('#view_recBankName').html(data.recBankName);
+			$('#view_recAcctNo').html(data.recAcctNo);
+			$('#view_recAcctName').html(data.recAcctName);
+			$('#view_status').html(visualParams(PAY_STATUS, data.status));
+			$('#view_routeName').html(data.routeName);
+			$('#view_createTime').html(getDateStr(data.createTime));
+			$('#view_payTime').html(getDateStr(data.payTime));
+		});
+		findConstantValue('Core', 'pay_type');
+		setTimeout(function () {
+			tradeTypeList = lists;
+		}, 500);
+		// 拆单信息
+		sendAjax('POST', host_url + "/cloud-web/corePayTransFlow/splitView", {
+			'orderNo': view_orderNo
+		}, function (res) {
+			var data = res.rows;
+
+			if (data != null && data.length > 0 || data != undefined && data.length > 0) {
+				var demo_str = '';
+
+				demo_str += '<p class="content_center_title">拆单详情(<span class="viewNum">' + data.length + '</span>笔)</p>';
+				$.each(data, function (i, item) {
+					demo_str += '<p class="left_title">客户单号' + item.cusOrderNo + '</p>';
+					demo_str += '<table cellpadding="0" cellspacing="0" border="0" class="table table-bordered"><tbody class="basic"><tr>';
+					demo_str += '<td class="title col-sm-2">平台流水号：</td><td class="col-sm-4" id="demo_orderNo">' + item.orderNo + '</td>';
+					demo_str += '<td class="title col-sm-2">提款金额(元)：</td><td class="col-sm-4" id="demo_payAmt">' + formatterMoney(item.payAmt) + '</td>';
+					demo_str += '</tr><tr>';
+					if (item.payAcctNo) {
+						demo_str += '<td class="title col-sm-2">出款银行卡号：</td><td class="col-sm-4" id="demo_recAcctNo">' + item.payAcctNo + '</td>';
+					} else {
+						demo_str += '<td class="title col-sm-2">出款银行卡号：</td><td class="col-sm-4" id="demo_recAcctNo">-</td>';
+					}
+					if (item.payAcctName) {
+						demo_str += '<td class="title col-sm-2">账户姓名：</td><td class="col-sm-4" id="demo_recAcctName">' + item.payAcctName + '</td>';
+					} else {
+						demo_str += '<td class="title col-sm-2">账户姓名：</td><td class="col-sm-4" id="demo_recAcctName">-</td>';
+					}
+
+
+					demo_str += '</tr><tr>';
+					if (item.payBankName) {
+						demo_str += '<td class="title col-sm-2">出款银行：</td><td class="col-sm-4" id="demo_recBankName">' + item.payBankName + '</td>';
+					} else {
+						demo_str += '<td class="title col-sm-2">出款银行：</td><td class="col-sm-4" id="demo_recBankName">-</td>';
+					}
+					demo_str += '<td class="title col-sm-2">财务处理状态：</td><td class="col-sm-4" id="demo_status">' + sys_getTitle_Id(item.status, PAY_STATUS) + '</td>';
+					demo_str += '</tr><tr>';
+					if (item.operatorRemark) {
+						demo_str += '<td class="title col-sm-2">财务备注：</td><td class="col-sm-4" id="demo_operatorRemark">' + item.operatorRemark + '</td>';
+					} else {
+						demo_str += '<td class="title col-sm-2">财务备注：</td><td class="col-sm-4" id="demo_operatorRemark">-</td>';
+					}
+
+					demo_str += '<td class="title col-sm-2">领单操作员：</td><td class="col-sm-4" id="demo_operatorName">' + item.operatorName + '</td>';
+					demo_str += '</tr><tr>';
+
+					demo_str += '<td class="title col-sm-2">出款方式：</td><td class="col-sm-4" id="demo_postscript">' + sys_getTitle_Id(item.payType, tradeTypeList) + '</td>';
+					demo_str += '<td class="title col-sm-2">财务处理时长（秒）</td><td class="col-sm-4" id="demo_takeTime">' + item.takeTime + '</td>';
+					demo_str += '</tr><tr>';
+					demo_str += '<td class="title col-sm-2">创建时间：</td><td class="col-sm-4" id="demo_createTime">' + getDateStr(item.createTime) + '</td>';
+					demo_str += '<td class="title col-sm-2">完成时间：</td><td class="col-sm-4" id="demo_payTime">' + getDateStr(item.payTime) + '</td>';
+					demo_str += '</tr></tbody></table>';
+				});
+				$('.demo_view').html(demo_str);
+			}
+		});
+	});
+</script>

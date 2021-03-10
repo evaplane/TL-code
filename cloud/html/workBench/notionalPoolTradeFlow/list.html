@@ -1,0 +1,191 @@
+<link rel="stylesheet" href="../../../css/lib/bootstrap-datetimepicker.min.css" />
+<link rel="stylesheet" href="../../../css/lib/bootstrap-table.min.css">
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="notionalPoolForm" name="queryForm" role="form" class="form-inline">
+				<div class="form-group">
+					<label class="control-label">班次名称：</label>
+					<input name="routeName" class="form-control" type="text" placeholder="班次名称" autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">出款卡号：</label>
+					<input name="payAcctNo" class="form-control" type="text" placeholder="出款卡号" autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">收款卡号：</label>
+					<input name="recAcctNo" class="form-control" type="text" placeholder="收款卡号" autocomplete="off">
+				</div>
+				<div class="form-group">
+					<label class="control-label">创建日期：</label>
+					<input id="notionalPoolCreateTime" type="text" name="tradeDate" class="form-control form_datetime" readonly="readonly" placeholder="创建日期">
+				</div>
+				<div class="form-group">
+					<button id="notionalPoolTable_button" type="button" class="btn btn-primary refreshBtn"><i class="fa fa-search"></i>
+						查询</button>
+					<button type="reset" class="btn btn-default"><i class="fa fa-refresh"></i> 重置</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<div class="marginBottom">
+				<button type="button" class="btn btn-primary" onclick="notionalPool()">归集</button>
+			</div>
+			<table cellpadding="0" cellspacing="0" border="0" id="notionalPoolTable"
+				class="table table-bordered table-hover"></table>
+		</div>
+	</div>
+</div>
+<style type="text/css">
+	#notionalPoolTable.table {width: 1800px;}
+</style>
+<script>
+	$(function () {
+		$('#notionalPoolCreateTime').datetimepicker({
+			format: 'yyyy-mm-dd',
+			autoclose: true,
+			language: 'zh-CN',
+			minView: 'month',
+			pickerPosition: "bottom-right",
+		});
+		notionalPoolTable();
+	});
+	// 搜索
+	$("#notionalPoolTable_button").click(function () {
+		$("#notionalPoolTable").bootstrapTable('refresh');
+	});
+	/*表格加载*/
+	function notionalPoolTable() {
+		$('#notionalPoolTable').bootstrapTable({
+			url: host_url + '/cloud-web/corePayMergeFlow/workList',
+			method: 'GET',
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏  
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: 'zh-CN', //中文支持
+			queryParamsType: 'limit',
+			queryParams: function (params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = (params.offset / params.limit) + 1; //页码
+				params._sys_login_token = _get_sys_login_token();
+				var paramForm = $("#notionalPoolForm").serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				params.operatorCode = JSON.parse(localStorage.getItem("sybJsonLocal")).loginName;
+				//params.status = 20;
+				return params;
+			}, //参数  
+			columns: [{
+					title: '序号',
+					// checkbox: true,
+					width: 30,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						var options = $('#notionalPoolTable').bootstrapTable("getOptions");
+						return (options.pageNumber - 1) * (options.pageSize) + index + 1;
+					}
+				},
+				{
+					field: 'orderNo',
+					title: '归集流水号',
+					width: 140,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: 'routeName',
+					title: '班次名称',
+					width: 50,
+					align: "center",
+					valign: "middle"
+				},{
+					field: 'payAmt',
+					title: '归集金额(元)',
+					width: 50,
+					align: "right",
+					valign: "middle",
+					formatter: function(value, row, index){
+						return formatterMoney_edit(value)
+					}
+				},
+				{
+					field: 'payBankName',
+					title: '出款银行',
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: 'payAcctName',
+					title: '出款姓名',
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: 'payAcctNo',
+					title: '出款卡号',
+					width: 170,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: 'recBankName',
+					title: '收款银行',
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: 'recAcctName',
+					title: '收款姓名',
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: 'recAcctNo',
+					title: '收款卡号',
+					width: 170,
+					align: "center",
+					valign: "middle"
+				}, 
+				{field:'operatorName',title:'操作员',width:100,align:"center",valign:"middle"},
+				{field:'returnMsg',title:'归集备注',width:100,align:"center",valign:"middle"},
+				{
+					field: 'createTime',
+					title: '创建时间',
+					width: 120,
+					align: "center",
+					valign: "middle",
+					formatter:function (value, row, index) {
+					    return getDateStr(value);
+					}
+				}
+			],
+			onClickRow: function (row, $element) {
+				$($element).addClass('table_info').siblings().removeClass('table_info');
+			},
+			onLoadSuccess: function (res) {
+				//加载成功时执行  
+			},
+		});
+	}
+	// 订单转交
+	function notionalPool(){
+		Ewin.dialog({
+			url: '../../../html/workBench/notionalPoolTradeFlow/orderForward.html',
+			title: '归集作业'
+		});
+		
+	}
+</script>

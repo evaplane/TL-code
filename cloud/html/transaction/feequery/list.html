@@ -1,0 +1,781 @@
+<link rel="stylesheet" href="../../../css/lib/daterangepicker-bs3.css" />
+<link rel="stylesheet" href="../../../css/lib/bootstrap-table.min.css" />
+<div class="content_center">
+	<div class="content_center_content">
+		<!--查询条件-->
+		<div class="content_center_condition">
+			<form id="query_fee_Form" name="query_fee_Form" role="form" class="form-inline">
+				<div class="form-group">
+					<label class="control-label">平台号：</label>
+					<input name="customerNo" class="form-control" type="text" placeholder="平台号" autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">平台名称：</label>
+					<input name="customerName" class="form-control" type="text" placeholder="平台名称" autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">用户名：</label>
+					<input name="userAcct" class="form-control" type="text" placeholder="用户名" autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">真实姓名：</label>
+					<input name="userName" class="form-control" type="text" placeholder="用户真实姓名" autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">账户别名：</label>
+					<input name="userAliasName" class="form-control" type="text" placeholder="账户别名"
+						autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">是否首次提款：</label>
+					<select name="isFirst" class="form-control" id="isFirst_selectFee"></select>
+				</div>
+				<div class="form-group">
+					<label class="control-label">是否拆单：</label>
+					<select name="isSplit" class="form-control" id="isSplit_selectFee"></select>
+				</div>
+				<div class="form-group">
+					<label class="control-label">平台流水号：</label>
+					<input type="text" name="orderNo" class="form-control" type="text" placeholder="平台流水号"
+						autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">拆单流水号：</label>
+					<input type="text" name="splitOrderNo" class="form-control" type="text" placeholder="拆单流水号"
+						autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">客户单号：</label>
+					<input name="cusOrderNo" class="form-control" type="text" placeholder="客户单号" autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">订单状态：</label>
+					<select name="status" class="form-control" id="TransStatus_select"></select>
+				</div>
+				<div class="form-group">
+					<label class="control-label">出金卡号：</label>
+					<input name="payAcctNo" class="form-control" type="text" placeholder="出金卡号" autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">出金户名：</label>
+					<input name="payAcctName" class="form-control" type="text" placeholder="出金户名" autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">提款卡号：</label>
+					<input name="recAcctNo" class="form-control" type="text" placeholder="提款卡号" autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">提款户名：</label>
+					<input name="recAcctName" class="form-control" type="text" placeholder="提款户名" autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">领单操作员：</label>
+					<input name="operatorName" class="form-control" type="text" placeholder="领单操作员"
+						autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">财务处理时长：</label>
+					<input name="startTakeTime" class="form-control importWidth" type="text" placeholder="起止范围"
+						autocomplete="off" />
+					<input name="endTakeTime" class="form-control importWidth" type="text" placeholder="结束范围"
+						autocomplete="off" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">创建时间：</label>
+					<input type="text" name="tradeCreateTime" id="fee_tradeCreateTime" class="form-control dateranges"
+						placeholder="创建时间" autocomplete="off" readonly="readonly" />
+				</div>
+				<div class="form-group">
+					<label class="control-label">完成时间：</label>
+					<input type="text" name="tradePayTime" id="tradePayTime" class="form-control dateranges"
+						placeholder="完成时间" autocomplete="off" readonly="readonly" />
+				</div>
+
+				<div class="form-group pull-right">
+					<button id="query_fee_button" type="button" class="btn btn-primary refreshBtn">
+						<i class="fa fa-search"></i>查询
+					</button>
+					<button type="button" class="btn btn-default" onclick="fee_resetButton()">
+						<i class="fa fa-refresh"></i> 重置
+					</button>
+				</div>
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<div class="content_center_table">
+			<button type="button" class="btn btn-primary" onclick="fee_download()" style="margin-bottom: 6px;">
+				导出excel
+			</button>
+			<button type="button" class="btn btn-primary" onclick="fee_againRoute()" style="margin-bottom: 6px;">
+				重发通知
+			</button>
+			<p class="marginBottom">
+				总笔数：<span class="totalCount"></span>笔 总金额：<span class="totalAmt"></span>元 成功金额：<span
+					class="successAmt"></span>元
+				成功总笔数：<span class="successCount"></span>笔 手续费：<span class="successFeeAmt"></span>元
+			</p>
+			<table cellpadding="0" cellspacing="0" border="0" id="fee_Table" class="table table-bordered table-hover">
+			</table>
+		</div>
+	</div>
+</div>
+<style type="text/css">
+	#fee_Table.table {
+		width: 4000px;
+	}
+</style>
+<script>
+	$(function () {
+		initDate();
+		listOptionInit($("#TransStatus_select"), PAY_STATUS);
+		$("#TransStatus_select").comboSelect();
+
+		listOptionInit($("#isFirst_selectFee"), IS_STATUS);
+		$("#isFirst_selectFee").comboSelect();
+		listOptionInit($("#isSplit_selectFee"), IS_STATUS);
+		$("#isSplit_selectFee").comboSelect();
+
+		feequery_Table();
+		totalInfo();
+	});
+
+	// 重置
+	function fee_resetButton() {
+		$("#query_fee_Form")[0].reset();
+		var firstDay = sys_formatDate(new Date().setDate(1)) + ' 00:00:00';
+		var lastDay = getCurrentMonthLast() + ' 23:59:59';
+		$('#fee_tradeCreateTime').val(firstDay + ' - ' + lastDay);
+	}
+	// 搜索
+	$("#query_fee_button").click(function () {
+		inputPayfee();
+	});
+	// 时长校验
+	var regexpTime = /^\+?[0-9][0-9]*$/;
+	function inputPayfee() {
+		var paramForm = $("#query_fee_Form").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		var payAcceptTime = $("#fee_tradeCreateTime").val();
+		if (payAcceptTime != "") {
+			payAcceptTimestart = payAcceptTime.split(" - ")[0];
+			payAcceptTimeEnd = payAcceptTime.split(" - ")[1];
+		
+			var start = parserDate(payAcceptTimestart),
+				end = parserDate(payAcceptTimeEnd);
+			if(start.getFullYear() != end.getFullYear()){
+				Ewin.alert({
+					message: "暂不支持跨年查询"
+				});
+				return;
+			}else if (start.getMonth()+1 != end.getMonth()+1) {
+				Ewin.alert({
+					message: "暂不支持跨月查询"
+				});
+				return;
+			}
+		}
+		if (parseInt(params.startTakeTime) > parseInt(params.endTakeTime)) {
+			Ewin.alert({
+				message: '起始范围不能大于结束范围'
+			});
+			return false;
+		}
+		if (params.startTakeTime) {
+			if (!regexpTime.test(params.startTakeTime)) {
+				Ewin.alert({
+					message: '请输入正确的时长'
+				});
+				return false;
+			}
+		}
+
+		if (params.endTakeTime) {
+			if (!regexpTime.test(params.endTakeTime)) {
+				Ewin.alert({
+					message: '请输入正确的时长'
+				});
+				return false;
+			}
+		}
+		$("#fee_Table").bootstrapTable("refresh");
+		totalInfo();
+	}
+	// 总笔数等信息
+	function totalInfo() {
+		var paramForm = $("#query_fee_Form").serializeArray();
+		var params = {};
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		if (params.tradeCreateTime) {
+			params.startTime = params.tradeCreateTime.substring(0, 19);
+			params.endTime = params.tradeCreateTime.substring(21, 41);
+		}
+		if (params.tradePayTime) {
+			params.startPayTime = params.tradePayTime.substring(0, 19);
+			params.endPayTime = params.tradePayTime.substring(21, 41);
+		}
+		delete params.tradeCreateTime;
+		delete params.tradePayTime;
+		sendAjax(
+			"POST",
+			host_url + "/cloud-web/corePayTransFlow/realTimeStatis",
+			params,
+			function (res) {
+				var data = res.rows;
+
+				if (data == "") {
+					$(".totalCount").html("0");
+					$(".totalAmt").html(formatterMoney("0"));
+					$(".successAmt").html(formatterMoney("0"));
+					$(".successFeeAmt").html(formatterMoney("0"));
+					$(".successCount").html("0");
+				} else {
+					$(".totalCount").html(data.totalCount);
+					if (data.totalAmt) {
+						$(".totalAmt").html(formatterMoney(data.totalAmt));
+					} else {
+						$(".totalAmt").html(formatterMoney("0"));
+					}
+					if (data.successAmt) {
+						$(".successAmt").html(formatterMoney(data.successAmt));
+					} else {
+						$(".successAmt").html(formatterMoney("0"));
+					}
+					if (data.successFeeAmt) {
+						$(".successFeeAmt").html(
+							formatterMoney(data.successFeeAmt)
+						);
+					} else {
+						$(".successFeeAmt").html(formatterMoney("0"));
+					}
+					$(".successCount").html(data.successCount);
+				}
+			}
+		);
+	}
+	function initDate() {
+		// 初始化双日历日期控件--创建时间
+		var firstDay = sys_formatDate(new Date().setDate(1)) + ' 00:00:00';
+		var lastDay = getCurrentMonthLast() + ' 23:59:59';
+		$('#fee_tradeCreateTime').val(firstDay + ' - ' + lastDay);
+		$("#fee_tradeCreateTime").daterangepicker({
+			timePicker: true,
+			timePickerIncrement: 1,
+			format: "YYYY-MM-DD HH:mm:ss",
+			startDate: firstDay,
+			endDate: lastDay,
+			opens: "center"
+		},
+			function (start, end, label) { }
+		);
+		$("#tradePayTime").daterangepicker({
+			timePicker: true,
+			timePickerIncrement: 1,
+			format: "YYYY-MM-DD HH:mm:ss",
+			// startDate: firstDay,
+			// endDate: lastDay,
+			opens: "center"
+		},
+			function (start, end, label) { }
+		);
+	}
+
+	/*表格加载*/
+	function feequery_Table() {
+		$("#fee_Table").bootstrapTable({
+			url: host_url + "/cloud-web/corePayTransFlow/pageList",
+			method: "GET",
+			dataType: "json",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			pagination: true, //在表格底部显示分页工具栏
+			pageNumber: 1,
+			pageList: [20, 50, 100],
+			clickToSelect: true,
+			sidePagination: "server", //表格分页的位置
+			cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+			locale: "zh-CN", //中文支持
+			queryParamsType: "limit",
+			queryParams: function (params) {
+				params.pageSize = params.limit; //页面大小
+				params.page = params.offset / params.limit + 1; //页码
+				params._sys_login_token = _get_sys_login_token();
+
+				var paramForm = $("#query_fee_Form").serializeArray();
+				$.each(paramForm, function (i, param) {
+					params[param.name] = $.trim(param.value);
+				});
+				if (params.tradeCreateTime) {
+					params.startTime = params.tradeCreateTime.substring(0, 19);
+					params.endTime = params.tradeCreateTime.substring(21, 41);
+				}
+				if (params.tradePayTime) {
+					params.startPayTime = params.tradePayTime.substring(0, 19);
+					params.endPayTime = params.tradePayTime.substring(21, 41);
+				}
+				delete params.tradeCreateTime;
+				delete params.tradePayTime;
+				return params;
+			}, //参数
+			columns: [
+				{
+					title: "全选",
+					checkbox: true,
+					width: 30,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					title: "序号",
+					width: 30,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						var options = $("#fee_Table").bootstrapTable(
+							"getOptions"
+						);
+						return (
+							(options.pageNumber - 1) * options.pageSize +
+							index +
+							1
+						);
+					}
+				},
+				{
+					field: "customerNo",
+					title: "平台号",
+					width: 170,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "customerName",
+					title: "平台名称",
+					width: 150,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "userAcct",
+					title: "用户名",
+					width: 180,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "userName",
+					title: "真实姓名",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "orderAmt",
+					title: "订单金额(元)",
+					width: 120,
+					align: "right",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return formatterMoney(value);
+					}
+				},
+				{
+					field: "payAmt",
+					title: "提款金额(元)",
+					width: 120,
+					align: "right",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return formatterMoney(value);
+					}
+				},
+				{
+					field: "feeAmt",
+					title: "手续费(元)",
+					width: 60,
+					align: "right",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return formatterMoney(value);
+					}
+				},
+				{
+					field: "status",
+					title: "订单状态",
+					width: 60,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return visualParams(PAY_STATUS, value);
+					}
+				},
+				{
+					field: "settleModel",
+					title: "结算方式",
+					width: 120,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return visualParams(TRANS_STATUS, value);
+					}
+				},
+				{
+					field: "userAliasName",
+					title: "账户别名",
+					width: 120,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "payAcctName",
+					title: "出金户名",
+					width: 120,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "payAcctNo",
+					title: "出金卡号",
+					width: 200,
+					align: "center",
+					valign: "middle"
+				},
+				/*{field:'channelCode',title:'渠道编码',width:100,align:"center",valign:"middle"},*/
+				// {field:'channelName',title:'渠道名称',width:100,align:"center",valign:"middle"},
+				{
+					field: "recAcctName",
+					title: "提款户名",
+					width: 120,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "recAcctNo",
+					title: "提款卡号",
+					width: 220,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "recBankName",
+					title: "提款银行",
+					width: 150,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "recSubBankName",
+					title: "开户支行",
+					width: 100,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "cusOrderNo",
+					title: "客户单号",
+					width: 250,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "orderNo",
+					title: "平台流水号",
+					width: 250,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "splitOrderNo",
+					title: "拆单流水号",
+					width: 250,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "channelFlowNo",
+					title: "渠道流水号",
+					width: 200,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "operatorName",
+					title: "领单操作员",
+					width: 150,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						if (value == "") {
+							return "-";
+						} else {
+							return value;
+						}
+					}
+				},
+				{
+					field: "operatorCode",
+					title: "领单操作员账号",
+					width: 150,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						if (value == "") {
+							return "-";
+						} else {
+							return value;
+						}
+					}
+				},
+				{
+					field: "operatorTime",
+					title: "财务领单时间",
+					width: 200,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						if (value == null) {
+							return "-";
+						} else {
+							return getDateStr(value);
+						}
+					}
+				},
+				{
+					field: "handleTime",
+					title: "财务办理时间",
+					width: 200,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						if (value == null) {
+							return "-";
+						} else {
+							return getDateStr(value);
+						}
+					}
+				},
+				{
+					field: "takeTime",
+					title: "财务处理时长（秒）",
+					width: 70,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						if (row.status == 20) {
+							return "-";
+						} else {
+							return value;
+						}
+					}
+				},
+				{
+					field: "operatorRemark",
+					title: "财务备注",
+					width: 250,
+					align: "center",
+					valign: "middle"
+				},
+				{
+					field: "isFirst",
+					title: "是否首次提款",
+					width: 70,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return visualParams(IS_STATUS, value);
+					}
+				},
+				{
+					field: "isSplit",
+					title: "是否拆单",
+					width: 70,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return visualParams(IS_STATUS, value);
+					}
+				},
+				{
+					field: "isTimeout",
+					title: "是否办理超时",
+					width: 70,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return visualParams(IS_STATUS, value);
+					}
+				},
+				{
+					field: "routeName",
+					title: "班次名称",
+					width: 100,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						if (value == "") {
+							return "-";
+						} else {
+							return value;
+						}
+					}
+				},
+				{
+					field: "payTime",
+					title: "完成时间",
+					width: 200,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return getDateStr(value);
+					}
+				},
+				{
+					field: "createTime",
+					title: "创建时间",
+					width: 200,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return getDateStr(value);
+					}
+				},
+				{
+					field: "updateTime",
+					title: "更新时间",
+					width: 200,
+					align: "center",
+					valign: "middle",
+					formatter: function (value, row, index) {
+						return getDateStr(value);
+					}
+				}
+			],
+			onClickRow: function (row, $element) {
+				$($element)
+					.addClass("table_info")
+					.siblings()
+					.removeClass("table_info");
+			},
+			onLoadSuccess: function (res) {
+				//加载成功时执行
+			}
+		});
+	}
+	// 导出
+	function fee_download() {
+		var params = {};
+		params._sys_login_token = _get_sys_login_token();
+
+		var paramForm = $("#query_fee_Form").serializeArray();
+		$.each(paramForm, function (i, param) {
+			params[param.name] = $.trim(param.value);
+		});
+		if (params.tradeCreateTime) {
+			params.startTime = params.tradeCreateTime.substring(0, 19);
+			params.endTime = params.tradeCreateTime.substring(21, 41);
+			
+			var startMonth = parserDate(params.startTime),
+				endMonth = parserDate(params.endTime);
+			if(startMonth.getFullYear() != endMonth.getFullYear()){
+				Ewin.alert({
+					message: "暂不支持跨年下载"
+				});
+				return;
+			}else if (startMonth.getMonth()+1 != endMonth.getMonth()+1) {
+				Ewin.alert({
+					message: "暂不支持跨月下载"
+				});
+				return;
+			}
+		}
+		var start = parserDate(params.startTime).getTime(),
+			end = parserDate(params.endTime).getTime();
+		if (start > end) {
+			Ewin.alert({
+				message: "创建时间的开始时间不能大于结束时间"
+			});
+			return;
+		} else {
+			// 259200000 = 1000*60*60*24*3
+			if (end - start > 259200000) {
+				Ewin.alert({
+					message: "创建时间的时间间隔不能超过3天"
+				});
+				return;
+			}
+		}
+		if (params.tradePayTime) {
+			params.startPayTime = params.tradePayTime.substring(0, 19);
+			params.endPayTime = params.tradePayTime.substring(21, 41);
+		}
+		delete params.tradeCreateTime;
+		delete params.tradePayTime;
+
+		var url = "";
+		$.each(params, function (i, item) {
+			url += "&" + i + "=" + item;
+		});
+		if (params.tradeCreateTime == "" && params.tradePayTime == "") {
+			Ewin.alert({ message: "未选择时间范围筛选，仅下载当天数据" }).on(
+				function (e) {
+					if (e) {
+						sendAjax('POST', host_url + "/cloud-web/corePayTradeFlow/checkDown", {}, function (res) {
+							window.location.href =
+								host_url +
+								"/cloud-web/corePayTransFlow/down?" +
+								url;
+						});
+					}
+				}
+			);
+		} else {
+			sendAjax('POST', host_url + "/cloud-web/corePayTradeFlow/checkDown", {}, function (res) {
+				window.location.href =
+					host_url + "/cloud-web/corePayTransFlow/down?" + url;
+			});
+		}
+	}
+	// 重发通知
+	function fee_againRoute() {
+		var fee_Table = $("#fee_Table").bootstrapTable("getSelections");
+		//将选中行数据转成jsonStr
+		var jsonStr = JSON.stringify(fee_Table);
+		//将jsonStr转成jsonObject对象
+		var jsonObject = jQuery.parseJSON(jsonStr);
+		if (jsonObject.length == 0) {
+			Ewin.alert({ message: "请选中一行" });
+		} else {
+			var feeIds = [];
+			$.each(jsonObject, function (i, item) {
+				feeIds += item.id + ",";
+			});
+			feeIds = feeIds.slice(0, feeIds.length - 1);
+
+			Ewin.confirm({ message: "是否进行此操作？" }).on(function (e) {
+				if (e) {
+					//成功
+					sendAjax(
+						"POST",
+						host_url + "/cloud-web/corePayTransFlow/againRoute",
+						{ ids: feeIds },
+						function (res) {
+							Ewin.alert({ message: "恭喜你，操作成功！" }).on(
+								function (e) {
+									if (e) {
+										//重新加载
+										$("#table_authMenu").bootstrapTable(
+											"refresh"
+										);
+									}
+								}
+							);
+						}
+					);
+				}
+			});
+		}
+	}
+</script>

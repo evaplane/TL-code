@@ -1,0 +1,47 @@
+<div class="content_center" id='bastionHostTip'>
+        <table cellpadding="0" cellspacing="0" border="0" id="configBastionHostTable" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th width="5%">序号</th>
+                    <th width="20%">ip地址</th>
+                    <th width="25%">地址备注</th>
+                    <th width="15%">返回码</th>
+                    <th>返回描述</th>
+                </tr>
+            </thead>
+            <tbody id='tipTb'></tbody>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="bastionHostTipClose()">关闭</button>
+    </div>
+    <script src="../../../js/lib/template-web.js"></script>
+    <script type="text/html" id="template1" >
+        <div>
+            {{each rows as value i}}
+                <tr>
+                    <td>{{i+1}}</td>
+                    <td>{{value.ip}}</td>
+                    <td>{{value.remark}}</td>
+                    <td>{{value.code}}</td>
+                    <td>{{value.msg}}</td>
+                </tr>
+            {{/each}}
+        </div>
+    </script>
+    <script>
+        $(function(){
+            var res = JSON.parse(getQueryString('res'));
+            $('#bastionHostTip').parents('.modal-content').css('height','auto');
+            $('#bastionHostTip').parents('.modal-content').css('width','500px');
+            $('#bastionHostTip').parents('.modal-content').css('margin','200px auto');
+            $('#bastionHostTip').parents('.modal-content').find('.close').css('display','none');
+            var html = template('template1', res);
+            document.getElementById('tipTb').innerHTML = html;
+        })
+
+        function bastionHostTipClose(){
+            $('#configBastionHostTable').parents('.modal').modal('hide');
+            $("#bastionHostTable").bootstrapTable('refresh');
+        }
+    </script>

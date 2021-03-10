@@ -1,0 +1,124 @@
+<div class="content_center">
+	<div class="content_center_content">
+		<form class="form-horizontal" name="edit_form" role="form"  id="edit_form">
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>�����̺�</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_dlsCode" name="dlsCode" placeholder="����������̺�"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>���������</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_dlsName" name="dlsName" placeholder="��������������"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>��ֵ���</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_payAmt" name="payAmt" placeholder="�������ֵ���"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>״̬</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_status" name="status" placeholder="������״̬"  autocomplete="off">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>������</label>
+					<div class="col-xs-8 col-sm-7">
+						<input type="text" class="form-control" id="edit_createUser" name="createUser" placeholder="�����봴����"  autocomplete="off">
+					</div>
+				</div>
+			<!-- ������ -->
+			<input id="edit_id" name="id" class="form-control" type="hidden">
+		</form>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">ȡ��</button>
+			<button type="button" class="btn btn-primary" onclick="_doSubmit();">ȷ��</button>
+		</div>
+	</div>
+</div>
+
+<!--�����·�д��ҳ��ҵ����صĽű�-->
+<script type="text/javascript">
+$(function(){
+	_validateForm();
+	var edit_id = getQueryString('id');
+	var url = host_url+"/cloud-web/dlsAcctFlow/view";
+	sendAjax( 'POST', url, {'id':edit_id}, function(res){
+		var data=res.rows;
+		$('#edit_id').val(data.id);
+		$('#edit_dlsCode').val(data.dlsCode);
+		$('#edit_dlsName').val(data.dlsName);
+		$('#edit_payAmt').val(data.payAmt);
+		$('#edit_status').val(data.status);
+		$('#edit_createUser').val(data.createUser);
+	});
+});
+
+//��ʼ����֤���
+function _validateForm(){
+	//���б?��֤
+   	$('#edit_form').bootstrapValidator({
+		message: '����ֵ���Ϸ�',
+        feedbackIcons: {valid: 'glyphicon glyphicon-ok',invalid: 'glyphicon glyphicon-remove',validating: 'glyphicon glyphicon-refresh'},
+        fields: {
+			dlsCode:{
+				message: '�����̺���֤ʧ��',
+				validators: {
+                	notEmpty: {message: '�����̺Ų���Ϊ��'}
+              	}
+			},
+			dlsName:{
+				message: '�����������֤ʧ��',
+				validators: {
+                	notEmpty: {message: '��������Ʋ���Ϊ��'}
+              	}
+			},
+			payAmt:{
+				message: '��ֵ�����֤ʧ��',
+				validators: {
+                	notEmpty: {message: '��ֵ����Ϊ��'}
+              	}
+			},
+			status:{
+				message: '״̬��֤ʧ��',
+				validators: {
+                	notEmpty: {message: '״̬����Ϊ��'}
+              	}
+			},
+			createUser:{
+				message: '��������֤ʧ��',
+				validators: {
+                	notEmpty: {message: '�����˲���Ϊ��'}
+              	}
+			},
+     	}
+	});
+}
+
+//�ύ�?
+function _doSubmit(){
+	var bv = $('#edit_form').data('bootstrapValidator').validate();
+	if (!bv.isValid()) {//��֤��ͨ��
+		return;
+	}
+	
+	var paramForm = $("#edit_form").serializeArray();
+	var params = {};
+	$.each(paramForm, function(i, param){
+		params[param.name]=$.trim(param.value);
+	});
+	sendAjax( 'POST', host_url+"/cloud-web/dlsAcctFlow/editSubmit", params, function(res){
+		Ewin.alert({ message: '��ϲ�㣬�����ɹ���' }).on(function(e){
+			if(e){
+				$('#edit_form').parents('.modal').modal('hide');
+				$(".table").bootstrapTable('refresh');
+			}
+		});
+	});
+}
+</script> 
+

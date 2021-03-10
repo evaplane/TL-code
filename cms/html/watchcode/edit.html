@@ -1,0 +1,199 @@
+<form class="form-horizontal" name="add_form" role="form"  id="add_form">
+    <div class="form-horizontal">
+        <div class="form-group" style="overflow: visible">
+            <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>组名：</label>
+            <div class="col-xs-8 col-sm-8">
+                <select id="edit_groupIdLabel" name="groupCode" ref="edit_groupName" class="form-control change">
+                </select>
+                <input type="hidden" id="edit_groupName" name="groupName" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>微信号：</label>
+            <div class="col-xs-8 col-sm-8">
+                <input type="text" class="form-control" id="edit_watchCode" name="watchCode" placeholder="请输入微信号" autocomplete="off">
+                <input id="edit_id" name="id" class="form-control" type="hidden">
+            </div>
+        </div>
+        <div class="form-group">
+            <form enctype="multipart/form-data">
+                <label class="control-label col-xs-4 col-sm-3"><span class="red">*</span>上传二维码：</label>
+                <div class="col-xs-8 col-sm-8">
+                    <input id="file-0" type="file" class="file" data-upload-url="#">
+                </div>
+            </form>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-xs-4 col-sm-3">二维码短链接：</label>
+            <div class="col-xs-8 col-sm-8">
+                <input type="text" class="form-control" id="edit_wxCodeUrl" name="wxCodeUrl" placeholder="请输入二维码短链接" autocomplete="off">
+            </div>
+        </div>
+
+    </div>
+</form>
+<div class="modal-footer" style="padding-bottom: 0;">
+    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+    <button type="button" class="btn btn-primary" id="submit" onclick="_doSubmit()">提交</button>
+</div>
+
+<script type="text/javascript">
+    var uploadImgName="";
+    var init_id = getQueryString('id');
+    $(function(){
+        //加载参数
+        var params = {
+            id: init_id,
+            _sys_login_token:login_token()
+        };
+        sendAjax( 'POST', host_url+"/wxinfo/init", params, function(res){
+            var data=res.rows;
+            // 组名
+            $("#edit_groupName").val(data.groupName);
+            groupNameLabel($('#edit_groupIdLabel'),data.groupCode);
+            $("#edit_wxCodeUrl").val(data.wxCodeUrl);
+
+            $("#edit_watchCode").val(data.watchCode);
+            $('.file-drop-zone-title').attr("style","padding:0;").html('<div class="file-preview-frame"><img src="'+data.qrcodeUrl+'"/></div>')
+            $(".file-caption-name").html(data.fileName).attr("title",data.fileName);
+            $('#edit_id').html(data.id);
+        });
+    })
+
+    //获取组名列表
+    function groupNameLabel(groupNameObj, oldId) {
+
+        var str = "";
+        sendAjax("GET", host_url + "/group/list", { _sys_login_token:login_token()}, function(data) {
+            var isFind = false;
+            //清空下拉数据
+            groupNameObj.html("");
+            groupNameObj.html("<option value=''>-- 请选择 --</option>");
+            $.each(data.rows, function(i, item) {
+                if (oldId == item.groupCode) {
+                    str += "<option value=" + item.groupCode + " selected='selected'>" + item.groupName + "</option>";
+                    isFind = true;
+                } else {
+                    str += "<option value=" + item.groupCode + ">" + item.groupName + "</option>";
+                }
+            });
+
+            if (!isFind) {
+                groupNameObj.html("");
+                str = "<option value=''>-- 请选择 --</option>" + str;
+            }
+            //将数据添加到这个下拉框里面
+
+            groupNameObj.append(str);
+            groupNameObj.comboSelect({
+                extendStyle: false
+            });
+
+        });
+    }
+
+    $("#file-0").fileinput({
+        uploadExtraData: {
+            kvId: '10'
+        },
+        allowedFileExtensions: ['jpg', 'png', 'gif'],
+    });
+
+    $(".btn-warning").on('click', function() {
+        if ($('#file-0').attr('disabled')) {
+            $('#file-0').fileinput('enable');
+        } else {
+            $('#file-0').fileinput('disable');
+        }
+    });
+
+    $(".btn-info").on('click', function() {
+        $('#file-0').fileinput('refresh', {
+            previewClass: 'bg-info'
+        });
+    });
+
+    fileUpload();
+
+    //文件上传
+    function fileUpload() {
+        var test = document.getElementById("file-0");
+        test.addEventListener('change', function() {
+            var fileObj = document.getElementById("file-0").files[0]; // js 获取文件对象
+            console.log(fileObj);
+            document.getElementById("file-0").value = '';
+            var url = host_url + "/file/upload?_sys_login_token="+login_token(); // 接收上传文件的后台地址
+            var form = new FormData(); // FormData 对象
+            form.append("file", fileObj);
+            xhr = new XMLHttpRequest(); // XMLHttpRequest 对象
+            xhr.open("post", url, true); //post方式，url为服务器请求地址，true 该参数规定请求是否异步处理。
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var obj = JSON.parse(xhr.responseText);
+                    if (obj.retCode === '000000') {
+                        // uploadImgName = obj.retMsg;
+                    } else {
+                        Ewin.alert({
+                            message: obj.retMsg
+                        });
+                        return false;
+                    }
+                } else {
+                    Ewin.alert({
+                        message: obj.retMsg
+                    });
+                    return false;
+                }
+            };
+            xhr.send(form); //开始上传，发送form数据
+        })
+    }
+
+    function _doSubmit() {
+        var watchCode = $("#edit_watchCode").val();
+        var uploadImgName = $(".input-group .file-caption-name").text();
+        var img_host_url = host_url.replace("/cms","");
+        var qrcodeUrl =  img_host_url + uploadImg_url + uploadImgName;
+        var id =$('#edit_id').text();
+
+        var groupCode = $("#edit_groupIdLabel").find("option:checked").val();
+        if(groupCode!=""){
+            var groupName = $("#edit_groupIdLabel").find("option:checked").text();
+        }else{
+            var groupName = "";
+        }
+        if (watchCode == "") {
+            Ewin.alert({
+                message: "微信号不能为空!"
+            });
+            return false;
+        } else if (uploadImgName == "") {
+            Ewin.alert({
+                message: "请先上传微信二维码!"
+            });
+            return false;
+        } else {
+            var watchCodeStr = $("#edit_watchCode").val();
+            var watchCode = watchCodeStr.replace(/\s/g,"");
+            var params = {
+                _sys_login_token:login_token(),
+                watchCode: watchCode,
+                qrcodeUrl: qrcodeUrl,
+                id :id,
+                groupName:groupName,
+                groupCode:groupCode,
+                wxCodeUrl:$("#edit_wxCodeUrl").val()
+            }
+            sendAjax( 'POST', host_url+"/wxinfo/addAndEditWxInfo", params, function(res){
+                Ewin.alert({ message: '恭喜你，操作成功！' }).on(function(e){
+                    if(e){
+                        $('#add_form').parents('.modal').modal('hide');
+                        $(".table").bootstrapTable('refresh');
+                        $('#submit').attr('disabled',false);
+                    }
+                });
+            });
+        }
+    }
+
+</script>

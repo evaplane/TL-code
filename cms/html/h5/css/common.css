@@ -1,0 +1,225 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+html,body{
+    height: 100%;
+}
+a{
+    text-decoration: none;
+    color: black;
+}
+li{
+    
+list-style:none;
+}
+
+/* index.html */
+.footer{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    font-size: 0.5rem;
+    border-top: 1px solid #ccc;
+    z-index: 999;
+}
+.footer a.active{
+    color: red;
+    background-color: #eee;
+}
+.footer a{
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+}
+.footer .mui-row div:first-of-type a{
+    border-right: 1px solid #ccc;
+}
+#userBox{
+    height: 6.25rem;
+}
+#logo{
+    margin: 2.34rem auto 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 100%;
+    background-color: #eee;
+}
+#logo img{
+    width: 100%;
+    height: 100%;
+    border-radius: 100%;
+}
+#userName{
+    width: 100%;
+    text-align: center;
+    padding: 0.4rem;
+    font-size: 0.5rem;
+}
+#userContent{
+    margin-top: 5px;
+    font-size: 0.5rem;
+}
+#userContent a{
+    color: black;
+    width: 100%;
+    height: 100%;
+    line-height: 0.93rem;
+}
+#userContent span{
+    float: right;
+}
+#userContent .infoBox{
+    height: 1.2rem;
+    padding: 0.1rem 0.31rem;
+}
+#userContent .infoBox a{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: space-between;
+}
+#logout{
+    padding: 50px 6px;
+}
+#logout .logoutButton{
+    width: 100%;
+}
+header{
+    width: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: #eee;
+    z-index: 999;
+    padding: 0 10px;
+}
+.searchBox{
+    padding: 4px 0;
+    display: flex;
+}
+.searchBox .iconBox{
+    position: absolute;
+    width: 42px;
+    height: 80%;
+    right: 0;
+    display: flex;
+    align-items: center;
+}
+.searchBox .seachIcon{
+    font-size: 16px;
+    color: #ccc;
+}
+#searchInput{
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    padding: 6px;
+    flex: 1;
+}
+/* userInfo.html */
+#userInfo{
+    font-size: 0.5rem;
+}
+#userInfo label{
+    text-align: right;
+}
+#userInfo span{
+    display: inline-block;
+    height: 100%;
+    line-height: 40px;
+}
+
+#mySwitch .statusButton{
+    margin: 5px auto;
+}
+/* login.html */
+#login{
+    margin-top: 200px;
+}
+#login label{
+    font-size: 0.5rem;
+}
+#login button{
+    width: 100%;
+}
+#login .mui-button-row{
+    padding: 4px 10px;
+}
+/* 二维码样式 */
+#refreshContainer{
+    height: 100%;
+    padding: 0 10px 60px;
+    position: relative;
+    overflow-y: auto;
+    margin-top: 8px;
+}
+#refreshContainer .twoDContent{
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    display: flex;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+#refreshContainer #contentBox{
+    border-radius: 10px;
+}
+#refreshContainer .twoDContent .left{
+    width: 63px;
+    height: 100%;
+    margin-right: 10px;
+}
+#refreshContainer .twoDContent .left img{
+    width: 100%;
+    height: 100%;
+}
+#refreshContainer .twoDContent .center{
+    flex: 1;
+}
+#refreshContainer .twoDContent .right{
+    width: 1.56rem;
+}
+#refreshContainer .twoDContent .center p{
+    margin: 0;
+    padding: 0;
+    color: #000;
+}
+
+/* edit.html */
+#edit{
+    font-size: .4rem;
+}
+#edit .fileCheckBox{
+    height: 180px;
+}
+#edit label{
+    text-align: right;
+}
+#edit .flieCheck{
+    width: 65%;
+    height: 100%;
+    float: right;
+}
+#edit .flieCheck img{
+    width: 100%;
+    height: 100%;
+}
+#edit .clickFile{
+    width: 100%;
+    height: 100%;
+}
+#edit .clickFile .fileName{
+    float: left;
+    width: 65%;
+}
+#edit .clickFile .fileButton{
+    width: 25%;
+}
+#edit .submitButton{
+    width: 96%;
+}
